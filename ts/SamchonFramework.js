@@ -1266,6 +1266,9 @@ var XML = (function (_super) {
     XML.prototype.getProperty = function (key) {
         return this.properties.get(key);
     };
+    XML.prototype.getPropertyMap = function () {
+        return this.properties;
+    };
     /* -------------------------------------------------------------
         SETTERS
     ------------------------------------------------------------- */
@@ -1326,13 +1329,20 @@ var XML = (function (_super) {
         else
             this.properties.erase(key);
     };
-    XML.prototype.push = function (xml) {
-        if (this.has(xml.tag) == true)
-            this.get(xml.tag).push(xml);
-        else {
-            var xmlList = new XMLList();
-            xmlList.push(xml);
-            this.set(xml.tag, xmlList);
+    XML.prototype.push = function () {
+        var xmlArray = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            xmlArray[_i - 0] = arguments[_i];
+        }
+        for (var i = 0; i < xmlArray.length; i++) {
+            var xml = xmlArray[i];
+            if (this.has(xml.tag) == true)
+                this.get(xml.tag).push(xml);
+            else {
+                var xmlList = new XMLList();
+                xmlList.push(xml);
+                this.set(xml.tag, xmlList);
+            }
         }
     };
     XML.prototype.addAllProperties = function (xml) {
@@ -1946,13 +1956,41 @@ var Entity = (function () {
         //NOTHING
     }
     Entity.prototype.construct = function (xml) {
-        //SOMETHING TO COMPOSE MEMBER DATA
+        // MEMBER VARIABLES; ATOMIC
+        var propertyMap = xml.getPropertyMap();
+        for (var v_it = propertyMap.begin(); v_it.equals(propertyMap.end()) != true; v_it = v_it.next())
+            if (this.hasOwnProperty(v_it.first) == true && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string"))
+                this[v_it.first] = v_it.second;
+        // MEMBER ENTITIES
+        for (var e_it = xml.begin(); e_it.equals(xml.end()) != true; e_it = e_it.next()) {
+            if (this.hasOwnProperty(e_it.first) == true
+                && e_it.second.length == 1
+                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)) {
+                var entity = this[e_it.first];
+                var e_xml = e_it.second[0];
+                entity.construct(e_xml);
+            }
+        }
     };
     Entity.prototype.TAG = function () { return ""; };
     Entity.prototype.key = function () { return ""; };
     Entity.prototype.toXML = function () {
         var xml = new XML();
         xml.setTag(this.TAG());
+        // MEMBERS
+        for (var key in this) {
+            if (typeof key != "string")
+                continue;
+            if (typeof this[key] == "string" || typeof this[key] == "number") {
+                // ATOMIC
+                xml.setProperty(key, this[key]);
+            }
+            else if (this[key] instanceof Entity || this[key] instanceof EntityArray) {
+                // ENTITY
+                var entity = this[key];
+                xml.push(entity.toXML());
+            }
+        }
         return xml;
     };
     return Entity;
@@ -2012,6 +2050,23 @@ var EntityArray = (function (_super) {
      */
     EntityArray.prototype.construct = function (xml) {
         this.splice(0, this.length);
+        // MEMBER VARIABLES; ATOMIC
+        var propertyMap = xml.getPropertyMap();
+        for (var v_it = propertyMap.begin(); v_it.equals(propertyMap.end()) != true; v_it = v_it.next())
+            if (this.hasOwnProperty(v_it.first) == true && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string"))
+                this[v_it.first] = v_it.second;
+        // MEMBER ENTITIES
+        for (var e_it = xml.begin(); e_it.equals(xml.end()) != true; e_it = e_it.next()) {
+            if (this.hasOwnProperty(e_it.first) == true
+                && e_it.first != this.CHILD_TAG()
+                && e_it.second.length == 1
+                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)) {
+                var entity = this[e_it.first];
+                var e_xml = e_it.second[0];
+                entity.construct(e_xml);
+            }
+        }
+        //CHILDREN
         if (xml.has(this.CHILD_TAG()) == false)
             return;
         var xmlList = xml.get(this.CHILD_TAG());
@@ -2086,8 +2141,23 @@ var EntityArray = (function (_super) {
     EntityArray.prototype.toXML = function () {
         var xml = new XML();
         xml.setTag(this.TAG());
+        // MEMBERS
+        for (var key in this) {
+            if (typeof key != "string")
+                continue;
+            if (typeof this[key] == "string" || typeof this[key] == "number") {
+                // ATOMIC
+                xml.setProperty(key, this[key]);
+            }
+            else if (this[key] instanceof Entity || this[key] instanceof EntityArray) {
+                // ENTITY
+                var entity = this[key];
+                xml.push(entity.toXML());
+            }
+        }
         if (this.length == 0)
             return xml;
+        // CHILDREN
         var xmlList = new XMLList();
         for (var i = 0; i < this.length; i++)
             xmlList.push(this[i].toXML());

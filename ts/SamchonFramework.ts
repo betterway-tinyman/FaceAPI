@@ -1346,7 +1346,7 @@ class XML
      *                     {\"comment\", \"Hello. My name is Jeongho Nam\"}} </li>
      * </ul>
 	 */
-	private properties: Dictionary<string>;
+	private properties: Dictionary<any>;
 	
 	/* -------------------------------------------------------------
 		CONSTRUCTORS
@@ -1368,7 +1368,7 @@ class XML
 	{
 		super();
 
-		this.properties = new Dictionary<string>();
+        this.properties = new Dictionary<any>();
         this.value = "";
 
 		if (str.indexOf("<") == -1)
@@ -1619,6 +1619,11 @@ class XML
 		return this.properties.get(key);
 	}
 
+    public getPropertyMap(): Dictionary<any>
+    {
+        return this.properties;
+    }
+
 	/* -------------------------------------------------------------
 		SETTERS
 	------------------------------------------------------------- */
@@ -1687,16 +1692,21 @@ class XML
             this.properties.erase(key);
 	}
 
-    public push(xml: XML): void
+    public push(... xmlArray: XML[]): void
     {
-        if (this.has(xml.tag) == true)
-            this.get(xml.tag).push(xml);
-        else
+        for (var i: number = 0; i < xmlArray.length; i++)
         {
-            var xmlList:XMLList = new XMLList();
-            xmlList.push(xml);
+            var xml: XML = xmlArray[i];
 
-            this.set(xml.tag, xmlList);
+            if (this.has(xml.tag) == true)
+                this.get(xml.tag).push(xml);
+            else 
+            {
+                var xmlList: XMLList = new XMLList();
+                xmlList.push(xml);
+
+                this.set(xml.tag, xmlList);
+            }
         }
     }
 
@@ -2616,23 +2626,66 @@ interface IEntity {
  * @author Jeongho Nam
  */
 class Entity
-    implements IEntity {
+    implements IEntity 
+{
     /**
      * <p> Default Constructor. </p>
      */
-    constructor() {
+    constructor() 
+    {
         //NOTHING
     }
-    public construct(xml: XML): void {
-        //SOMETHING TO COMPOSE MEMBER DATA
+    public construct(xml: XML): void 
+    {
+        // MEMBER VARIABLES; ATOMIC
+        var propertyMap: Dictionary<any> = xml.getPropertyMap();
+
+        for (var v_it = propertyMap.begin(); v_it.equals(propertyMap.end()) != true; v_it = v_it.next())
+            if (this.hasOwnProperty(v_it.first) == true && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string"))
+                this[v_it.first] = v_it.second;
+
+        // MEMBER ENTITIES
+        for (var e_it = xml.begin(); e_it.equals(xml.end()) != true; e_it = e_it.next())
+        {
+            if (this.hasOwnProperty(e_it.first) == true 
+                && e_it.second.length == 1 
+                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray))
+            {
+                var entity:IEntity = this[e_it.first];
+                var e_xml:XML = e_it.second[0];
+
+                entity.construct(e_xml);
+            }
+        }
     }
 
     public TAG(): string { return ""; }
     public key(): any { return ""; }
 
-    public toXML(): XML {
+    public toXML(): XML 
+    {
         var xml: XML = new XML();
         xml.setTag(this.TAG());
+
+        // MEMBERS
+        for (var key in this) 
+        {
+            if (typeof key != "string") // NOT STRING, THEN IT MEANS CHILDREN (INT, INDEX)
+                continue;
+
+            if (typeof this[key] == "string" || typeof this[key] == "number") 
+            {
+                // ATOMIC
+                xml.setProperty(key, this[key]);
+            }
+            else if (this[key] instanceof Entity || this[key] instanceof EntityArray) 
+            {
+                // ENTITY
+                var entity: IEntity = this[key];
+
+                xml.push(entity.toXML());
+            }
+        }
 
         return xml;
     }
@@ -2700,6 +2753,29 @@ class EntityArray<_Ty extends IEntity>
     {
         this.splice(0, this.length);
 
+        // MEMBER VARIABLES; ATOMIC
+        var propertyMap: Dictionary<any> = xml.getPropertyMap();
+
+        for (var v_it = propertyMap.begin(); v_it.equals(propertyMap.end()) != true; v_it = v_it.next())
+            if (this.hasOwnProperty(v_it.first) == true && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string"))
+                this[v_it.first] = v_it.second;
+
+        // MEMBER ENTITIES
+        for (var e_it = xml.begin(); e_it.equals(xml.end()) != true; e_it = e_it.next()) 
+        {
+            if (this.hasOwnProperty(e_it.first) == true
+                && e_it.first != this.CHILD_TAG()
+                && e_it.second.length == 1
+                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)) 
+            {
+                var entity: IEntity = this[e_it.first];
+                var e_xml: XML = e_it.second[0];
+
+                entity.construct(e_xml);
+            }
+        }
+
+        //CHILDREN
         if (xml.has(this.CHILD_TAG()) == false)
             return;
 
@@ -2795,9 +2871,30 @@ class EntityArray<_Ty extends IEntity>
         var xml: XML = new XML();
         xml.setTag(this.TAG());
 
+        // MEMBERS
+        for (var key in this)
+        {
+            if (typeof key != "string") // NOT STRING, THEN IT MEANS CHILDREN (INT, INDEX)
+                continue;
+
+            if (typeof this[key] == "string" || typeof this[key] == "number")
+            {
+                // ATOMIC
+                xml.setProperty(key, this[key]);
+            }
+            else if (this[key] instanceof Entity || this[key] instanceof EntityArray)
+            {
+                // ENTITY
+                var entity:IEntity = this[key];
+
+                xml.push(entity.toXML());
+            }
+        }
+
         if (this.length == 0)
             return xml;
 
+        // CHILDREN
         var xmlList: XMLList = new XMLList();
         for (var i: number = 0; i < this.length; i++)
             xmlList.push(this[i].toXML());
@@ -3088,6 +3185,7 @@ class InvokeParameter
 			this.value = args[2];
 		}
 	}
+
     public construct(xml: XML): void
     {
         this.name = xml.hasProperty("name") ? xml.getProperty("name") : "";
