@@ -1,10 +1,15 @@
-/// <reference path='SamchonFramework.ts'/>
+/// <reference path="jquery.d.ts" />
+/// <reference path='SamchonFramework.ts' />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
+function main() {
+    var picture = new Picture("http://samchon.org/download/me.jpg");
+    picture.detectFaces();
+}
 /* ============================================================
     GLOBAL AND ABSTRACTS
         - GLOBAL
@@ -12,16 +17,27 @@ var __extends = (this && this.__extends) || function (d, b) {
         - POINT_ENTITY
         - I_JSON_ENTITY
 ============================================================ */
+/**
+ * 전역 클래스.
+ *
+ * @author 남정호
+ */
 var Global = (function () {
     function Global() {
     }
     Object.defineProperty(Global, "CERTIFICATION_KEY", {
+        /**
+         * FaceAPI의 인증키.
+         */
         get: function () {
             return "b072c71311d144388ac2527a5f06ffca";
         },
         enumerable: true,
         configurable: true
     });
+    /**
+     * 엔티티의 멤버를 JSON 객체로부터 구성한다.
+     */
     Global.fetch = function (entity, json) {
         for (var key in json) {
             if (typeof key != "string" || entity.hasOwnProperty(key) == false)
@@ -29,7 +45,7 @@ var Global = (function () {
             if (typeof entity[key] == "number" || typeof entity[key] == "string")
                 entity[key] = json[key];
             else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray) {
-                var json_entity = json[key];
+                var json_entity = entity[key];
                 json_entity.constructByJSON(json[key]);
             }
         }
@@ -53,14 +69,24 @@ var Direction = (function () {
     ;
     return Direction;
 })();
+/**
+ * X-Y 좌표 엔티티.
+ *
+ * @author 남정호
+ */
 var Point = (function (_super) {
     __extends(Point, _super);
     /* --------------------------------------------------------
         CONSTRUCTORS
     -------------------------------------------------------- */
+    /**
+     * 생성자 with XML 태그명.
+     */
     function Point(tag) {
         _super.call(this);
         this.tag = tag;
+        this.x = 0;
+        this.y = 0;
     }
     Point.prototype.constructByJSON = function (val) {
         Global.fetch(this, val);
@@ -68,9 +94,15 @@ var Point = (function (_super) {
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
+    /**
+     * Get X 좌표.
+     */
     Point.prototype.getX = function () {
         return this.x;
     };
+    /**
+     * Get Y 좌표.
+     */
     Point.prototype.getY = function () {
         return this.y;
     };
@@ -79,6 +111,11 @@ var Point = (function (_super) {
     -------------------------------------------------------- */
     Point.prototype.TAG = function () {
         return this.tag;
+    };
+    Point.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.eraseProperty("tag");
+        return xml;
     };
     return Point;
 })(Entity);
@@ -109,6 +146,11 @@ var PersonGroup = (function (_super) {
     }
     return PersonGroup;
 })(EntityArray);
+/**
+ * 사람 엔티티.
+ *
+ * @author 남정호
+ */
 var Person = (function (_super) {
     __extends(Person, _super);
     /* --------------------------------------------------------
@@ -129,6 +171,16 @@ var Person = (function (_super) {
     };
     return Person;
 })(Entity);
+/**
+ * <p> 사진 엔티티. </p>
+ *
+ * <ul>
+ *  <li> 한 장의 사진에 여럿의 얼굴이 들어있다. </li>
+ *  <li> 한 장의 사진은 여럿의 사람을 참조한다. </li>
+ * </ul>
+ *
+ * @author 남정호
+ */
 var Picture = (function (_super) {
     __extends(Picture, _super);
     /* --------------------------------------------------------
@@ -137,13 +189,11 @@ var Picture = (function (_super) {
     /**
      * 기본 생성자.
      */
-    function Picture() {
+    function Picture(url) {
+        if (url === void 0) { url = ""; }
         _super.call(this);
+        this.url = url;
     }
-    Picture.prototype.construct = function (xml) {
-        this.url = xml.getProperty("url");
-        _super.prototype.construct.call(this, xml);
-    };
     Picture.prototype.constructByJSON = function (val) {
         var array = val;
         for (var i = 0; i < array.length; i++) {
@@ -161,16 +211,40 @@ var Picture = (function (_super) {
     /**
      * <p> 사진 속 얼굴들을 감지해낸다. </p>
      *
+     * <p> 이 작업은 비동기로 이루어진다. 콜백함수 detected 를 참조. </p>
+     *
      * <ul>
      *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
      * </ul>
      */
     Picture.prototype.detectFaces = function () {
         this.splice(0, this.length);
+        var picture = this;
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-        var apiURL = "https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=true";
-        var str; // = replyData;
-        this.constructByJSON(JSON.parse(str));
+        var apiURL = "https://api.projectoxford.ai/face/v1.0/detect";
+        var params = {
+            "returnFaceId": "true",
+            "returnFaceLandmarks": "true",
+            "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
+        };
+        $.ajax({
+            url: "https://api.projectoxford.ai/face/v1.0/detect?" + $.param(params),
+            beforeSend: function (xhrObj) {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: "POST",
+            data: JSON.stringify({ "url": this.url })
+        }).done(function (data) {
+            picture.constructByJSON(data);
+            var xml = picture.toXML();
+            var pic = new Picture();
+            pic.construct(xml);
+            trace(pic.toXML().toString());
+        }).fail(function (error) {
+            // THROW ERROR
+        });
     };
     /* --------------------------------------------------------
         EXPORTERS
@@ -181,13 +255,11 @@ var Picture = (function (_super) {
     Picture.prototype.CHILD_TAG = function () {
         return "face";
     };
-    Picture.prototype.toXML = function () {
-        var xml = _super.prototype.toXML.call(this);
-        xml.setProperty("url", this.url);
-        return xml;
-    };
     return Picture;
 })(EntityArray);
+/**
+ * 얼굴 엔티티.
+ */
 var Face = (function (_super) {
     __extends(Face, _super);
     /* --------------------------------------------------------
@@ -197,16 +269,20 @@ var Face = (function (_super) {
      * 생성자 from Picture.
      */
     function Face(picture) {
-        _super.call(this, "face");
+        _super.call(this);
         this.picture = picture;
         this.person = null;
+        this.uid = "";
+        this.rectangle = new FaceRectangle(this);
         this.landmarks = new FaceLandmarks(this);
         this.attributes = new FaceAttributes(this);
     }
     Face.prototype.constructByJSON = function (obj) {
-        Global.fetch(this, obj);
-        this.x = obj["left"];
-        this.y = obj["top"];
+        trace(JSON.stringify(obj));
+        this.uid = obj["faceId"];
+        this.rectangle.constructByJSON(obj["faceRectangle"]);
+        this.landmarks.constructByJSON(obj["faceLandmarks"]);
+        this.attributes.constructByJSON(obj["faceAttributes"]);
     };
     /**
      * <p> 이 얼굴(Face)이 누구인지(Person in PersonGroup) 감지해냄. </p>
@@ -227,12 +303,6 @@ var Face = (function (_super) {
     Face.prototype.getPerson = function () {
         return this.person;
     };
-    Face.prototype.getWidth = function () {
-        return this.width;
-    };
-    Face.prototype.getHeight = function () {
-        return this.height;
-    };
     Face.prototype.getLandmarks = function () {
         return this.landmarks;
     };
@@ -243,12 +313,18 @@ var Face = (function (_super) {
         EXPORTERS
     -------------------------------------------------------- */
     Face.prototype.TAG = function () {
-        return _super.prototype.TAG.call(this);
+        return "face";
+    };
+    Face.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.rectangle.toXML(), this.landmarks.toXML(), this.attributes.toXML());
+        return xml;
     };
     return Face;
-})(Point);
+})(Entity);
 /* ============================================================
     SUB EN0TITIES BELONGS TO A FACE
+        - FACE_RECTANGLE
         - FACE_LANDMARKS
             - EYE_BROW
             - EYE
@@ -260,6 +336,42 @@ var Face = (function (_super) {
             - FACIAL_HAIR
             - HEAD_POSE
 ============================================================ */
+var FaceRectangle = (function (_super) {
+    __extends(FaceRectangle, _super);
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    function FaceRectangle(face) {
+        _super.call(this, "rectangle");
+        this.face = face;
+        this.width = 0;
+        this.height = 0;
+    }
+    FaceRectangle.prototype.constructByJSON = function (obj) {
+        Global.fetch(this, obj);
+        this.x = obj["left"];
+        this.y = obj["top"];
+    };
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    FaceRectangle.prototype.getFace = function () {
+        return this.face;
+    };
+    FaceRectangle.prototype.getWidth = function () {
+        return this.width;
+    };
+    FaceRectangle.prototype.getHeight = function () {
+        return this.height;
+    };
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    FaceRectangle.prototype.TAG = function () {
+        return _super.prototype.TAG.call(this);
+    };
+    return FaceRectangle;
+})(Point);
 /* ============================================================
     LANDMARKS
 ============================================================ */
@@ -276,7 +388,7 @@ var FaceLandmarks = (function (_super) {
     function FaceLandmarks(face) {
         _super.call(this);
         this.face = face;
-        this.eyeBrows = new EyeBrows(this);
+        this.eyeBrows = new Eyebrows(this);
         this.eyes = new Eyes(this);
         this.nose = new Nose(this);
         this.mouth = new Mouth(this);
@@ -311,6 +423,11 @@ var FaceLandmarks = (function (_super) {
     FaceLandmarks.prototype.TAG = function () {
         return "landmarks";
     };
+    FaceLandmarks.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.eyeBrows.toXML(), this.eyes.toXML(), this.nose.toXML(), this.mouth.toXML());
+        return xml;
+    };
     return FaceLandmarks;
 })(Entity);
 var FaceLandmark = (function (_super) {
@@ -329,92 +446,103 @@ var FaceLandmark = (function (_super) {
 /**
  * 눈썹 둘.
  */
-var EyeBrows = (function (_super) {
-    __extends(EyeBrows, _super);
+var Eyebrows = (function (_super) {
+    __extends(Eyebrows, _super);
     /* --------------------------------------------------------
         CONSTRUCTORS
     -------------------------------------------------------- */
-    function EyeBrows(landmarks) {
+    function Eyebrows(landmarks) {
         _super.call(this, landmarks);
-        this.left = new EyeBrow(this, Direction.LEFT);
-        this.right = new EyeBrow(this, Direction.RIGHT);
+        this.left = new Eyebrow(this, Direction.LEFT);
+        this.right = new Eyebrow(this, Direction.RIGHT);
     }
-    EyeBrows.prototype.constructByJSON = function (obj) {
+    Eyebrows.prototype.constructByJSON = function (obj) {
         this.left.constructByJSON(obj);
         this.right.constructByJSON(obj);
     };
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
-    EyeBrows.prototype.getLeft = function () {
+    Eyebrows.prototype.getLeft = function () {
         return this.left;
     };
-    EyeBrows.prototype.getRight = function () {
+    Eyebrows.prototype.getRight = function () {
         return this.right;
     };
     /* --------------------------------------------------------
         EXPORTERS
     -------------------------------------------------------- */
-    EyeBrows.prototype.TAG = function () {
+    Eyebrows.prototype.TAG = function () {
         return "eyeBrows";
     };
-    return EyeBrows;
+    Eyebrows.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.left.toXML(), this.right.toXML());
+        return xml;
+    };
+    return Eyebrows;
 })(FaceLandmark);
 /**
  * 눈썹.
  *
  * @author 남정호
  */
-var EyeBrow = (function (_super) {
-    __extends(EyeBrow, _super);
+var Eyebrow = (function (_super) {
+    __extends(Eyebrow, _super);
     /* --------------------------------------------------------
         CONSTRUCTORS
     -------------------------------------------------------- */
-    function EyeBrow(eyeBrows, direction) {
+    function Eyebrow(eyeBrows, direction) {
         _super.call(this);
         this.eyeBrows = eyeBrows;
         this.direction = direction;
         this.inner = new Point("inner");
         this.outer = new Point("outer");
     }
-    EyeBrow.prototype.constructByJSON = function (obj) {
+    Eyebrow.prototype.constructByJSON = function (obj) {
         if (this.direction == Direction.LEFT) {
-            this.inner.constructByJSON(obj["eyeBrowLeftInner"]);
-            this.outer.constructByJSON(obj["eyeBrowLeftOuter"]);
+            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
+            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
         }
         else {
-            this.inner.constructByJSON(obj["eyeBrowRightInner"]);
-            this.outer.constructByJSON(obj["eyeBrowRightOuter"]);
+            this.inner.constructByJSON(obj["eyebrowRightInner"]);
+            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
         }
     };
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
-    EyeBrow.prototype.getEyeBrows = function () {
+    Eyebrow.prototype.getEyeBrows = function () {
         return this.eyeBrows;
     };
-    EyeBrow.prototype.getOpposite = function () {
+    Eyebrow.prototype.getOpposite = function () {
         if (this.direction == Direction.LEFT)
             return this.eyeBrows.getRight();
         else
             return this.eyeBrows.getLeft();
     };
-    EyeBrow.prototype.getInner = function () {
+    Eyebrow.prototype.getInner = function () {
         return this.inner;
     };
-    EyeBrow.prototype.getOuter = function () {
+    Eyebrow.prototype.getOuter = function () {
         return this.outer;
     };
     /* --------------------------------------------------------
         EXPORTERS
     -------------------------------------------------------- */
-    EyeBrow.prototype.TAG = function () {
+    Eyebrow.prototype.TAG = function () {
         if (this.direction == Direction.LEFT)
             return "left";
         else
             return "right";
     };
-    return EyeBrow;
+    Eyebrow.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.eraseProperty("direction");
+        xml.push(this.inner.toXML(), this.outer.toXML());
+        return xml;
+    };
+    return Eyebrow;
 })(Entity);
 var Eyes = (function (_super) {
     __extends(Eyes, _super);
@@ -444,6 +572,11 @@ var Eyes = (function (_super) {
     -------------------------------------------------------- */
     Eyes.prototype.TAG = function () {
         return "eyes";
+    };
+    Eyes.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.left.toXML(), this.right.toXML());
+        return xml;
     };
     return Eyes;
 })(FaceLandmark);
@@ -513,6 +646,12 @@ var Eye = (function (_super) {
             return "left";
         else
             return "right";
+    };
+    Eye.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.eraseProperty("direction");
+        xml.push(this.top.toXML(), this.bottom.toXML(), this.inner.toXML(), this.outer.toXML(), this.pupil.toXML());
+        return xml;
     };
     return Eye;
 })(Entity);
@@ -598,6 +737,11 @@ var Nose = (function (_super) {
     Nose.prototype.TAG = function () {
         return "nose";
     };
+    Nose.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.tip.toXML(), this.leftRoot.toXML(), this.rightRoot.toXML(), this.leftAlarTop.toXML(), this.rightAlarTop.toXML(), this.leftAlarOutTip.toXML(), this.rightAlarOutTip.toXML());
+        return xml;
+    };
     return Nose;
 })(FaceLandmark);
 var Mouth = (function (_super) {
@@ -613,8 +757,8 @@ var Mouth = (function (_super) {
     }
     Mouth.prototype.constructByJSON = function (obj) {
         this.lip.constructByJSON(obj);
-        this.left.constructByJSON(obj["mouseLeft"]);
-        this.right.constructByJSON(obj["mouseRight"]);
+        this.left.constructByJSON(obj["mouthLeft"]);
+        this.right.constructByJSON(obj["mouthRight"]);
     };
     /* --------------------------------------------------------
         GETTERS
@@ -633,6 +777,11 @@ var Mouth = (function (_super) {
     -------------------------------------------------------- */
     Mouth.prototype.TAG = function () {
         return "mouth";
+    };
+    Mouth.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
+        return xml;
     };
     return Mouth;
 })(FaceLandmark);
@@ -679,6 +828,11 @@ var Lip = (function (_super) {
     Lip.prototype.TAG = function () {
         return "lip";
     };
+    Lip.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.upperTop.toXML(), this.upperBottom.toXML(), this.underTop.toXML(), this.underBottom.toXML());
+        return xml;
+    };
     return Lip;
 })(Entity);
 /* ============================================================
@@ -692,11 +846,16 @@ var FaceAttributes = (function (_super) {
     function FaceAttributes(face) {
         _super.call(this);
         this.face = face;
+        this.age = 0;
+        this.gender = "";
+        this.smile = 0;
         this.facialHair = new FacialHair(this);
         this.headPose = new HeadPose(this);
     }
-    FaceAttributes.prototype.constructByJSON = function (val) {
-        Global.fetch(this, val);
+    FaceAttributes.prototype.constructByJSON = function (obj) {
+        Global.fetch(this, obj);
+        /*this.facialHair.constructByJSON(obj["facialHair"]);
+        this.headPose.constructByJSON(obj["headPose"]);*/
     };
     /* --------------------------------------------------------
         GETTERS
@@ -725,6 +884,11 @@ var FaceAttributes = (function (_super) {
     FaceAttributes.prototype.TAG = function () {
         return "attributes";
     };
+    FaceAttributes.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        xml.push(this.facialHair.toXML(), this.headPose.toXML());
+        return xml;
+    };
     return FaceAttributes;
 })(Entity);
 var FaceAttribute = (function (_super) {
@@ -745,6 +909,9 @@ var FacialHair = (function (_super) {
     -------------------------------------------------------- */
     function FacialHair(attributes) {
         _super.call(this, attributes);
+        this.mustache = 0;
+        this.beard = 0;
+        this.sideburns = 0;
     }
     /* --------------------------------------------------------
         GETTERS
@@ -773,7 +940,9 @@ var HeadPose = (function (_super) {
     -------------------------------------------------------- */
     function HeadPose(attributes) {
         _super.call(this, attributes);
-        this.attributes = attributes;
+        this.roll = 0;
+        this.yaw = 0;
+        this.pitch = 0;
     }
     /* --------------------------------------------------------
         GETTERS

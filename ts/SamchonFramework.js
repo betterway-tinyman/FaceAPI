@@ -1,18 +1,39 @@
+/*function test()
+{
+    var productArray: ProductArray = new ProductArray();
+    productArray.push
+    (
+        new Product("Eraser", 500, 10, 70),
+        new Product("Pencil", 400, 30, 35),
+        new Product("Pencil", 400, 30, 35),
+        new Product("Pencil", 400, 30, 35),
+        new Product("Book", 8000, 150, 300),
+        new Product("Book", 8000, 150, 300),
+        new Product("Drink", 1000, 75, 250),
+        new Product("Umbrella", 4000, 200, 1000),
+        new Product("Notebook-PC", 800000, 150, 850),
+        new Product("Tablet-PC", 600000, 120, 450)
+    );
+
+    var packer: Packer = new Packer(productArray);
+    packer.push
+    (
+        new WrapperArray(new Wrapper("Large", 100, 200, 1000)),
+        new WrapperArray(new Wrapper("Medium", 70, 150, 500)),
+        new WrapperArray(new Wrapper("Small", 50, 100, 250))
+    );
+
+    var packerSystem: PackerSlaveSystem = new PackerSlaveSystem("127.0.0.1", 0);
+
+    var invoke: Invoke = new Invoke("optimize", packer.toXML(), 1, 400);
+    invoke.apply(packerSystem);
+}*/
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-function test() {
-    var productArray = new ProductArray();
-    productArray.push(new Product("Eraser", 500, 10, 70), new Product("Pencil", 400, 30, 35), new Product("Pencil", 400, 30, 35), new Product("Pencil", 400, 30, 35), new Product("Book", 8000, 150, 300), new Product("Book", 8000, 150, 300), new Product("Drink", 1000, 75, 250), new Product("Umbrella", 4000, 200, 1000), new Product("Notebook-PC", 800000, 150, 850), new Product("Tablet-PC", 600000, 120, 450));
-    var packer = new Packer(productArray);
-    packer.push(new WrapperArray(new Wrapper("Large", 100, 200, 1000)), new WrapperArray(new Wrapper("Medium", 70, 150, 500)), new WrapperArray(new Wrapper("Small", 50, 100, 250)));
-    var packerSystem = new PackerSlaveSystem("127.0.0.1", 0);
-    var invoke = new Invoke("optimize", packer.toXML(), 1, 400);
-    invoke.apply(packerSystem);
-}
 /**
  * <p> Trace arguments on screen. </p>
  * <p> Displays arguments on screen by <i>document.write</i>. </p>
@@ -33,9 +54,24 @@ function trace() {
     for (var _i = 0; _i < arguments.length; _i++) {
         args[_i - 0] = arguments[_i];
     }
-    var str = args[0];
-    for (var i = 1; i < args.length; i++)
-        str += ", " + args[i];
+    var str = "";
+    var replacerArray = [
+        //new Pair<string, string>("'", "&apos;"),
+        //new Pair<string, string>('"', "&quot;"),
+        new Pair("&", "&amp;"),
+        new Pair("<", "&lt;"),
+        new Pair(">", "&gt;"),
+        new Pair("\n", "<br>"),
+        new Pair("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
+    ];
+    for (var i = 0; i < args.length; i++) {
+        var item = String(args[i]);
+        item = StringUtil.replaceAll(item, replacerArray);
+        if (i == 0)
+            str += item;
+        else
+            str += ", " + item;
+    }
     document.write("<p>" + str + "</p>");
 }
 /* =================================================================================
@@ -994,35 +1030,51 @@ var StringUtil = (function () {
     StringUtil.replaceAll = function (str, pairs) {
         if (pairs.length == 0)
             return str;
-        var foundPairList = new Array();
+        for (var i = 0; i < pairs.length; i++)
+            str = str.split(pairs[i].first).join(pairs[i].second);
+        return str;
+        /*var foundPairList: Array<Pair<number, number>> = new Array<Pair<number, number>>();
+        
         //FIND POSITION-INDEX IN ORIGINAL STRING
-        for (var i = 0; i < pairs.length; i++) {
-            var index = 0;
-            while (true) {
+        for (var i: number = 0; i < pairs.length; i++)
+        {
+            var index: number = 0;
+
+            while (true)
+            {
                 index = str.indexOf(pairs[i].first, index);
                 if (index == -1)
                     break;
-                foundPairList.push(new Pair(index++, i));
+
+                foundPairList.push(new Pair<number, number>(index++, i));
             }
         }
+
         if (foundPairList.length == 0)
             return str;
+
         foundPairList.sort();
+
         //REPLACE
-        var res = "";
-        var index = 0;
-        while (foundPairList.length > 0) {
+        var res: string = "";
+        var index: number = 0;
+
+        while (foundPairList.length > 0)
+        {
             var foundPair = foundPairList[0];
             var before = pairs[foundPair.first].first;
             var after = pairs[foundPair.second].second;
+
             res += str.substring(index, foundPair.first);
             res += after;
+
             index = foundPair.first + before.length;
             foundPairList.splice(0, 1);
         }
         if (index <= str.length - 1)
             res += str.substr(index);
-        return res;
+
+        return res;*/
     };
     return StringUtil;
 })();
@@ -1965,9 +2017,12 @@ var Entity = (function () {
         for (var e_it = xml.begin(); e_it.equals(xml.end()) != true; e_it = e_it.next()) {
             if (this.hasOwnProperty(e_it.first) == true
                 && e_it.second.length == 1
-                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)) {
+                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)
+                && this[e_it.first] != null) {
                 var entity = this[e_it.first];
                 var e_xml = e_it.second[0];
+                if (entity == null)
+                    continue;
                 entity.construct(e_xml);
             }
         }
@@ -1978,19 +2033,11 @@ var Entity = (function () {
         var xml = new XML();
         xml.setTag(this.TAG());
         // MEMBERS
-        for (var key in this) {
-            if (typeof key != "string")
-                continue;
-            if (typeof this[key] == "string" || typeof this[key] == "number") {
-                // ATOMIC
+        for (var key in this)
+            if (typeof key == "string" &&
+                (typeof this[key] == "string" || typeof this[key] == "number")) {
                 xml.setProperty(key, this[key]);
             }
-            else if (this[key] instanceof Entity || this[key] instanceof EntityArray) {
-                // ENTITY
-                var entity = this[key];
-                xml.push(entity.toXML());
-            }
-        }
         return xml;
     };
     return Entity;
@@ -2053,16 +2100,23 @@ var EntityArray = (function (_super) {
         // MEMBER VARIABLES; ATOMIC
         var propertyMap = xml.getPropertyMap();
         for (var v_it = propertyMap.begin(); v_it.equals(propertyMap.end()) != true; v_it = v_it.next())
-            if (this.hasOwnProperty(v_it.first) == true && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string"))
+            if (this.hasOwnProperty(v_it.first) == true
+                && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string")
+                && v_it.first != "length") {
+                trace(v_it.first);
                 this[v_it.first] = v_it.second;
+            }
         // MEMBER ENTITIES
         for (var e_it = xml.begin(); e_it.equals(xml.end()) != true; e_it = e_it.next()) {
             if (this.hasOwnProperty(e_it.first) == true
                 && e_it.first != this.CHILD_TAG()
                 && e_it.second.length == 1
-                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)) {
+                && (this[e_it.first] instanceof Entity || this[e_it.first] instanceof EntityArray)
+                && this[e_it.first] != null) {
                 var entity = this[e_it.first];
                 var e_xml = e_it.second[0];
+                if (entity == null)
+                    continue;
                 entity.construct(e_xml);
             }
         }
@@ -2072,10 +2126,10 @@ var EntityArray = (function (_super) {
         var xmlList = xml.get(this.CHILD_TAG());
         for (var i = 0; i < xmlList.length; i++) {
             var child = this.createChild(xmlList[i]);
-            if (child != null) {
-                child.construct(xmlList[i]);
-                this.push(child);
-            }
+            if (child == null)
+                continue;
+            child.construct(xmlList[i]);
+            this.push(child);
         }
     };
     /**
@@ -2142,26 +2196,15 @@ var EntityArray = (function (_super) {
         var xml = new XML();
         xml.setTag(this.TAG());
         // MEMBERS
-        for (var key in this) {
-            if (typeof key != "string")
-                continue;
-            if (typeof this[key] == "string" || typeof this[key] == "number") {
+        for (var key in this)
+            if (typeof key == "string" && key != "length" // LENGTH: MEMBER OF AN ARRAY
+                && (typeof this[key] == "string" || typeof this[key] == "number")) {
                 // ATOMIC
                 xml.setProperty(key, this[key]);
             }
-            else if (this[key] instanceof Entity || this[key] instanceof EntityArray) {
-                // ENTITY
-                var entity = this[key];
-                xml.push(entity.toXML());
-            }
-        }
-        if (this.length == 0)
-            return xml;
         // CHILDREN
-        var xmlList = new XMLList();
         for (var i = 0; i < this.length; i++)
-            xmlList.push(this[i].toXML());
-        xml.set(this.CHILD_TAG(), xmlList);
+            xml.push(this[i].toXML());
         return xml;
     };
     return EntityArray;
@@ -2949,12 +2992,6 @@ var Product = (function (_super) {
         this.volume = volume;
         this.weight = weight;
     }
-    Product.prototype.construct = function (xml) {
-        this.name = xml.getProperty("name");
-        this.price = xml.getProperty("price");
-        this.volume = xml.getProperty("volume");
-        this.weight = xml.getProperty("weight");
-    };
     /* --------------------------------------------------------------------
         GETTERS
     -------------------------------------------------------------------- */
@@ -2975,14 +3012,6 @@ var Product = (function (_super) {
     -------------------------------------------------------------------- */
     Product.prototype.TAG = function () {
         return "product";
-    };
-    Product.prototype.toXML = function () {
-        var xml = _super.prototype.toXML.call(this);
-        xml.setProperty("name", this.name);
-        xml.setProperty("price", this.price);
-        xml.setProperty("volume", this.volume);
-        xml.setProperty("weight", this.weight);
-        return xml;
     };
     return Product;
 })(Entity);
@@ -3030,13 +3059,6 @@ var Wrapper = (function (_super) {
             this.weight = args[3];
         }
     }
-    Wrapper.prototype.construct = function (xml) {
-        _super.prototype.construct.call(this, xml);
-        this.name = xml.getProperty("name");
-        this.price = xml.getProperty("price");
-        this.volume = xml.getProperty("volume");
-        this.weight = xml.getProperty("weight");
-    };
     Wrapper.prototype.createChild = function (xml) {
         return new Product();
     };
@@ -3077,14 +3099,6 @@ var Wrapper = (function (_super) {
     -------------------------------------------------------------------- */
     Wrapper.prototype.TAG = function () {
         return "wrapper";
-    };
-    Wrapper.prototype.toXML = function () {
-        var xml = _super.prototype.toXML.call(this);
-        xml.setProperty("name", this.name);
-        xml.setProperty("price", this.price);
-        xml.setProperty("volume", this.volume);
-        xml.setProperty("weight", this.weight);
-        return xml;
     };
     return Wrapper;
 })(ProductArray);
@@ -3242,10 +3256,6 @@ var Packer = (function (_super) {
         else
             throw "invalid argument";
     }
-    Packer.prototype.construct = function (xml) {
-        _super.prototype.construct.call(this, xml);
-        this.productArray.construct(xml.get(this.productArray.TAG())[0]);
-    };
     Packer.prototype.createChild = function (xml) {
         return new WrapperArray();
     };
@@ -3308,14 +3318,6 @@ var Packer = (function (_super) {
     };
     Packer.prototype.CHILD_TAG = function () {
         return "wrapperArray";
-    };
-    Packer.prototype.toXML = function () {
-        var xml = _super.prototype.toXML.call(this);
-        xml.setProperty("price", this.calcPrice());
-        var xmlList = new XMLList();
-        xmlList.push(this.productArray.toXML());
-        xml.set(this.productArray.TAG(), xmlList);
-        return xml;
     };
     return Packer;
 })(EntityArray);

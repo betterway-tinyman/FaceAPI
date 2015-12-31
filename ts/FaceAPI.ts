@@ -1,4 +1,11 @@
-﻿/// <reference path='SamchonFramework.ts'/>
+﻿/// <reference path="jquery.d.ts" />
+/// <reference path='SamchonFramework.ts' />
+
+function main(): void
+{
+    var picture: Picture = new Picture("http://samchon.org/download/me.jpg");
+    picture.detectFaces();
+}
 
 /* ============================================================
     GLOBAL AND ABSTRACTS
@@ -7,13 +14,24 @@
         - POINT_ENTITY
         - I_JSON_ENTITY
 ============================================================ */
+/**
+ * 전역 클래스.
+ *
+ * @author 남정호
+ */
 class Global
 {
+    /**
+     * FaceAPI의 인증키.
+     */
     public static get CERTIFICATION_KEY(): string
     {
         return "b072c71311d144388ac2527a5f06ffca";
     }
 
+    /**
+     * 엔티티의 멤버를 JSON 객체로부터 구성한다.
+     */
     public static fetch(entity: IEntity, json: Object): void
     {
         for (var key in json)
@@ -25,7 +43,7 @@ class Global
                 entity[key] = json[key];
             else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray)
             {
-                var json_entity:IJSONEntity = json[key];
+                var json_entity: IJSONEntity = <IJSONEntity>entity[key];
                 json_entity.constructByJSON(json[key]);
             }
         }
@@ -38,25 +56,45 @@ class Direction
     public static get RIGHT(): number { return 2 };
 }
 
+/**
+ * X-Y 좌표 엔티티.
+ *
+ * @author 남정호
+ */
 class Point
     extends Entity
     implements IJSONEntity 
 {
+    /**
+     * XML 태그명.
+     */
     protected tag: string;
 
+    /**
+     * X 좌표.
+     */
     protected x: number;
+
+    /**
+     * Y 좌표.
+     */
     protected y: number;
 
     /* --------------------------------------------------------
         CONSTRUCTORS
     -------------------------------------------------------- */
+    /**
+     * 생성자 with XML 태그명.
+     */
     public constructor(tag: string) 
     {
         super();
 
         this.tag = tag;
+        this.x = 0;
+        this.y = 0;
     }
-
+    
     public constructByJSON(val: any): void 
     {
         Global.fetch(this, val);
@@ -65,11 +103,17 @@ class Point
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
+    /**
+     * Get X 좌표.
+     */
     public getX(): number
     {
         return this.x;
     }
 
+    /**
+     * Get Y 좌표.
+     */
     public getY(): number
     {
         return this.y;
@@ -82,10 +126,26 @@ class Point
     {
         return this.tag;
     }
+
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.eraseProperty("tag");
+
+        return xml;
+    }
 }
 
+/**
+ * JSON을 통하여 멤버가 구성되는 엔티티를 위한 인터페이스.
+ *
+ * @author 남정호
+ */
 interface IJSONEntity
 {
+    /**
+     * JSON 개체를 통해 멤버를 구성.
+     */
     constructByJSON(val: any): void;
 }
 
@@ -115,6 +175,11 @@ class PersonGroup
 
 }
 
+/**
+ * 사람 엔티티.
+ *
+ * @author 남정호
+ */
 class Person
     extends Entity
 {
@@ -142,10 +207,23 @@ class Person
     }
 }
 
+/**
+ * <p> 사진 엔티티. </p>
+ *
+ * <ul>
+ *  <li> 한 장의 사진에 여럿의 얼굴이 들어있다. </li>
+ *  <li> 한 장의 사진은 여럿의 사람을 참조한다. </li>
+ * </ul>
+ *
+ * @author 남정호
+ */
 class Picture 
     extends EntityArray<Face>
     implements IJSONEntity
 {
+    /**
+     * 그림이 저장된 URL.
+     */
     protected url: string;
 
     /* --------------------------------------------------------
@@ -154,18 +232,13 @@ class Picture
     /**
      * 기본 생성자.
      */
-    public constructor() 
+    public constructor(url: string = "") 
     {
         super();
+
+        this.url = url;
     }
     
-    public construct(xml: XML): void
-    {
-        this.url = xml.getProperty("url");
-
-        super.construct(xml);
-    }
-
     public constructByJSON(val: any): void
     {
         var array: Array<any> = val;
@@ -190,6 +263,8 @@ class Picture
     /**
      * <p> 사진 속 얼굴들을 감지해낸다. </p>
      *
+     * <p> 이 작업은 비동기로 이루어진다. 콜백함수 detected 를 참조. </p>
+     *
      * <ul>
      *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
      * </ul>
@@ -197,13 +272,49 @@ class Picture
     public detectFaces(): void 
     {
         this.splice(0, this.length);
+        var picture: Picture = this;
 
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-        var apiURL: string = "https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=true";
+        var apiURL: string = "https://api.projectoxford.ai/face/v1.0/detect";
 
-        var str: string; // = replyData;
-        
-        this.constructByJSON(JSON.parse(str));
+        var params: Object = 
+        {
+            "returnFaceId": "true",
+            "returnFaceLandmarks": "true",
+            "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
+        };
+
+        $.ajax
+        (
+            {
+                url: "https://api.projectoxford.ai/face/v1.0/detect?" + $.param(params),
+                beforeSend: function (xhrObj) {
+                    // Request headers
+                    xhrObj.setRequestHeader("Content-Type", "application/json");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+                },
+                type: "POST",
+                data: JSON.stringify({"url": this.url})
+            }
+        ).done
+        (
+            function (data: any) 
+            {
+                picture.constructByJSON(data);
+                var xml: XML = picture.toXML();
+
+                var pic: Picture = new Picture();
+                pic.construct(xml);
+
+                trace(pic.toXML().toString());
+            }
+        ).fail
+        (
+            function (error: any) 
+            {
+                // THROW ERROR
+            }
+        );
     }
 
     /* --------------------------------------------------------
@@ -217,18 +328,13 @@ class Picture
     {
         return "face";
     }
-
-    public toXML(): XML
-    {
-        var xml: XML = super.toXML();
-        xml.setProperty("url", this.url);
-
-        return xml;
-    }
 }
 
+/**
+ * 얼굴 엔티티.
+ */
 class Face
-    extends Point 
+    extends Entity 
     implements IJSONEntity
 {
     /**
@@ -241,10 +347,12 @@ class Face
      */
     protected person: Person;
 
-    protected apiUID: string;
-    protected width: number;
-    protected height: number;
+    /**
+     * FaceAPI에서 발급해준 식별자 번호.
+     */
+    protected uid: string;
 
+    protected rectangle: FaceRectangle;
     protected landmarks: FaceLandmarks;
     protected attributes: FaceAttributes;
 
@@ -256,21 +364,27 @@ class Face
      */
     public constructor(picture: Picture)
     {
-        super("face");
+        super();
 
         this.picture = picture;
         this.person = null;
         
+        this.uid = "";
+        
+        this.rectangle = new FaceRectangle(this);
         this.landmarks = new FaceLandmarks(this);
         this.attributes = new FaceAttributes(this);
     }
     
     public constructByJSON(obj: any): void
     {
-        Global.fetch(this, obj);
+        trace(JSON.stringify(obj));
 
-        this.x = obj["left"];
-        this.y = obj["top"];
+        this.uid = obj["faceId"];
+        
+        this.rectangle.constructByJSON(obj["faceRectangle"]);
+        this.landmarks.constructByJSON(obj["faceLandmarks"]);
+        this.attributes.constructByJSON(obj["faceAttributes"]);
     }
 
     /**
@@ -296,16 +410,7 @@ class Face
     {
         return this.person;
     }
-
-    public getWidth(): number
-    {
-        return this.width;
-    }
-    public getHeight(): number
-    {
-        return this.height;
-    }
-
+    
     public getLandmarks(): FaceLandmarks
     {
         return this.landmarks;
@@ -320,12 +425,25 @@ class Face
     -------------------------------------------------------- */
     public TAG(): string
     {
-        return super.TAG();
+        return "face";
+    }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.rectangle.toXML(),
+            this.landmarks.toXML(),
+            this.attributes.toXML()
+        );
+        
+        return xml;
     }
 }
 
 /* ============================================================
     SUB EN0TITIES BELONGS TO A FACE
+        - FACE_RECTANGLE
         - FACE_LANDMARKS
             - EYE_BROW
             - EYE
@@ -337,6 +455,59 @@ class Face
             - FACIAL_HAIR
             - HEAD_POSE
 ============================================================ */
+class FaceRectangle
+    extends Point
+    implements IJSONEntity
+{
+    protected face: Face;
+
+    protected width: number;
+    protected height: number;
+
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    public constructor(face: Face)
+    {
+        super("rectangle");
+        this.face = face;
+
+        this.width = 0;
+        this.height = 0;
+    }
+
+    public constructByJSON(obj: any): void
+    {
+        Global.fetch(this, obj);
+        this.x = obj["left"];
+        this.y = obj["top"];
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public getFace(): Face
+    {
+        return this.face;
+    }
+    
+    public getWidth(): number
+    {
+        return this.width;
+    }
+    public getHeight(): number
+    {
+        return this.height;
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string
+    {
+        return super.TAG();
+    }
+}
 
 /* ============================================================
     LANDMARKS
@@ -352,7 +523,7 @@ class FaceLandmarks
 {
     protected face: Face;
 
-    protected eyeBrows: EyeBrows;
+    protected eyeBrows: Eyebrows;
     protected eyes: Eyes;
     protected nose: Nose;
     protected mouth: Mouth;
@@ -365,7 +536,7 @@ class FaceLandmarks
         super();
         this.face = face;
 
-        this.eyeBrows = new EyeBrows(this);
+        this.eyeBrows = new Eyebrows(this);
         this.eyes = new Eyes(this);
         this.nose = new Nose(this);
         this.mouth = new Mouth(this);
@@ -387,7 +558,7 @@ class FaceLandmarks
         return this.face;
     }
     
-    public getEyeBrows(): EyeBrows
+    public getEyeBrows(): Eyebrows
     {
         return this.eyeBrows;
     }
@@ -410,6 +581,19 @@ class FaceLandmarks
     public TAG(): string
     {
         return "landmarks";
+    }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.eyeBrows.toXML(),
+            this.eyes.toXML(),
+            this.nose.toXML(),
+            this.mouth.toXML()
+        );
+
+        return xml;
     }
 }
 
@@ -438,11 +622,11 @@ class FaceLandmark
 /**
  * 눈썹 둘.
  */
-class EyeBrows
+class Eyebrows
     extends FaceLandmark
 {
-    protected left: EyeBrow;
-    protected right: EyeBrow;
+    protected left: Eyebrow;
+    protected right: Eyebrow;
 
     /* --------------------------------------------------------
         CONSTRUCTORS
@@ -451,8 +635,8 @@ class EyeBrows
     {
         super(landmarks);
         
-        this.left = new EyeBrow(this, Direction.LEFT);
-        this.right = new EyeBrow(this, Direction.RIGHT);
+        this.left = new Eyebrow(this, Direction.LEFT);
+        this.right = new Eyebrow(this, Direction.RIGHT);
     }
 
     public constructByJSON(obj: any): void
@@ -464,12 +648,12 @@ class EyeBrows
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
-    public getLeft(): EyeBrow
+    public getLeft(): Eyebrow
     {
         return this.left;
     }
 
-    public getRight(): EyeBrow
+    public getRight(): Eyebrow
     {
         return this.right;
     }
@@ -481,6 +665,17 @@ class EyeBrows
     {
         return "eyeBrows";
     }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.left.toXML(),
+            this.right.toXML()
+        );
+
+        return xml;
+    }
 }
 
 /**
@@ -488,11 +683,11 @@ class EyeBrows
  *
  * @author 남정호
  */
-class EyeBrow 
+class Eyebrow 
     extends Entity
     implements IJSONEntity
 {
-    protected eyeBrows: EyeBrows;
+    protected eyeBrows: Eyebrows;
     protected direction: number;
 
     protected inner: Point;
@@ -501,7 +696,7 @@ class EyeBrow
     /* --------------------------------------------------------
         CONSTRUCTORS
     -------------------------------------------------------- */
-    public constructor(eyeBrows: EyeBrows, direction: number)
+    public constructor(eyeBrows: Eyebrows, direction: number)
     {
         super();
 
@@ -516,24 +711,24 @@ class EyeBrow
     {
         if (this.direction == Direction.LEFT)
         {
-            this.inner.constructByJSON(obj["eyeBrowLeftInner"]);
-            this.outer.constructByJSON(obj["eyeBrowLeftOuter"]);
+            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
+            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
         }
         else
         {
-            this.inner.constructByJSON(obj["eyeBrowRightInner"]);
-            this.outer.constructByJSON(obj["eyeBrowRightOuter"]);
+            this.inner.constructByJSON(obj["eyebrowRightInner"]);
+            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
         }
     }
 
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
-    public getEyeBrows(): EyeBrows
+    public getEyeBrows(): Eyebrows
     {
         return this.eyeBrows;
     }
-    public getOpposite(): EyeBrow
+    public getOpposite(): Eyebrow
     {
         if (this.direction == Direction.LEFT)
             return this.eyeBrows.getRight();
@@ -559,6 +754,19 @@ class EyeBrow
             return "left";
         else
             return "right";
+    }
+    public toXML(): XML 
+    {
+        var xml: XML = super.toXML();
+        xml.eraseProperty("direction");
+
+        xml.push
+        (
+            this.inner.toXML(),
+            this.outer.toXML()
+        );
+
+        return xml;
     }
 }
 
@@ -605,6 +813,17 @@ class Eyes
     public TAG(): string
     {
         return "eyes";
+    }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.left.toXML(),
+            this.right.toXML()
+        );
+
+        return xml;
     }
 }
 
@@ -708,6 +927,22 @@ class Eye
             return "left";
         else
             return "right";
+    }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.eraseProperty("direction");
+
+        xml.push
+        (
+            this.top.toXML(),
+            this.bottom.toXML(),
+            this.inner.toXML(),
+            this.outer.toXML(),
+            this.pupil.toXML()
+        );
+
+        return xml;
     }
 }
 
@@ -837,6 +1072,22 @@ class Nose
     {
         return "nose";
     }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.tip.toXML(),
+            this.leftRoot.toXML(),
+            this.rightRoot.toXML(),
+            this.leftAlarTop.toXML(),
+            this.rightAlarTop.toXML(),
+            this.leftAlarOutTip.toXML(),
+            this.rightAlarOutTip.toXML()
+        );
+
+        return xml;
+    }
 }
 
 class Mouth
@@ -861,8 +1112,9 @@ class Mouth
     public constructByJSON(obj: any): void
     {
         this.lip.constructByJSON(obj);
-        this.left.constructByJSON(obj["mouseLeft"]);
-        this.right.constructByJSON(obj["mouseRight"]);
+        
+        this.left.constructByJSON(obj["mouthLeft"]);
+        this.right.constructByJSON(obj["mouthRight"]);
     }
 
     /* --------------------------------------------------------
@@ -887,6 +1139,18 @@ class Mouth
     public TAG(): string
     {
         return "mouth";
+    }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.lip.toXML(),
+            this.left.toXML(),
+            this.right.toXML()
+        );
+        
+        return xml;
     }
 }
 
@@ -959,6 +1223,19 @@ class Lip
     {
         return "lip";
     }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.upperTop.toXML(),
+            this.upperBottom.toXML(),
+            this.underTop.toXML(),
+            this.underBottom.toXML()
+        );
+
+        return xml;
+    }
 }
 
 /* ============================================================
@@ -985,13 +1262,20 @@ class FaceAttributes
         super();
         this.face = face;
 
+        this.age = 0;
+        this.gender = "";
+        this.smile = 0;
+
         this.facialHair = new FacialHair(this);
         this.headPose = new HeadPose(this);
     }
     
-    public constructByJSON(val: any): void 
+    public constructByJSON(obj: any): void 
     {
-        Global.fetch(this, val);
+        Global.fetch(this, obj);
+
+        /*this.facialHair.constructByJSON(obj["facialHair"]);
+        this.headPose.constructByJSON(obj["headPose"]);*/
     }
 
     /* --------------------------------------------------------
@@ -1031,6 +1315,17 @@ class FaceAttributes
     {
         return "attributes";
     }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.facialHair.toXML(),
+            this.headPose.toXML()
+        );
+
+        return xml;
+    }
 }
 
 class FaceAttribute
@@ -1065,6 +1360,10 @@ class FacialHair
     public constructor(attributes: FaceAttributes) 
     {
         super(attributes);
+
+        this.mustache = 0;
+        this.beard = 0;
+        this.sideburns = 0;
     }
     
     /* --------------------------------------------------------
@@ -1106,7 +1405,9 @@ class HeadPose
     {
         super(attributes);
 
-        this.attributes = attributes;
+        this.roll = 0;
+        this.yaw = 0;
+        this.pitch = 0;
     }
     
     /* --------------------------------------------------------
