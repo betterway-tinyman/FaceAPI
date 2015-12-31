@@ -9,6 +9,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 function main() {
     var picture = new Picture("http://samchon.org/download/me.jpg");
     picture.detectFaces();
+    trace(picture.toXML());
 }
 /* ============================================================
     GLOBAL AND ABSTRACTS
@@ -211,15 +212,15 @@ var Picture = (function (_super) {
     /**
      * <p> 사진 속 얼굴들을 감지해낸다. </p>
      *
-     * <p> 이 작업은 비동기로 이루어진다. 콜백함수 detected 를 참조. </p>
-     *
      * <ul>
      *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
      * </ul>
      */
     Picture.prototype.detectFaces = function () {
         this.splice(0, this.length);
-        var picture = this;
+        // AJAX의 람다 함수는 this가 좀 이상하다. 
+        // this의 참조를 미리 복제해 둘 것
+        var this_ = this;
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
         var apiURL = "https://api.projectoxford.ai/face/v1.0/detect";
         var params = {
@@ -235,15 +236,11 @@ var Picture = (function (_super) {
                 xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
             },
             type: "POST",
-            data: JSON.stringify({ "url": this.url })
-        }).done(function (data) {
-            picture.constructByJSON(data);
-            var xml = picture.toXML();
-            var pic = new Picture();
-            pic.construct(xml);
-            trace(pic.toXML().toString());
-        }).fail(function (error) {
-            // THROW ERROR
+            async: false,
+            data: JSON.stringify({ "url": this.url }),
+            success: function (data) {
+                this_.constructByJSON(data);
+            }
         });
     };
     /* --------------------------------------------------------
@@ -291,8 +288,20 @@ var Face = (function (_super) {
      *  <li> 참고자료:  </li>
      * </ul>
      */
-    Face.prototype.identifyPerson = function (personGroup) {
+    Face.prototype.find = function (personGroup) {
         return null;
+    };
+    Face.prototype.finds = function (personGroup) {
+    };
+    /**
+     * 두 얼굴이 같은 사람인 지 검사한다.
+     *
+     * <ul>
+     *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
+     * </ul>
+     */
+    Face.prototype.equals = function (face) {
+        return new Pair(false, 0.0);
     };
     /* --------------------------------------------------------
         GETTERS

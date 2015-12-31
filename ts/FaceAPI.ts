@@ -5,6 +5,8 @@ function main(): void
 {
     var picture: Picture = new Picture("http://samchon.org/download/me.jpg");
     picture.detectFaces();
+
+    trace(picture.toXML());
 }
 
 /* ============================================================
@@ -263,8 +265,6 @@ class Picture
     /**
      * <p> 사진 속 얼굴들을 감지해낸다. </p>
      *
-     * <p> 이 작업은 비동기로 이루어진다. 콜백함수 detected 를 참조. </p>
-     *
      * <ul>
      *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
      * </ul>
@@ -272,7 +272,10 @@ class Picture
     public detectFaces(): void 
     {
         this.splice(0, this.length);
-        var picture: Picture = this;
+
+        // AJAX의 람다 함수는 this가 좀 이상하다. 
+        // this의 참조를 미리 복제해 둘 것
+        var this_ = this;
 
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
         var apiURL: string = "https://api.projectoxford.ai/face/v1.0/detect";
@@ -288,31 +291,20 @@ class Picture
         (
             {
                 url: "https://api.projectoxford.ai/face/v1.0/detect?" + $.param(params),
-                beforeSend: function (xhrObj) {
+                beforeSend: function (xhrObj) 
+                {
                     // Request headers
                     xhrObj.setRequestHeader("Content-Type", "application/json");
                     xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
                 },
                 type: "POST",
-                data: JSON.stringify({"url": this.url})
-            }
-        ).done
-        (
-            function (data: any) 
-            {
-                picture.constructByJSON(data);
-                var xml: XML = picture.toXML();
+                async: false,
 
-                var pic: Picture = new Picture();
-                pic.construct(xml);
-
-                trace(pic.toXML().toString());
-            }
-        ).fail
-        (
-            function (error: any) 
-            {
-                // THROW ERROR
+                data: JSON.stringify({"url": this.url}),
+                success: function (data)
+                {
+                    this_.constructByJSON(data);
+                }
             }
         );
     }
@@ -394,9 +386,27 @@ class Face
      *  <li> 참고자료:  </li>
      * </ul>
      */
-    public identifyPerson(personGroup: PersonGroup): Person
+    public find(personGroup: PersonGroup): Person
     {
         return null;
+    }
+
+    public finds(personGroup: PersonGroup): any //Array<Person, number>
+    {
+    }
+
+    /**
+     * 두 얼굴이 같은 사람인 지 검사한다.
+     *
+     * <ul>
+     *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
+     * </ul>
+     */
+    public equals(face: Face): Pair<boolean, number>
+    {
+
+
+        return new Pair(false, 0.0);
     }
 
     /* --------------------------------------------------------
