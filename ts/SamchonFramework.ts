@@ -1236,6 +1236,11 @@ class StringUtil
         return str;
     }
 
+    /*public static substitute(format: string, ...args: any[]): string
+    {
+        return "";
+    }*/
+
 	/**
 	 * <p> Replace all patterns of a string. </p>
 	 */
@@ -2855,11 +2860,22 @@ class EntityArray<_Ty extends IEntity>
         return ""; 
     }
 
-    public has(key: string): boolean
+    public has(key: any): boolean
     {
-        for (var i: number = 0; i < this.length; i++)
-            if (this[i].key() == key)
-                return true;
+        var i: number;
+
+        if (key instanceof Entity || key instanceof EntityArray)
+        {
+            for(i = 0; i < this.length; i++)
+                if (this[i] == key)
+                    return true;
+        }
+        else
+        {
+            for (var i: number = 0; i < this.length; i++)
+                if (this[i].key() == key)
+                    return true;
+        }
 
         return false;
     }

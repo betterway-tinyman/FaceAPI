@@ -1024,6 +1024,10 @@ var StringUtil = (function () {
             str += "&nbsp;&nbsp;&nbsp;&nbsp;";
         return str;
     };
+    /*public static substitute(format: string, ...args: any[]): string
+    {
+        return "";
+    }*/
     /**
      * <p> Replace all patterns of a string. </p>
      */
@@ -2159,9 +2163,17 @@ var EntityArray = (function (_super) {
         return "";
     };
     EntityArray.prototype.has = function (key) {
-        for (var i = 0; i < this.length; i++)
-            if (this[i].key() == key)
-                return true;
+        var i;
+        if (key instanceof Entity || key instanceof EntityArray) {
+            for (i = 0; i < this.length; i++)
+                if (this[i] == key)
+                    return true;
+        }
+        else {
+            for (var i = 0; i < this.length; i++)
+                if (this[i].key() == key)
+                    return true;
+        }
         return false;
     };
     EntityArray.prototype.get = function (key) {

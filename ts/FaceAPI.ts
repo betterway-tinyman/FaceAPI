@@ -3,10 +3,7 @@
 
 function main(): void
 {
-    var picture: Picture = new Picture("http://samchon.org/download/me.jpg");
-    picture.detectFaces();
-
-    trace(picture.toXML());
+    
 }
 
 /* ============================================================
@@ -14,7 +11,6 @@ function main(): void
         - GLOBAL
         - DIRECTION
         - POINT_ENTITY
-        - I_JSON_ENTITY
 ============================================================ */
 /**
  * 전역 클래스.
@@ -24,7 +20,7 @@ function main(): void
 class Global
 {
     /**
-     * FaceAPI의 인증키.
+     * Face API 의 인증키.
      */
     public static get CERTIFICATION_KEY(): string
     {
@@ -138,6 +134,14 @@ class Point
     }
 }
 
+/* ============================================================
+    ROOT ENTITIES
+        - I_JSON_ENTITY
+        - FACE_API
+            - PERSON_GROUP_ARRAY
+            - FACE_LIST_ARRAY
+            - PICTURE_ARRAY
+============================================================ */
 /**
  * JSON을 통하여 멤버가 구성되는 엔티티를 위한 인터페이스.
  *
@@ -151,13 +155,242 @@ interface IJSONEntity
     constructByJSON(val: any): void;
 }
 
+/**
+ * Face API의 Facade controller 및 Factory 클래스.
+ *
+ * @author 남정호
+ */
+class FaceAPI
+    extends Entity 
+{
+    /**
+     * 사람 그룹 리스트.
+     */
+    protected personGroupArray: PersonGroupArray;
+
+    /**
+     * 사진 리스트.
+     */
+    protected pictureArray: PictureArray;
+
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    /**
+     * 기본 생성자.
+     */
+    public constructor() 
+    {
+        super();
+
+        this.personGroupArray = new PersonGroupArray(this);
+        this.pictureArray = new PictureArray(this);
+    }
+
+    /**
+     * Factory method of 사람 그룹.
+     */
+    public createPersonGroup(name: string): PersonGroup 
+    {
+        var personGroup: PersonGroup = new PersonGroup(this.personGroupArray, name);
+        this.personGroupArray.push(personGroup);
+
+        return personGroup;
+    }
+
+    /**
+     * Factory method of 얼굴 리스트.
+     */
+    public createFaceList(name: string): FaceList 
+    {
+        return new FaceList(this, name);
+    }
+
+    /**
+     * Factory method of 사진.
+     */
+    public createPicture(url: string): Picture 
+    {
+        var picture: Picture = new Picture(this.pictureArray, url);
+        this.pictureArray.push(picture);
+
+        return picture;
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    /**
+     * Get 사람 그룹 리스트.
+     */
+    public getPersonGroupArray(): PersonGroupArray
+    {
+        return this.personGroupArray;
+    }
+    
+    /**
+     * Get 사진 리스트.
+     */
+    public getPictureArray(): PictureArray 
+    {
+        return this.pictureArray;
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string 
+    {
+        return "faceAPI";
+    }
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        xml.push
+        (
+            this.personGroupArray.toXML(),
+            this.pictureArray.toXML()
+        );
+
+        return xml;
+    }
+
+    /* --------------------------------------------------------
+        STATIC MEMBERS
+    -------------------------------------------------------- */
+    public static send(url: string, method:string, params: Object, data: Object, success:Function): void
+    {
+        $.ajax
+        ({
+            url: url + "?" + $.param(params),
+            beforeSend: function (xhrObj) 
+            {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: method,
+            async: false,
+
+            data: JSON.stringify(data),
+            success: function (data)
+            {
+                success.apply(data);
+            }
+        });
+    }
+}
+
+/**
+ * 사람 그룹 리스트 엔티티.
+ *
+ * @author 남정호
+ */
+class PersonGroupArray
+    extends EntityArray<PersonGroup>
+{
+    /**
+     * 상위 API 클래스.
+     */
+    protected api: FaceAPI;
+
+    /* --------------------------------------------------------
+        CONSTRUCTORS
+    -------------------------------------------------------- */
+    /**
+     * 생성자 from API.
+     */
+    constructor(api: FaceAPI)
+    {
+        super();
+
+        this.api = api;
+    }
+
+    protected createChild(xml: XML): PersonGroup
+    {
+        return new PersonGroup(this, xml.getProperty("name"));
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    /**
+     * Get API.
+     */
+    public getAPI(): FaceAPI
+    {
+        return this.api;
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string
+    {
+        return "personGroupArray";
+    }
+    public CHILD_TAG(): string
+    {
+        return "personGroup";
+    }
+}
+
+/**
+ * 사진 목록.
+ */
+class PictureArray
+    extends EntityArray<Picture>
+{
+    protected api: FaceAPI;
+
+    /* --------------------------------------------------------
+        CONSTRUCTORS
+    -------------------------------------------------------- */
+    /**
+     * 생성자 from API.
+     */
+    public constructor(api: FaceAPI)
+    {
+        super();
+
+        this.api = api;
+    }
+
+    protected createChild(xml: XML): Picture
+    {
+        return new Picture(this, xml.getProperty("url"));
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string
+    {
+        return "pictureArray";
+    }
+    public CHILD_TAG(): string
+    {
+        return "picture";
+    }
+}
+
 /* ============================================================
-    BASIC ENTITIES
+    GROUP ENTITIES
         - PERSON_GROUP
-        - PERSON
-        - PICTURE
-        - FACE
+        - FACE_LIST
+
+        - PICTURE_ARRAY
+        - FACE_ARRAY
 ============================================================ */
+interface IGroup
+{
+    isRegistered(): boolean;
+
+    inserToServer(): void;
+    eraseFromServer(): void;
+}
+
 /**
  * <p> Person의 집합. </p>
  *
@@ -173,31 +406,519 @@ interface IJSONEntity
  */
 class PersonGroup
     extends EntityArray<Person>
+    implements IGroup
 {
+    protected groupArray: PersonGroupArray;
 
+    protected id: string;
+    protected name: string;
+
+    protected registered: boolean;
+    protected trained: boolean;
+
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    public constructor(groupArray: PersonGroupArray, name: string = "")
+    {
+        super();
+
+        this.groupArray = groupArray;
+        this.id = "";
+        this.name = name;
+
+        this.trained = false;
+        this.registered = false;
+    }
+    
+    protected createChild(xml: XML): Person
+    {
+        // 어떻게 Person을 찾아낼 지 생각해야 함
+        return null;
+    }
+
+    /* --------------------------------------------------------
+        OPERATORS
+    -------------------------------------------------------- */
+    public push(...items: Person[]): number 
+    {
+        for (var i: number = 0; i < items.length; i++)
+            this.registerPerson(items[i]);
+
+        return super.push(...items);
+    }
+
+    public splice(start: number, deleteCount?: number, ...items: Person[]): Person[] 
+    {
+        var i: number;
+
+        for (i = start; i < Math.min(start + deleteCount, this.length); i++)
+            this.erasePerson(this[i]);
+
+        for (i = 0; i < items.length; i++)
+            this.registerPerson(items[i]);
+
+        return super.splice(start, deleteCount, ...items);
+    }
+
+    public identify(face: Face): Person
+    {
+        if (this.isTrained() == false)
+            this.train();
+
+        return null;
+    }
+
+    /* --------------------------------------------------------
+        INTERACTION WITH FACE API
+    -------------------------------------------------------- */
+    public inserToServer(): void
+    {
+        // 식별자 번호 발급
+        if (this.id == "")
+        {
+
+        }
+
+        // 서버에 등록
+        var this_: PersonGroup = this; // jQuery는 this를 인지하지 못함
+        
+        $.ajax
+        ({
+            url: "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
+            beforeSend: function (xhrObj) 
+            {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: "PUT",
+            async: false,
+
+            data: JSON.stringify({"name": this.name}),
+            success: function (data)
+            {
+                this_.registered = true;
+            }
+        });
+    }
+
+    public eraseFromServer(): void
+    {
+
+    }
+
+    public train(): void
+    {
+        // 등록을 먼저 수행
+        if (this.isRegistered() == false)
+            this.inserToServer();
+
+        // 학습 수행
+        var this_: PersonGroup = this; // jQuery는 this를 인지하지 못함
+        
+        $.ajax
+        ({
+            url: "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train",
+            beforeSend: function (xhrObj) 
+            {
+               // Request headers
+               xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: "POST",
+            async: false,
+
+            data: "",
+            success: function (data) 
+            {
+                this_.trained = true;
+            }
+        });
+    }
+
+    protected registerPerson(person: Person): void
+    {
+        if (this.id == "")
+            this.inserToServer();
+    }
+    protected erasePerson(person: Person): void
+    {
+        if (this.has(person) == false)
+            return;
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public key(): any
+    {
+        return this.id;
+    }
+
+    public getGroupArray(): PersonGroupArray
+    {
+        return this.groupArray;
+    }
+
+    public getID(): string
+    {
+        return this.id;
+    }
+    public getName(): string
+    {
+        return this.name;
+    }
+
+    public isRegistered(): boolean
+    {
+        return this.registered;;
+    }
+    public isTrained(): boolean
+    {
+        return this.trained;
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string
+    {
+        return "personGroup";
+    }
+    public CHILD_TAG(): string
+    {
+        return "person";
+    }
 }
 
+class FaceList
+    extends EntityArray<Face>
+    implements IGroup
+{
+    /**
+     * 상위 API 클래스.
+     */
+    protected api: FaceAPI;
+
+    /**
+     * 식별자 ID.
+     */
+    protected id: string;
+    
+    /**
+     * 얼굴 리스트의 이름.
+     */
+    protected name: string;
+
+    /**
+     * API Server에 등록되었는 지 여부.
+     */
+    protected registered: boolean;
+
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    /**
+     * 생성자 from API with 이름.
+     */ 
+    public constructor(api: FaceAPI, name: string = "")
+    {
+        super();
+
+        this.api = api;
+
+        this.id = "";
+        this.name = name;
+
+        this.registered = false;
+    }
+
+    public construct(xml: XML): void 
+    {
+        this.id = xml.getProperty("id");
+        this.name = xml.getProperty("name");
+
+        if (xml.has(this.CHILD_TAG()) == false)
+            return;
+
+        var xmlList: XMLList = xml.get(this.CHILD_TAG());
+        var pictureArray: PictureArray = this.api.getPictureArray();
+
+        for (var i: number = 0; i < xmlList.length; i++)
+        {
+            var faceID: string = xmlList[i].getProperty("id");
+            var pictureURL: string = xmlList[i].getProperty("pictureURL");
+
+            if (pictureArray.has(pictureURL) == false || pictureArray.get(pictureURL).has(faceID) == false)
+                continue;
+
+            this.push(pictureArray.get(pictureURL).get(faceID));
+        }
+    }
+
+    /* --------------------------------------------------------
+        OPERATORS
+    -------------------------------------------------------- */
+    public push(...args: Face[]): number 
+    {
+        if (this.isRegistered() == false)
+            this.inserToServer();
+
+        for (var i: number = 0; i < args.length; i++)
+            this.registerFaceToServer(args[i]);
+
+        return super.push(...args);
+    }
+
+    public splice(start: number, deleteCount?: number, ...args: Face[]): Face[] 
+    {
+        var i: number;
+
+        for (i = start; i < Math.min(start + deleteCount, this.length); i++)
+            this.eraseFaceFromServer(this[i]);
+
+        for (i = 0; i < args.length; i++)
+            this.registerFaceToServer(args[i]);
+
+        return super.splice(start, deleteCount, ...args);
+    }
+
+    /* --------------------------------------------------------
+        INTERACTION WITH FACE API
+    -------------------------------------------------------- */
+    public inserToServer(): void
+    {
+        // 식별자 번호 발급
+
+        // 서버에 등록
+        $.ajax
+        ({
+            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id,
+            beforeSend: function (xhrObj) 
+            {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: "PUT",
+            async: false,
+
+            data: JSON.stringify({ "name": this.name, "userData": ""}),
+            success: function (data) 
+            {
+                this.registered = true;
+            }
+        });
+    }
+
+    public eraseFromServer(): void
+    {
+    }
+
+    protected registerFaceToServer(face: Face): void
+    {
+        if (this.isRegistered() == false)
+            this.inserToServer();
+
+        var rectangle: FaceRectangle = face.getRectangle();
+        var params: Object =
+        {
+            "faceListId": this.id,
+            "userData": "",
+            "targetFace": rectangle.getX() + "," + rectangle.getY() + "," + rectangle.getWidth() + "," + rectangle.getHeight()
+        };
+
+        $.ajax
+        ({
+            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces?" + $.param(params),
+            beforeSend: function (xhrObj) 
+            {
+                // Request headers
+                xhrObj.setRequestHeader("Content-Type", "application/json");
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: "POST",
+            async: false,
+
+            data: JSON.stringify({ "url": face.getPicture().getURL() }),
+            success: function (data) 
+            {
+                face.setPersistedUID(data["persistedFaceId"]);
+            }
+        });
+    }
+
+    protected eraseFaceFromServer(face: Face): void
+    {
+        if (this.has(face) == false)
+            return;
+
+        var params: Object =
+        {
+            "faceListId": this.id,
+            "persistedFaceId": face.getPersistedUID()
+        };
+
+        $.ajax
+        ({
+            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getPersistedUID() + "?" + $.param(params),
+            beforeSend: function (xhrObj) 
+            {
+                // Request headers
+               xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+            },
+            type: "DELETE",
+            async: false,
+                
+            success: function (data) 
+            {
+                face.setPersistedUID(data["persistedFaceId"]);
+            }
+        });
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public key(): any
+    {
+        return this.id;
+    }
+
+    public getAPI(): FaceAPI
+    {
+        return this.api;
+    }
+
+    public getID(): string
+    {
+        return this.id;
+    }
+    public getName(): string
+    {
+        return this.name;
+    }
+
+    public isRegistered(): boolean
+    {
+        return this.registered;
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string
+    {
+        return "faceList";
+    }
+    public CHILD_TAG(): string
+    {
+        return "face";
+    }
+
+    public toXML(): XML
+    {
+        var xml: XML = new XML();
+        xml.setTag(this.TAG());
+
+        xml.setProperty("name", this.name);
+        for (var i: number = 0; i < this.length; i++)
+        {
+            var face: XML = new XML();
+            face.setTag(this.CHILD_TAG());
+            
+            face.setProperty("id", this[i].getUID());
+            face.setProperty("pictureURL", this[i].getPicture().getURL());
+
+            xml.push(face);
+        }
+
+        return xml;
+    }
+}
+
+/* ============================================================
+    BASIC ENTITIES
+        - PERSON
+        - PICTURE
+        - FACE
+============================================================ */
 /**
  * 사람 엔티티.
  *
  * @author 남정호
  */
 class Person
-    extends Entity
+    extends EntityArray<Face>
 {
-    protected faceArray: Vector<Face>;
+    protected group: PersonGroup;
 
+    protected name: string;
+    
     /* --------------------------------------------------------
         CONTRUCTORS
     -------------------------------------------------------- */
     /**
-     * 기본 생성자.
+     * 생성자 from PersonGroup with 이름
      */
-    public constructor()
+    public constructor(group: PersonGroup, name: string)
     {
         super();
 
-        this.faceArray = new Vector<Face>();
+        this.group = group;
+        this.name = name;
+    }
+
+    public construct(xml: XML): void
+    {
+        this.name = xml.getProperty("name");
+
+        if (xml.has(this.CHILD_TAG()) == false)
+            return;
+        
+        var xmlList: XMLList = xml.get(this.CHILD_TAG());
+        var pictureArray: PictureArray = this.group.getGroupArray().getAPI().getPictureArray();
+
+        for (var i: number = 0; i < xmlList.length; i++)
+        {
+            var faceID: string = xmlList[i].getProperty("id");
+            var pictureURL: string = xmlList[i].getProperty("pictureURL");
+
+            if (pictureArray.has(pictureURL) == false || pictureArray.get(pictureURL).has(faceID) == false)
+                continue;
+
+            this.push(pictureArray.get(pictureURL).get(faceID));
+        }
+    }
+
+    /* --------------------------------------------------------
+        INTERACTION WITH FACE API
+    -------------------------------------------------------- */
+    protected registerFace(face: Face): void
+    {
+        
+    }
+
+    protected eraseFace(index: number): void
+    {
+
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public key(): any
+    {
+        return this.name;
+    }
+
+    public getGroup(): PersonGroup
+    {
+        return this.group;
+    }
+    public getName(): string
+    {
+        return this.name;
     }
 
     /* --------------------------------------------------------
@@ -206,6 +927,30 @@ class Person
     public TAG(): string
     {
         return "person";
+    }
+    public CHILD_TAG(): string
+    {
+        return "face";
+    }
+
+    public toXML(): XML
+    {
+        var xml: XML = new XML();
+        xml.setTag(this.TAG());
+
+        xml.setProperty("name", this.name);
+        for (var i: number = 0; i < this.length; i++)
+        {
+            var face: XML = new XML();
+            face.setTag(this.CHILD_TAG());
+            
+            face.setProperty("id", this[i].getUID());
+            face.setProperty("pictureURL", this[i].getPicture().getURL());
+
+            xml.push(face);
+        }
+
+        return xml;
     }
 }
 
@@ -223,6 +968,8 @@ class Picture
     extends EntityArray<Face>
     implements IJSONEntity
 {
+    protected pictureArray: PictureArray;
+
     /**
      * 그림이 저장된 URL.
      */
@@ -234,10 +981,11 @@ class Picture
     /**
      * 기본 생성자.
      */
-    public constructor(url: string = "") 
+    public constructor(pictureArray: PictureArray, url: string = "") 
     {
         super();
 
+        this.pictureArray = pictureArray;
         this.url = url;
     }
     
@@ -254,9 +1002,26 @@ class Picture
         }
     }
 
-    protected createChild(xml:XML):Face
+    protected createChild(xml:XML): Face
     {
         return new Face(this);
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public key(): any
+    {
+        return this.url;
+    }
+    
+    public getPictureArray(): PictureArray
+    {
+        return this.pictureArray;
+    }
+    public getURL(): string
+    {
+        return this.url;
     }
 
     /* --------------------------------------------------------
@@ -269,7 +1034,7 @@ class Picture
      *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
      * </ul>
      */
-    public detectFaces(): void 
+    public detect(): void 
     {
         this.splice(0, this.length);
 
@@ -278,33 +1043,18 @@ class Picture
         var this_ = this;
 
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-        var apiURL: string = "https://api.projectoxford.ai/face/v1.0/detect";
-
-        var params: Object = 
-        {
-            "returnFaceId": "true",
-            "returnFaceLandmarks": "true",
-            "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
-        };
-
-        $.ajax
+        FaceAPI.send
         (
+            "https://api.projectoxford.ai/face/v1.0/detect", "POST", 
             {
-                url: "https://api.projectoxford.ai/face/v1.0/detect?" + $.param(params),
-                beforeSend: function (xhrObj) 
-                {
-                    // Request headers
-                    xhrObj.setRequestHeader("Content-Type", "application/json");
-                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-                },
-                type: "POST",
-                async: false,
-
-                data: JSON.stringify({"url": this.url}),
-                success: function (data)
-                {
-                    this_.constructByJSON(data);
-                }
+                "returnFaceId": "true",
+                "returnFaceLandmarks": "true",
+                "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
+            }, 
+            { "url": this.url }, 
+            function (data) 
+            {
+                this_.constructByJSON(data);
             }
         );
     }
@@ -344,6 +1094,8 @@ class Face
      */
     protected uid: string;
 
+    protected persistedUID: string;
+
     protected rectangle: FaceRectangle;
     protected landmarks: FaceLandmarks;
     protected attributes: FaceAttributes;
@@ -368,6 +1120,22 @@ class Face
         this.attributes = new FaceAttributes(this);
     }
     
+    public construct(xml: XML): void
+    {
+        super.construct(xml);
+
+        this.person = null;
+
+        if (xml.has("person") == false)
+            return;
+
+        var person: XML = xml.get("person")[0];
+        var personName: string = person.getProperty("name");
+        var personGroupID: string = person.getProperty("groupID");
+
+
+    }
+
     public constructByJSON(obj: any): void
     {
         trace(JSON.stringify(obj));
@@ -379,6 +1147,9 @@ class Face
         this.attributes.constructByJSON(obj["faceAttributes"]);
     }
 
+    /* --------------------------------------------------------
+        COMPARES
+    -------------------------------------------------------- */
     /**
      * <p> 이 얼굴(Face)이 누구인지(Person in PersonGroup) 감지해냄. </p>
      *
@@ -386,9 +1157,9 @@ class Face
      *  <li> 참고자료:  </li>
      * </ul>
      */
-    public find(personGroup: PersonGroup): Person
+    public identify(personGroup: PersonGroup): Person
     {
-        return null;
+        return personGroup.identify(this);
     }
 
     public finds(personGroup: PersonGroup): any //Array<Person, number>
@@ -401,17 +1172,57 @@ class Face
      * <ul>
      *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
      * </ul>
+     * 
+     * @return 같은 사람인 지 (true, false) &amp; 유사도 (0.0 ~ 1.0)
      */
     public equals(face: Face): Pair<boolean, number>
     {
+        // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
+        var apiURL: string = "https://api.projectoxford.ai/face/v1.0/verify";
 
+        $.ajax
+        (
+            {
+                url: "https://api.projectoxford.ai/face/v1.0/verify",
+                beforeSend: function (xhrObj) 
+                {
+                    // Request headers
+                    xhrObj.setRequestHeader("Content-Type", "application/json");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+                },
+                async: false,
 
-        return new Pair(false, 0.0);
+                data: JSON.stringify({"faceId1": this.uid, "faceId2": face.uid}),
+                success: function (data)
+                {
+                    var isIdentical: boolean = data["isIdentical"];
+                    var confidence: number = data["confidental"];
+
+                    return new Pair<boolean, number>(isIdentical, confidence);
+                }
+            }
+        );
+
+        return new Pair<boolean, number>(false, 0.0);
     }
 
     /* --------------------------------------------------------
-        GETTERS
+        GETTERS & SETTERS
     -------------------------------------------------------- */
+    public key(): any
+    {
+        return this.uid;
+    }
+
+    public getUID(): string
+    {
+        return this.uid;
+    }
+    public getPersistedUID(): string
+    {
+        return this.persistedUID;
+    }
+    
     public getPicture(): Picture
     {
         return this.picture;
@@ -421,6 +1232,10 @@ class Face
         return this.person;
     }
     
+    public getRectangle(): FaceRectangle
+    {
+        return this.rectangle;
+    }
     public getLandmarks(): FaceLandmarks
     {
         return this.landmarks;
@@ -428,6 +1243,11 @@ class Face
     public getAttributes(): FaceAttributes
     {
         return this.attributes;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
+
+    public setPersistedUID(uid: string): void
+    {
+        this.persistedUID = uid;
     }
 
     /* --------------------------------------------------------
