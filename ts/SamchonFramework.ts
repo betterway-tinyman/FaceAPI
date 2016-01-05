@@ -512,7 +512,7 @@ class Set<_Ty>
                 return;
             }
 
-        throw "out of range";
+        throw Error("out of range");
     }
 
 	/**
@@ -892,8 +892,8 @@ class Map<_Kty, _Ty>
 		for (var i: number = 0; i < this.data_.length; i++)
 			if (this.data_[i].first == key)
 				return this.data_[i].second;
-
-		throw "out of range";
+        
+		throw Error("out of range");
 	}
 
 	/* ---------------------------------------------------------
@@ -980,7 +980,7 @@ class Map<_Kty, _Ty>
 				return;
 			}
 
-		throw "out of range";
+		throw Error("out of range");
 	}
 
 	/**
@@ -1718,7 +1718,7 @@ class XML
 	public eraseProperty(key: string): void 
 	{
         if(this.properties.has(key) == false)
-            throw "out of range";
+            throw Error("out of range");
         else
             this.properties.erase(key);
 	}
@@ -2885,7 +2885,7 @@ class EntityArray<_Ty extends IEntity>
             if (this[i].key() == key)
                 return this[i];
 
-        throw "out of range";
+        throw Error("out of range");
     }
 
     /* ------------------------------------------------------------------
@@ -3509,7 +3509,7 @@ class ExternalSystemArray
             if (this[i].has(key) == true)
                 return this[i].get(key);
 
-        throw "out of range";
+        throw Error("out of range");
     }
 
     /* ------------------------------------------------------------------

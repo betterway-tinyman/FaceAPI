@@ -413,7 +413,7 @@ var Set = (function () {
                 this.data_.splice(i, 1);
                 return;
             }
-        throw "out of range";
+        throw Error("out of range");
     };
     /**
      * <p> Clear content. </p>
@@ -732,7 +732,7 @@ var Map = (function () {
         for (var i = 0; i < this.data_.length; i++)
             if (this.data_[i].first == key)
                 return this.data_[i].second;
-        throw "out of range";
+        throw Error("out of range");
     };
     /* ---------------------------------------------------------
         ITERATORS
@@ -807,7 +807,7 @@ var Map = (function () {
                 this.data_.splice(i, 1);
                 return;
             }
-        throw "out of range";
+        throw Error("out of range");
     };
     /**
      * <p> Clear content. </p>
@@ -1381,7 +1381,7 @@ var XML = (function (_super) {
      */
     XML.prototype.eraseProperty = function (key) {
         if (this.properties.has(key) == false)
-            throw "out of range";
+            throw Error("out of range");
         else
             this.properties.erase(key);
     };
@@ -2180,7 +2180,7 @@ var EntityArray = (function (_super) {
         for (var i = 0; i < this.length; i++)
             if (this[i].key() == key)
                 return this[i];
-        throw "out of range";
+        throw Error("out of range");
     };
     /* ------------------------------------------------------------------
         EXPORTERS
@@ -2679,7 +2679,7 @@ var ExternalSystemArray = (function (_super) {
         for (var i = 0; i < this.length; i++)
             if (this[i].has(key) == true)
                 return this[i].get(key);
-        throw "out of range";
+        throw Error("out of range");
     };
     /* ------------------------------------------------------------------
         CHAIN OF INVOKE MESSAGE

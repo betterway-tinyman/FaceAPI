@@ -22,16 +22,6 @@ function main() {
 var Global = (function () {
     function Global() {
     }
-    Object.defineProperty(Global, "CERTIFICATION_KEY", {
-        /**
-         * Face API 의 인증키.
-         */
-        get: function () {
-            return "b072c71311d144388ac2527a5f06ffca";
-        },
-        enumerable: true,
-        configurable: true
-    });
     /**
      * 엔티티의 멤버를 JSON 객체로부터 구성한다.
      */
@@ -182,16 +172,35 @@ var FaceAPI = (function (_super) {
         xml.push(this.personGroupArray.toXML(), this.pictureArray.toXML());
         return xml;
     };
-    /* --------------------------------------------------------
-        STATIC MEMBERS
-    -------------------------------------------------------- */
-    FaceAPI.send = function (url, method, params, data, success) {
+    Object.defineProperty(FaceAPI, "CERTIFICATION_KEY", {
+        /* --------------------------------------------------------
+            STATIC MEMBERS
+        -------------------------------------------------------- */
+        /**
+         * Face API 의 인증키.
+         */
+        get: function () {
+            return "b072c71311d144388ac2527a5f06ffca";
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Face API 서버에 질의문을 전송함.
+     *
+     * @param url 질의문을 보낼 HTTPS 주소
+     * @param method GET, POST 등
+     * @param params 선행으로 보낼 파라미터
+     * @param data 후행으로 보낼 데이터
+     * @param success 질의 성공시, reply 데이터에 대하여 수행할 함수
+     */
+    FaceAPI.query = function (url, method, params, data, success) {
         $.ajax({
             url: url + "?" + $.param(params),
             beforeSend: function (xhrObj) {
                 // Request headers
                 xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", FaceAPI.CERTIFICATION_KEY);
             },
             type: method,
             async: false,
@@ -201,6 +210,11 @@ var FaceAPI = (function (_super) {
             }
         });
     };
+    FaceAPI.issueID = function (prefix) {
+        var date = new Date();
+        return prefix + "_hiswill_" + date.toString() + "_" + (++FaceAPI.sequence);
+    };
+    FaceAPI.sequence = 0;
     return FaceAPI;
 })(Entity);
 /**
@@ -245,6 +259,8 @@ var PersonGroupArray = (function (_super) {
 })(EntityArray);
 /**
  * 사진 목록.
+ *
+ * @author 남정호
  */
 var PictureArray = (function (_super) {
     __extends(PictureArray, _super);
@@ -262,6 +278,21 @@ var PictureArray = (function (_super) {
         return new Picture(this, xml.getProperty("url"));
     };
     /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    PictureArray.prototype.hasURL = function (url) {
+        for (var i = 0; i < this.length; i++)
+            if (this[i].getURL() == url)
+                return true;
+        return false;
+    };
+    PictureArray.prototype.getByURL = function (url) {
+        for (var i = 0; i < this.length; i++)
+            if (this[i].getURL() == url)
+                return this[i];
+        throw Error("out of range");
+    };
+    /* --------------------------------------------------------
         EXPORTERS
     -------------------------------------------------------- */
     PictureArray.prototype.TAG = function () {
@@ -272,6 +303,141 @@ var PictureArray = (function (_super) {
     };
     return PictureArray;
 })(EntityArray);
+/* ============================================================
+    ABSTRACT ENTITIES
+        - FACE_PAIR_ARRAY
+        - FACE_PAIR
+============================================================ */
+var FacePairArray = (function (_super) {
+    __extends(FacePairArray, _super);
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    function FacePairArray() {
+        _super.call(this);
+    }
+    FacePairArray.prototype.createChild = function (xml) {
+        return new FacePair(this);
+    };
+    /* --------------------------------------------------------
+        OPERATORS
+    -------------------------------------------------------- */
+    FacePairArray.prototype.push = function () {
+        var items = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            items[_i - 0] = arguments[_i];
+        }
+        if (this.isRegistered() == false)
+            this.insertToServer();
+        for (var i = 0; i < items.length; i++) {
+            if (items[i] instanceof FacePair == false) {
+                var pair = new FacePair(this);
+                if (items[i] instanceof Face)
+                    pair.setFile(items[i]);
+                else
+                    pair.setRectangle(items[i]);
+                // 대치
+                items[i] = pair;
+            }
+            // 서버에 등록
+            items[i].insertToServer();
+        }
+        return this.length;
+    };
+    FacePairArray.prototype.splice = function (start, end) {
+        var items = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            items[_i - 2] = arguments[_i];
+        }
+        // 각 원소들을 서버에서도 제거
+        for (var i = start; i < Math.min(start + end, this.length); i++)
+            this[i].eraseFromServer();
+        // 리턴
+        var output = _super.prototype.splice.call(this, start, end);
+        this.push.apply(this, items);
+        return output;
+    };
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    FacePairArray.prototype.getFaceAPI = function () {
+        return null;
+    };
+    FacePairArray.prototype.getInsertURL = function (facePair) {
+        return "";
+    };
+    FacePairArray.prototype.getEraseURL = function (facePair) {
+        return "";
+    };
+    return FacePairArray;
+})(EntityArray);
+var FacePair = (function (_super) {
+    __extends(FacePair, _super);
+    /* --------------------------------------------------------
+        CONSTRUCTORS
+    -------------------------------------------------------- */
+    function FacePair(pairArray) {
+        _super.call(this);
+        this.pairArray = pairArray;
+        this.registered = false;
+        this.face = null;
+    }
+    FacePair.prototype.construct = function (xml) {
+        _super.prototype.construct.call(this, xml);
+        if (xml.hasProperty("faceID") == true) {
+            var pictureURL = xml.getProperty("pictureURL");
+            var faceID = xml.getProperty("faceID");
+            var pictureArray = this.pairArray.getFaceAPI().getPictureArray();
+            if (pictureArray.hasURL(pictureURL) == true && pictureArray.getByURL(pictureURL).has(faceID) == true)
+                this.face = pictureArray.getByURL(pictureURL).get(faceID);
+        }
+        else
+            this.face = null;
+    };
+    FacePair.prototype.setFile = function (face) {
+        this.face = face;
+        this.pictureURL = face.getPicture().getURL();
+        this.setRectangle(face);
+    };
+    FacePair.prototype.setRectangle = function (rectangle) {
+        this.x = rectangle.getX();
+        this.y = rectangle.getY();
+        this.width = rectangle.getWidth();
+        this.height = rectangle.getHeight();
+    };
+    /* --------------------------------------------------------
+        INTERACTION WITH FACE API SERVER
+    -------------------------------------------------------- */
+    FacePair.prototype.insertToServer = function () {
+    };
+    FacePair.prototype.eraseFromServer = function () {
+    };
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    FacePair.prototype.getPairArray = function () {
+        return this.pairArray;
+    };
+    FacePair.prototype.getFace = function () {
+        return this.face;
+    };
+    FacePair.prototype.isRegistered = function () {
+        return this.registered;
+    };
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    FacePair.prototype.TAG = function () {
+        return "facePair";
+    };
+    FacePair.prototype.toXML = function () {
+        var xml = _super.prototype.toXML.call(this);
+        if (this.face != null)
+            xml.setProperty("faceID", this.face.getID());
+        return xml;
+    };
+    return FacePair;
+})(FaceRectangle);
 /**
  * <p> Person의 집합. </p>
  *
@@ -300,8 +466,7 @@ var PersonGroup = (function (_super) {
         this.registered = false;
     }
     PersonGroup.prototype.createChild = function (xml) {
-        // 어떻게 Person을 찾아낼 지 생각해야 함
-        return null;
+        return new Person(this, xml.getProperty("name"));
     };
     /* --------------------------------------------------------
         OPERATORS
@@ -311,8 +476,10 @@ var PersonGroup = (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             items[_i - 0] = arguments[_i];
         }
+        if (this.isRegistered() == false)
+            this.inserToServer();
         for (var i = 0; i < items.length; i++)
-            this.registerPerson(items[i]);
+            items[i].insertToServer();
         return _super.prototype.push.apply(this, items);
     };
     PersonGroup.prototype.splice = function (start, deleteCount) {
@@ -322,69 +489,96 @@ var PersonGroup = (function (_super) {
         }
         var i;
         for (i = start; i < Math.min(start + deleteCount, this.length); i++)
-            this.erasePerson(this[i]);
+            items[i].eraseFromServer();
         for (i = 0; i < items.length; i++)
-            this.registerPerson(items[i]);
+            items[i].insertToServer();
         return _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
-    };
-    PersonGroup.prototype.identify = function (face) {
-        if (this.isTrained() == false)
-            this.train();
-        return null;
     };
     /* --------------------------------------------------------
         INTERACTION WITH FACE API
     -------------------------------------------------------- */
-    PersonGroup.prototype.inserToServer = function () {
-        // 식별자 번호 발급
-        if (this.id == "") {
-        }
-        // 서버에 등록
-        var this_ = this; // jQuery는 this를 인지하지 못함
-        $.ajax({
-            url: "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
-            beforeSend: function (xhrObj) {
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "PUT",
-            async: false,
-            data: JSON.stringify({ "name": this.name }),
-            success: function (data) {
-                this_.registered = true;
-            }
-        });
-    };
-    PersonGroup.prototype.eraseFromServer = function () {
-    };
+    /**
+     * 학습을 수행함.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+     * </ul>
+     */
     PersonGroup.prototype.train = function () {
         // 등록을 먼저 수행
         if (this.isRegistered() == false)
             this.inserToServer();
         // 학습 수행
-        var this_ = this; // jQuery는 this를 인지하지 못함
-        $.ajax({
-            url: "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train",
-            beforeSend: function (xhrObj) {
-                // Request headers
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "POST",
-            async: false,
-            data: "",
-            success: function (data) {
-                this_.trained = true;
-            }
+        var this_ = this;
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", { "personGroupId": this.id }, null, function (data) {
+            this_.trained = true;
         });
     };
-    PersonGroup.prototype.registerPerson = function (person) {
-        if (this.id == "")
-            this.inserToServer();
+    /**
+     * 특정 얼굴의 주인이 누구일지 판별해 본다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+     * </ul>
+     *
+     * @param face 대상 얼굴
+     * @param maxCandidates 최대 후보 수
+     *
+     * @return 후보 사람들 및 각각의 일치도
+     */
+    PersonGroup.prototype.identify = function (face, maxCandidates) {
+        if (maxCandidates === void 0) { maxCandidates = 1; }
+        // 학습이 먼저 수행되어야 한다.
+        if (this.isTrained() == false)
+            this.train();
+        var this_ = this;
+        var personArray = new Array();
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/identify", "POST", null, {
+            "personGroupId": this.id,
+            "faceIds": [face.getID()],
+            "maxNumOfCandidatesReturned": maxCandidates
+        }, function (args) {
+            var data = args[0];
+            var faces = data["candidates"];
+            for (var i = 0; i < faces.length; i++) {
+                var personID = faces[i]["personId"];
+                var confidence = faces[i]["confidence"];
+                if (this_.has(personID) == false)
+                    continue;
+                var pair = new Pair(this_.get(personID), confidence);
+                personArray.push(pair);
+            }
+        });
+        return personArray;
     };
-    PersonGroup.prototype.erasePerson = function (person) {
-        if (this.has(person) == false)
-            return;
+    /**
+     * 현재의 PersonGroup 을 Face API 서버에 등록.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+     * </ul>
+     */
+    PersonGroup.prototype.inserToServer = function () {
+        // 식별자 번호 발급
+        if (this.id == "")
+            this.id = FaceAPI.issueID("person_group");
+        var this_ = this;
+        // 서버에 등록
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", { "personGroupId": this.id }, { "name": this.name, "userData": "" }, function (data) {
+            this_.registered = true;
+        });
+    };
+    /**
+     * 현재의 PersonGroup 을 Face API 서버에서 제거.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
+     * </ul>
+     */
+    PersonGroup.prototype.eraseFromServer = function () {
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, null);
+        this.trained = false;
+        this.registered = false;
     };
     /* --------------------------------------------------------
         GETTERS
@@ -479,50 +673,76 @@ var FaceList = (function (_super) {
     /* --------------------------------------------------------
         INTERACTION WITH FACE API
     -------------------------------------------------------- */
+    /**
+     * 현재의 FaceList를 Face API 서버에 등록.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+     * </ul>
+     */
     FaceList.prototype.inserToServer = function () {
         // 식별자 번호 발급
+        if (this.id == "")
+            this.id = FaceAPI.issueID("face_list");
+        var this_ = this;
         // 서버에 등록
-        $.ajax({
-            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id,
-            beforeSend: function (xhrObj) {
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "PUT",
-            async: false,
-            data: JSON.stringify({ "name": this.name, "userData": "" }),
-            success: function (data) {
-                this.registered = true;
-            }
-        });
+        var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+        var method = "PUT";
+        var params = { "faceListId": this.id };
+        var data = {
+            "name": this.name,
+            "userData": ""
+        };
+        var success = function (data) {
+            this_.registered = true;
+        };
+        // 전송
+        FaceAPI.query(url, method, params, data, success);
     };
+    /**
+     * 현재의 FaceList를 서버에서 지운다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+     * </ul>
+     */
     FaceList.prototype.eraseFromServer = function () {
+        // 준비
+        var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+        var method = "DELETE";
+        var params = { "faceListId": this.id };
+        // 전송
+        FaceAPI.query(url, method, params, null, null);
+        this.registered = false;
     };
+    /**
+     * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+     * </ul>
+     */
     FaceList.prototype.registerFaceToServer = function (face) {
         if (this.isRegistered() == false)
             this.inserToServer();
         var rectangle = face.getRectangle();
-        var params = {
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
             "faceListId": this.id,
             "userData": "",
             "targetFace": rectangle.getX() + "," + rectangle.getY() + "," + rectangle.getWidth() + "," + rectangle.getHeight()
-        };
-        $.ajax({
-            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces?" + $.param(params),
-            beforeSend: function (xhrObj) {
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "POST",
-            async: false,
-            data: JSON.stringify({ "url": face.getPicture().getURL() }),
-            success: function (data) {
-                face.setPersistedUID(data["persistedFaceId"]);
-            }
+        }, {
+            "url": face.getPicture().getURL()
+        }, function (data) {
+            // SOMETHING TO DO
         });
     };
+    /**
+     * 특정 Face가 현재의 FaceList로부터 제거되었음을 Face API 서버에 알린다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
+     * </ul>
+     */
     FaceList.prototype.eraseFaceFromServer = function (face) {
         if (this.has(face) == false)
             return;
@@ -530,17 +750,11 @@ var FaceList = (function (_super) {
             "faceListId": this.id,
             "persistedFaceId": face.getPersistedUID()
         };
-        $.ajax({
-            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getPersistedUID() + "?" + $.param(params),
-            beforeSend: function (xhrObj) {
-                // Request headers
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "DELETE",
-            async: false,
-            success: function (data) {
-                face.setPersistedUID(data["persistedFaceId"]);
-            }
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getPersistedUID(), "DELETE", {
+            "faceListId": this.id,
+            "persistedFaceId": face.getPersistedUID()
+        }, null, function data() {
+            // SOMETHING TO DO
         });
     };
     /* --------------------------------------------------------
@@ -577,7 +791,7 @@ var FaceList = (function (_super) {
         for (var i = 0; i < this.length; i++) {
             var face = new XML();
             face.setTag(this.CHILD_TAG());
-            face.setProperty("id", this[i].getUID());
+            face.setProperty("id", this[i].getID());
             face.setProperty("pictureURL", this[i].getPicture().getURL());
             xml.push(face);
         }
@@ -658,7 +872,7 @@ var Person = (function (_super) {
         for (var i = 0; i < this.length; i++) {
             var face = new XML();
             face.setTag(this.CHILD_TAG());
-            face.setProperty("id", this[i].getUID());
+            face.setProperty("id", this[i].getID());
             face.setProperty("pictureURL", this[i].getPicture().getURL());
             xml.push(face);
         }
@@ -724,12 +938,11 @@ var Picture = (function (_super) {
      * </ul>
      */
     Picture.prototype.detect = function () {
+        // REMOVE ALL
         this.splice(0, this.length);
-        // AJAX의 람다 함수는 this가 좀 이상하다. 
-        // this의 참조를 미리 복제해 둘 것
         var this_ = this;
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-        FaceAPI.send("https://api.projectoxford.ai/face/v1.0/detect", "POST", {
+        FaceAPI.query("https://api.projectoxford.ai/face/v1.0/detect", "POST", {
             "returnFaceId": "true",
             "returnFaceLandmarks": "true",
             "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
@@ -764,7 +977,6 @@ var Face = (function (_super) {
         this.picture = picture;
         this.person = null;
         this.uid = "";
-        this.rectangle = new FaceRectangle(this);
         this.landmarks = new FaceLandmarks(this);
         this.attributes = new FaceAttributes(this);
     }
@@ -780,7 +992,7 @@ var Face = (function (_super) {
     Face.prototype.constructByJSON = function (obj) {
         trace(JSON.stringify(obj));
         this.uid = obj["faceId"];
-        this.rectangle.constructByJSON(obj["faceRectangle"]);
+        _super.prototype.constructByJSON.call(this, obj["faceRectangle"]);
         this.landmarks.constructByJSON(obj["faceLandmarks"]);
         this.attributes.constructByJSON(obj["faceAttributes"]);
     };
@@ -794,8 +1006,9 @@ var Face = (function (_super) {
      *  <li> 참고자료:  </li>
      * </ul>
      */
-    Face.prototype.identify = function (personGroup) {
-        return personGroup.identify(this);
+    Face.prototype.identify = function (personGroup, maxCandidates) {
+        if (maxCandidates === void 0) { maxCandidates = 1; }
+        return personGroup.identify(this, maxCandidates);
     };
     Face.prototype.finds = function (personGroup) {
     };
@@ -834,11 +1047,8 @@ var Face = (function (_super) {
     Face.prototype.key = function () {
         return this.uid;
     };
-    Face.prototype.getUID = function () {
+    Face.prototype.getID = function () {
         return this.uid;
-    };
-    Face.prototype.getPersistedUID = function () {
-        return this.persistedUID;
     };
     Face.prototype.getPicture = function () {
         return this.picture;
@@ -846,17 +1056,11 @@ var Face = (function (_super) {
     Face.prototype.getPerson = function () {
         return this.person;
     };
-    Face.prototype.getRectangle = function () {
-        return this.rectangle;
-    };
     Face.prototype.getLandmarks = function () {
         return this.landmarks;
     };
     Face.prototype.getAttributes = function () {
         return this.attributes;
-    };
-    Face.prototype.setPersistedUID = function (uid) {
-        this.persistedUID = uid;
     };
     /* --------------------------------------------------------
         EXPORTERS
@@ -866,11 +1070,11 @@ var Face = (function (_super) {
     };
     Face.prototype.toXML = function () {
         var xml = _super.prototype.toXML.call(this);
-        xml.push(this.rectangle.toXML(), this.landmarks.toXML(), this.attributes.toXML());
+        xml.push(this.landmarks.toXML(), this.attributes.toXML());
         return xml;
     };
     return Face;
-})(Entity);
+})(FaceRectangle);
 /* ============================================================
     SUB EN0TITIES BELONGS TO A FACE
         - FACE_RECTANGLE
@@ -890,9 +1094,8 @@ var FaceRectangle = (function (_super) {
     /* --------------------------------------------------------
         CONTRUCTORS
     -------------------------------------------------------- */
-    function FaceRectangle(face) {
-        _super.call(this, "rectangle");
-        this.face = face;
+    function FaceRectangle() {
+        _super.call(this, "");
         this.width = 0;
         this.height = 0;
     }
@@ -904,20 +1107,11 @@ var FaceRectangle = (function (_super) {
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
-    FaceRectangle.prototype.getFace = function () {
-        return this.face;
-    };
     FaceRectangle.prototype.getWidth = function () {
         return this.width;
     };
     FaceRectangle.prototype.getHeight = function () {
         return this.height;
-    };
-    /* --------------------------------------------------------
-        EXPORTERS
-    -------------------------------------------------------- */
-    FaceRectangle.prototype.TAG = function () {
-        return _super.prototype.TAG.call(this);
     };
     return FaceRectangle;
 })(Point);

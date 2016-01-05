@@ -20,14 +20,6 @@ function main(): void
 class Global
 {
     /**
-     * Face API 의 인증키.
-     */
-    public static get CERTIFICATION_KEY(): string
-    {
-        return "b072c71311d144388ac2527a5f06ffca";
-    }
-
-    /**
      * 엔티티의 멤버를 JSON 객체로부터 구성한다.
      */
     public static fetch(entity: IEntity, json: Object): void
@@ -258,7 +250,24 @@ class FaceAPI
     /* --------------------------------------------------------
         STATIC MEMBERS
     -------------------------------------------------------- */
-    public static send(url: string, method:string, params: Object, data: Object, success:Function): void
+    /**
+     * Face API 의 인증키.
+     */
+    private static get CERTIFICATION_KEY(): string 
+    {
+        return "b072c71311d144388ac2527a5f06ffca";
+    }
+
+    /**
+     * Face API 서버에 질의문을 전송함.
+     *
+     * @param url 질의문을 보낼 HTTPS 주소
+     * @param method GET, POST 등
+     * @param params 선행으로 보낼 파라미터
+     * @param data 후행으로 보낼 데이터
+     * @param success 질의 성공시, reply 데이터에 대하여 수행할 함수
+     */
+    public static query(url: string, method:string, params: Object, data: Object, success:Function): void
     {
         $.ajax
         ({
@@ -267,7 +276,7 @@ class FaceAPI
             {
                 // Request headers
                 xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", FaceAPI.CERTIFICATION_KEY);
             },
             type: method,
             async: false,
@@ -278,6 +287,15 @@ class FaceAPI
                 success.apply(data);
             }
         });
+    }
+
+    private static sequence: number = 0;
+
+    public static issueID(prefix: string): string
+    {
+        var date: Date = new Date();
+        
+        return prefix + "_hiswill_" + date.toString() + "_" + (++FaceAPI.sequence);
     }
 }
 
@@ -338,6 +356,8 @@ class PersonGroupArray
 
 /**
  * 사진 목록.
+ * 
+ * @author 남정호
  */
 class PictureArray
     extends EntityArray<Picture>
@@ -363,6 +383,26 @@ class PictureArray
     }
 
     /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public hasURL(url: string): boolean
+    {
+        for (var i: number = 0; i < this.length; i++)
+            if (this[i].getURL() == url)
+                return true;
+
+        return false;
+    }
+    public getByURL(url: string): Picture
+    {
+        for (var i: number = 0; i < this.length; i++)
+            if (this[i].getURL() == url)
+                return this[i];
+
+        throw Error("out of range");
+    }
+
+    /* --------------------------------------------------------
         EXPORTERS
     -------------------------------------------------------- */
     public TAG(): string
@@ -376,19 +416,251 @@ class PictureArray
 }
 
 /* ============================================================
+    ABSTRACT ENTITIES
+        - FACE_PAIR_ARRAY
+        - FACE_PAIR
+============================================================ */
+class FacePairArray
+    extends EntityArray<FaceRectangle>
+    implements IGroup<FaceRectangle>
+{
+    /* --------------------------------------------------------
+        CONTRUCTORS
+    -------------------------------------------------------- */
+    public constructor()
+    {
+        super();
+    }
+
+    protected createChild(xml: XML): FaceRectangle
+    {
+        return new FacePair(this);
+    }
+
+    /* --------------------------------------------------------
+        OPERATORS
+    -------------------------------------------------------- */
+    public push(...items: FaceRectangle[]): number
+    {
+        if (this.isRegistered() == false)
+            this.insertToServer();
+
+        for (var i: number = 0; i < items.length; i++)
+        {
+            if (items[i] instanceof FacePair == false)
+            {
+                var pair: FacePair = new FacePair(this);
+
+                if (items[i] instanceof Face)
+                    pair.setFile(<Face>items[i]);
+                else
+                    pair.setRectangle(items[i]);
+
+                // 대치
+                items[i] = pair;
+            }
+            
+            // 서버에 등록
+            (<FacePair>items[i]).insertToServer();
+        }
+
+        return this.length;
+    }
+
+    public splice(start: number, end?: number, ... items: FaceRectangle[]): FaceRectangle[]
+    {
+        // 각 원소들을 서버에서도 제거
+        for (var i: number = start;  i < Math.min(start + end, this.length); i++)
+            (<FacePair>this[i]).eraseFromServer();
+
+        // 리턴
+        var output = super.splice(start, end);
+
+        this.push(...items);
+        return output;
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public getFaceAPI(): FaceAPI
+    {
+        return null;
+    }
+
+    public getInsertURL(facePair: FacePair): string
+    {
+        return "";
+    }
+
+    public getEraseURL(facePair: FacePair): string
+    {
+        return "";
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+}
+
+class FacePair
+    extends FaceRectangle
+    implements IFaceAPI
+{
+    protected pairArray: FacePairArray;
+
+    protected id: string;
+
+    protected pictureURL: string;
+
+    protected face: Face;
+
+    protected registered: boolean;
+
+    /* --------------------------------------------------------
+        CONSTRUCTORS
+    -------------------------------------------------------- */
+    public constructor(pairArray: FacePairArray)
+    {
+        super();
+
+        this.pairArray = pairArray;
+
+        this.registered = false;
+        this.face = null;
+    }
+
+    public construct(xml: XML): void
+    {
+        super.construct(xml);
+
+        if (xml.hasProperty("faceID") == true)
+        {
+            var pictureURL: string = xml.getProperty("pictureURL");
+            var faceID: string = xml.getProperty("faceID");
+
+            var pictureArray: PictureArray = this.pairArray.getFaceAPI().getPictureArray();
+            if (pictureArray.hasURL(pictureURL) == true && pictureArray.getByURL(pictureURL).has(faceID) == true)
+                this.face = pictureArray.getByURL(pictureURL).get(faceID);
+        }
+        else
+            this.face = null;
+    }
+
+    public setFile(face: Face): void
+    {
+        this.face = face;
+        this.pictureURL = face.getPicture().getURL();
+
+        this.setRectangle(face);
+    }
+    public setRectangle(rectangle: FaceRectangle): void
+    {
+        this.x = rectangle.getX();
+        this.y = rectangle.getY();
+        this.width = rectangle.getWidth();
+        this.height = rectangle.getHeight();
+    }
+
+    /* --------------------------------------------------------
+        INTERACTION WITH FACE API SERVER
+    -------------------------------------------------------- */
+    public insertToServer(): void
+    {
+
+    }
+
+    public eraseFromServer(): void
+    {
+
+    }
+
+    /* --------------------------------------------------------
+        GETTERS
+    -------------------------------------------------------- */
+    public getPairArray(): FacePairArray
+    {
+        return this.pairArray;
+    }
+    public getFace(): Face
+    {
+        return this.face;
+    }
+
+    public isRegistered(): boolean
+    {
+        return this.registered;
+    }
+
+    /* --------------------------------------------------------
+        EXPORTERS
+    -------------------------------------------------------- */
+    public TAG(): string
+    {
+        return "facePair";
+    }
+
+    public toXML(): XML
+    {
+        var xml: XML = super.toXML();
+        if (this.face != null)
+            xml.setProperty("faceID", this.face.getID());
+
+        return xml;
+    }
+}
+
+/* ============================================================
     GROUP ENTITIES
         - PERSON_GROUP
         - FACE_LIST
 
         - PICTURE_ARRAY
-        - FACE_ARRAY
+        - FACE_LIST
 ============================================================ */
-interface IGroup
+interface IFaceAPI
 {
-    isRegistered(): boolean;
+    // protected registered: bool
 
-    inserToServer(): void;
+    isRegistered(): boolean;
+    //{ 
+    //    return this.registered; 
+    //}
+
+    insertToServer(): void;
     eraseFromServer(): void;
+}
+
+interface IGroup<_Ty>
+    extends IFaceAPI, 
+            Array<_Ty>
+{
+    push(...items: _Ty[]): number;
+    //{
+    //    for (var i: number = 0; i < items.length; i++)
+    //        insertToServer(items[i]);
+
+    //    super.push(items);
+    //}
+    
+    splice(start: number, end?: number, ...items: _Ty[]): _Ty[];
+    //{
+    //    var i: number;
+    //    for (i = start; i < start + end; i++)
+    //        this.eraseFromServer(this[i]);
+        
+    //    for (i = 0; i < items.length; i++)
+    //        this.insertToServer(items[i]);
+
+    //    super.splice(
+    //}
+}
+
+interface IFaceAggregation
+    extends IGroup<Face>
+{
+    //protected insertFaceToServer(Face)
+    //protected removeFaceFromServer(Face)
 }
 
 /**
@@ -406,7 +678,7 @@ interface IGroup
  */
 class PersonGroup
     extends EntityArray<Person>
-    implements IGroup
+    implements IGroup<Person>
 {
     protected groupArray: PersonGroupArray;
 
@@ -433,8 +705,7 @@ class PersonGroup
     
     protected createChild(xml: XML): Person
     {
-        // 어떻게 Person을 찾아낼 지 생각해야 함
-        return null;
+        return new Person(this, xml.getProperty("name"));
     }
 
     /* --------------------------------------------------------
@@ -442,8 +713,11 @@ class PersonGroup
     -------------------------------------------------------- */
     public push(...items: Person[]): number 
     {
+        if (this.isRegistered() == false)
+            this.inserToServer();
+
         for (var i: number = 0; i < items.length; i++)
-            this.registerPerson(items[i]);
+            items[i].insertToServer();
 
         return super.push(...items);
     }
@@ -453,61 +727,24 @@ class PersonGroup
         var i: number;
 
         for (i = start; i < Math.min(start + deleteCount, this.length); i++)
-            this.erasePerson(this[i]);
+            items[i].eraseFromServer();
 
         for (i = 0; i < items.length; i++)
-            this.registerPerson(items[i]);
+            items[i].insertToServer();
 
         return super.splice(start, deleteCount, ...items);
-    }
-
-    public identify(face: Face): Person
-    {
-        if (this.isTrained() == false)
-            this.train();
-
-        return null;
     }
 
     /* --------------------------------------------------------
         INTERACTION WITH FACE API
     -------------------------------------------------------- */
-    public inserToServer(): void
-    {
-        // 식별자 번호 발급
-        if (this.id == "")
-        {
-
-        }
-
-        // 서버에 등록
-        var this_: PersonGroup = this; // jQuery는 this를 인지하지 못함
-        
-        $.ajax
-        ({
-            url: "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
-            beforeSend: function (xhrObj) 
-            {
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "PUT",
-            async: false,
-
-            data: JSON.stringify({"name": this.name}),
-            success: function (data)
-            {
-                this_.registered = true;
-            }
-        });
-    }
-
-    public eraseFromServer(): void
-    {
-
-    }
-
+    /**
+     * 학습을 수행함.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+     * </ul>
+     */
     public train(): void
     {
         // 등록을 먼저 수행
@@ -515,36 +752,131 @@ class PersonGroup
             this.inserToServer();
 
         // 학습 수행
-        var this_: PersonGroup = this; // jQuery는 this를 인지하지 못함
-        
-        $.ajax
-        ({
-            url: "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train",
-            beforeSend: function (xhrObj) 
-            {
-               // Request headers
-               xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "POST",
-            async: false,
+        var this_: PersonGroup = this;
 
-            data: "",
-            success: function (data) 
+        FaceAPI.query
+        (
+            "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train",
+            "POST",
+
+            {"personGroupId": this.id},
+            null,
+
+            function (data)
             {
                 this_.trained = true;
             }
-        });
+        );
     }
 
-    protected registerPerson(person: Person): void
+    /**
+     * 특정 얼굴의 주인이 누구일지 판별해 본다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+     * </ul>
+     *
+     * @param face 대상 얼굴
+     * @param maxCandidates 최대 후보 수
+     *
+     * @return 후보 사람들 및 각각의 일치도
+     */
+    public identify(face: Face, maxCandidates: number = 1): Array<Pair<Person, number>>
     {
-        if (this.id == "")
-            this.inserToServer();
+        // 학습이 먼저 수행되어야 한다.
+        if (this.isTrained() == false)
+            this.train();
+
+        var this_: PersonGroup = this;
+        var personArray: Array<Pair<Person, number>> = new Array<Pair<Person, number>>();
+
+        FaceAPI.query
+        (
+            "https://api.projectoxford.ai/face/v1.0/identify",
+            "POST",
+
+            null,
+            {
+                "personGroupId": this.id, 
+                "faceIds": [face.getID()],
+                "maxNumOfCandidatesReturned": maxCandidates
+            },
+
+            function (args) 
+            {
+                var data: Object = args[0];
+                var faces: Array<Object> = data["candidates"];
+
+                for (var i: number = 0; i < faces.length; i++)
+                {
+                    var personID: string = faces[i]["personId"];
+                    var confidence: number = faces[i]["confidence"];
+
+                    if (this_.has(personID) == false)
+                        continue;
+
+                    var pair: Pair<Person, number> = new Pair<Person, number>(this_.get(personID), confidence);
+                    personArray.push(pair);
+                }
+            }
+        );
+        
+        return personArray;
     }
-    protected erasePerson(person: Person): void
+
+    /**
+     * 현재의 PersonGroup 을 Face API 서버에 등록.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+     * </ul>
+     */
+    public inserToServer(): void
     {
-        if (this.has(person) == false)
-            return;
+        // 식별자 번호 발급
+        if (this.id == "")
+            this.id = FaceAPI.issueID("person_group");
+
+        var this_: PersonGroup = this;
+
+        // 서버에 등록
+        FaceAPI.query
+        (
+            "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
+            "PUT",
+            
+            {"personGroupId": this.id},
+            {"name": this.name, "userData": ""},
+            
+            function (data)
+            {
+                this_.registered = true;
+            }
+        );
+    }
+
+    /**
+     * 현재의 PersonGroup 을 Face API 서버에서 제거.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
+     * </ul>
+     */
+    public eraseFromServer(): void
+    {
+        FaceAPI.query
+        (
+            "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
+            "DELETE",
+
+            { "personGroupId": this.id },
+            null,
+
+            null
+        );
+
+        this.trained = false;
+        this.registered = false;
     }
 
     /* --------------------------------------------------------
@@ -593,7 +925,7 @@ class PersonGroup
 
 class FaceList
     extends EntityArray<Face>
-    implements IGroup
+    implements IFaceAggregation
 {
     /**
      * 상위 API 클래스.
@@ -686,68 +1018,103 @@ class FaceList
     /* --------------------------------------------------------
         INTERACTION WITH FACE API
     -------------------------------------------------------- */
+    /**
+     * 현재의 FaceList를 Face API 서버에 등록.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+     * </ul>
+     */
     public inserToServer(): void
     {
         // 식별자 번호 발급
+        if (this.id == "")
+            this.id = FaceAPI.issueID("face_list");
+
+        var this_: FaceList = this;
 
         // 서버에 등록
-        $.ajax
-        ({
-            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id,
-            beforeSend: function (xhrObj) 
-            {
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
-            },
-            type: "PUT",
-            async: false,
+        var url: string = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+        var method: string = "PUT";
+        
+        var params: Object = {"faceListId": this.id};
+        var data: Object = 
+        {
+            "name": this.name,
+            "userData": ""
+        };
 
-            data: JSON.stringify({ "name": this.name, "userData": ""}),
-            success: function (data) 
-            {
-                this.registered = true;
-            }
-        });
+        var success: Function = function(data)
+        {
+            this_.registered = true;
+        }
+
+        // 전송
+        FaceAPI.query(url, method, params, data, success);
     }
 
+    /**
+     * 현재의 FaceList를 서버에서 지운다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+     * </ul>
+     */
     public eraseFromServer(): void
     {
+        // 준비
+        var url: string = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+        var method: string = "DELETE";
+        var params: Object = { "faceListId": this.id };
+        
+        // 전송
+        FaceAPI.query(url, method, params, null, null);
+
+        this.registered = false;
     }
 
+    /**
+     * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+     * </ul>
+     */
     protected registerFaceToServer(face: Face): void
     {
         if (this.isRegistered() == false)
             this.inserToServer();
 
         var rectangle: FaceRectangle = face.getRectangle();
-        var params: Object =
-        {
-            "faceListId": this.id,
-            "userData": "",
-            "targetFace": rectangle.getX() + "," + rectangle.getY() + "," + rectangle.getWidth() + "," + rectangle.getHeight()
-        };
 
-        $.ajax
-        ({
-            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces?" + $.param(params),
-            beforeSend: function (xhrObj) 
+        FaceAPI.query
+        (
+            "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces",
+            "POST",
+
             {
-                // Request headers
-                xhrObj.setRequestHeader("Content-Type", "application/json");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+                "faceListId": this.id,
+                "userData": "",
+                "targetFace": rectangle.getX() + "," + rectangle.getY() + "," + rectangle.getWidth() + "," + rectangle.getHeight()
             },
-            type: "POST",
-            async: false,
-
-            data: JSON.stringify({ "url": face.getPicture().getURL() }),
-            success: function (data) 
             {
-                face.setPersistedUID(data["persistedFaceId"]);
+                "url": face.getPicture().getURL()
+            },
+
+            function (data)
+            {
+                // SOMETHING TO DO
             }
-        });
+        );
     }
 
+    /**
+     * 특정 Face가 현재의 FaceList로부터 제거되었음을 Face API 서버에 알린다.
+     *
+     * <ul>
+     *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
+     * </ul>
+     */
     protected eraseFaceFromServer(face: Face): void
     {
         if (this.has(face) == false)
@@ -759,22 +1126,22 @@ class FaceList
             "persistedFaceId": face.getPersistedUID()
         };
 
-        $.ajax
-        ({
-            url: "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getPersistedUID() + "?" + $.param(params),
-            beforeSend: function (xhrObj) 
+        FaceAPI.query
+        (
+            "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getPersistedUID(),
+            "DELETE",
+
             {
-                // Request headers
-               xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", Global.CERTIFICATION_KEY);
+                "faceListId": this.id,
+                "persistedFaceId": face.getPersistedUID()
             },
-            type: "DELETE",
-            async: false,
-                
-            success: function (data) 
+            null,
+
+            function data() 
             {
-                face.setPersistedUID(data["persistedFaceId"]);
+                // SOMETHING TO DO
             }
-        });
+        );
     }
 
     /* --------------------------------------------------------
@@ -827,7 +1194,7 @@ class FaceList
             var face: XML = new XML();
             face.setTag(this.CHILD_TAG());
             
-            face.setProperty("id", this[i].getUID());
+            face.setProperty("id", this[i].getID());
             face.setProperty("pictureURL", this[i].getPicture().getURL());
 
             xml.push(face);
@@ -944,7 +1311,7 @@ class Person
             var face: XML = new XML();
             face.setTag(this.CHILD_TAG());
             
-            face.setProperty("id", this[i].getUID());
+            face.setProperty("id", this[i].getID());
             face.setProperty("pictureURL", this[i].getPicture().getURL());
 
             xml.push(face);
@@ -1036,14 +1403,13 @@ class Picture
      */
     public detect(): void 
     {
+        // REMOVE ALL
         this.splice(0, this.length);
 
-        // AJAX의 람다 함수는 this가 좀 이상하다. 
-        // this의 참조를 미리 복제해 둘 것
         var this_ = this;
 
         // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-        FaceAPI.send
+        FaceAPI.query
         (
             "https://api.projectoxford.ai/face/v1.0/detect", "POST", 
             {
@@ -1051,7 +1417,9 @@ class Picture
                 "returnFaceLandmarks": "true",
                 "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
             }, 
+
             { "url": this.url }, 
+
             function (data) 
             {
                 this_.constructByJSON(data);
@@ -1076,7 +1444,7 @@ class Picture
  * 얼굴 엔티티.
  */
 class Face
-    extends Entity 
+    extends FaceRectangle 
     implements IJSONEntity
 {
     /**
@@ -1094,10 +1462,8 @@ class Face
      */
     protected uid: string;
 
-    protected persistedUID: string;
-
-    protected rectangle: FaceRectangle;
     protected landmarks: FaceLandmarks;
+
     protected attributes: FaceAttributes;
 
     /* --------------------------------------------------------
@@ -1114,8 +1480,7 @@ class Face
         this.person = null;
         
         this.uid = "";
-        
-        this.rectangle = new FaceRectangle(this);
+
         this.landmarks = new FaceLandmarks(this);
         this.attributes = new FaceAttributes(this);
     }
@@ -1132,8 +1497,6 @@ class Face
         var person: XML = xml.get("person")[0];
         var personName: string = person.getProperty("name");
         var personGroupID: string = person.getProperty("groupID");
-
-
     }
 
     public constructByJSON(obj: any): void
@@ -1142,7 +1505,7 @@ class Face
 
         this.uid = obj["faceId"];
         
-        this.rectangle.constructByJSON(obj["faceRectangle"]);
+        super.constructByJSON(obj["faceRectangle"]);
         this.landmarks.constructByJSON(obj["faceLandmarks"]);
         this.attributes.constructByJSON(obj["faceAttributes"]);
     }
@@ -1157,9 +1520,9 @@ class Face
      *  <li> 참고자료:  </li>
      * </ul>
      */
-    public identify(personGroup: PersonGroup): Person
+    public identify(personGroup: PersonGroup, maxCandidates: number = 1): Array<Pair<Person, number>>
     {
-        return personGroup.identify(this);
+        return personGroup.identify(this, maxCandidates);
     }
 
     public finds(personGroup: PersonGroup): any //Array<Person, number>
@@ -1214,13 +1577,9 @@ class Face
         return this.uid;
     }
 
-    public getUID(): string
+    public getID(): string
     {
         return this.uid;
-    }
-    public getPersistedUID(): string
-    {
-        return this.persistedUID;
     }
     
     public getPicture(): Picture
@@ -1232,10 +1591,6 @@ class Face
         return this.person;
     }
     
-    public getRectangle(): FaceRectangle
-    {
-        return this.rectangle;
-    }
     public getLandmarks(): FaceLandmarks
     {
         return this.landmarks;
@@ -1243,11 +1598,6 @@ class Face
     public getAttributes(): FaceAttributes
     {
         return this.attributes;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
-
-    public setPersistedUID(uid: string): void
-    {
-        this.persistedUID = uid;
     }
 
     /* --------------------------------------------------------
@@ -1262,7 +1612,6 @@ class Face
         var xml: XML = super.toXML();
         xml.push
         (
-            this.rectangle.toXML(),
             this.landmarks.toXML(),
             this.attributes.toXML()
         );
@@ -1289,19 +1638,16 @@ class FaceRectangle
     extends Point
     implements IJSONEntity
 {
-    protected face: Face;
-
     protected width: number;
     protected height: number;
 
     /* --------------------------------------------------------
         CONTRUCTORS
     -------------------------------------------------------- */
-    public constructor(face: Face)
+    public constructor()
     {
-        super("rectangle");
-        this.face = face;
-
+        super("");
+        
         this.width = 0;
         this.height = 0;
     }
@@ -1316,11 +1662,6 @@ class FaceRectangle
     /* --------------------------------------------------------
         GETTERS
     -------------------------------------------------------- */
-    public getFace(): Face
-    {
-        return this.face;
-    }
-    
     public getWidth(): number
     {
         return this.width;
@@ -1328,14 +1669,6 @@ class FaceRectangle
     public getHeight(): number
     {
         return this.height;
-    }
-
-    /* --------------------------------------------------------
-        EXPORTERS
-    -------------------------------------------------------- */
-    public TAG(): string
-    {
-        return super.TAG();
     }
 }
 
