@@ -3,6 +3,7 @@
   <PropertyGroup>
     <ReferencePath>
     </ReferencePath>
+    <ToolsVersionPromptShown>1.7</ToolsVersionPromptShown>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>

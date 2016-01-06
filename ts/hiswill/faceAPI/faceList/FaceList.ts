@@ -5,22 +5,12 @@
 namespace hiswill.faceAPI.faceList
 {
     export class FaceList
-        extends FacePairArray
+        extends face.FacePairArray
     {
         /**
          * 상위 API 클래스.
          */
         protected listArray: FaceListArray;
-
-        /**
-         * 식별자 ID.
-         */
-        protected id: string;
-    
-        /**
-         * 얼굴 리스트의 이름.
-         */
-        protected name: string;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -30,7 +20,7 @@ namespace hiswill.faceAPI.faceList
          */ 
         public constructor(listArray: FaceListArray, name: string = "")
         {
-            super();
+            super(name);
 
             this.listArray = listArray;
 
@@ -38,29 +28,6 @@ namespace hiswill.faceAPI.faceList
             this.name = name;
 
             this.registered = false;
-        }
-
-        public construct(xml: XML): void 
-        {
-            this.id = xml.getProperty("id");
-            this.name = xml.getProperty("name");
-
-            if (xml.has(this.CHILD_TAG()) == false)
-                return;
-
-            var xmlList: XMLList = xml.get(this.CHILD_TAG());
-            var pictureArray: picture.PictureArray = this.listArray.getAPI().getPictureArray();
-
-            for (var i: number = 0; i < xmlList.length; i++)
-            {
-                var faceID: string = xmlList[i].getProperty("id");
-                var pictureURL: string = xmlList[i].getProperty("pictureURL");
-
-                if (pictureArray.has(pictureURL) == false || pictureArray.get(pictureURL).has(faceID) == false)
-                    continue;
-
-                this.push(pictureArray.get(pictureURL).get(faceID));
-            }
         }
 
         /* --------------------------------------------------------
@@ -118,7 +85,7 @@ namespace hiswill.faceAPI.faceList
             // 전송
             FaceAPI.query(url, method, params, null, null);
 
-            this.registered = false;
+            super.eraseFromServer();
         }
 
         /**
@@ -128,7 +95,7 @@ namespace hiswill.faceAPI.faceList
          *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
          * </ul>
          */
-        public insertFaceToServer(face: FacePair): void
+        public insertFaceToServer(face: face.FacePair): void
         {
             if (this.isRegistered() == false)
                 this.insertToServer();
@@ -141,7 +108,7 @@ namespace hiswill.faceAPI.faceList
                 {
                     "faceListId": this.id,
                     "userData": "",
-                    "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
+                    "targetFace": "targetFace=" + face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
                 },
                 {
                     "url": face.getPictureURL()
@@ -149,7 +116,7 @@ namespace hiswill.faceAPI.faceList
 
                 function (data)
                 {
-                    // SOMETHING TO DO
+                    face.setID( data["persistedFaceId"] );
                 }
             );
         }
@@ -161,17 +128,8 @@ namespace hiswill.faceAPI.faceList
          *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
          * </ul>
          */
-        public eraseFaceFromServer(face: FacePair): void
+        public eraseFaceFromServer(face: face.FacePair): void
         {
-            if (this.has(face) == false)
-                return;
-
-            var params: Object =
-            {
-                "faceListId": this.id,
-                "persistedFaceId": face.getID()
-            };
-
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getID(),
@@ -183,21 +141,15 @@ namespace hiswill.faceAPI.faceList
                 },
                 null,
 
-                function data() 
-                {
-                    // SOMETHING TO DO
-                }
+                null
             );
-        }
 
+            super.eraseFaceFromServer(face);
+        }
+        
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
-        public key(): any
-        {
-            return this.id;
-        }
-
         public getAPI(): FaceAPI
         {
             return this.listArray.getAPI();
@@ -205,15 +157,6 @@ namespace hiswill.faceAPI.faceList
         public getListArray(): FaceListArray
         {
             return this.listArray;
-        }
-
-        public getID(): string
-        {
-            return this.id;
-        }
-        public getName(): string
-        {
-            return this.name;
         }
 
         /* --------------------------------------------------------

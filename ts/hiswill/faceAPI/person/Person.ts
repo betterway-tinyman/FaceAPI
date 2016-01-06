@@ -12,11 +12,9 @@ namespace hiswill.faceAPI.person
      * @author 남정호
      */
     export class Person
-        extends FacePairArray
+        extends face.FacePairArray
     {
         protected group: PersonGroup;
-
-        protected name: string;
     
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -24,7 +22,7 @@ namespace hiswill.faceAPI.person
         /**
          * 생성자 from PersonGroup with 이름
          */
-        public constructor(group: PersonGroup, name: string)
+        public constructor(group: PersonGroup, name: string = "")
         {
             super();
 
@@ -32,64 +30,103 @@ namespace hiswill.faceAPI.person
             this.name = name;
         }
 
-        public construct(xml: XML): void
-        {
-            this.name = xml.getProperty("name");
-
-            if (xml.has(this.CHILD_TAG()) == false)
-                return;
-        
-            var xmlList: XMLList = xml.get(this.CHILD_TAG());
-            var pictureArray: picture.PictureArray = this.group.getGroupArray().getAPI().getPictureArray();
-
-            for (var i: number = 0; i < xmlList.length; i++)
-            {
-                var faceID: string = xmlList[i].getProperty("id");
-                var pictureURL: string = xmlList[i].getProperty("pictureURL");
-
-                if (pictureArray.has(pictureURL) == false || pictureArray.get(pictureURL).has(faceID) == false)
-                    continue;
-
-                this.push(pictureArray.get(pictureURL).get(faceID));
-            }
-        }
-
         /* --------------------------------------------------------
             INTERACTION WITH FACE API
         -------------------------------------------------------- */
         public insertToServer(): void
         {
-        
+            if (this.isRegistered() == false)
+                this.insertToServer();
+
+            var this_ = this;
+
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons",
+                "POST",
+
+                {"personGroupId": this.group.getID()},
+                {"name": this.name, "userData": ""},
+
+                function (data)
+                {
+                    this_.id = data["personId"];
+                    this_.registered = true;
+                }
+            );
         }
         public eraseFromServer(): void
         {
-        
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id,
+                "DELETE",
+
+                {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id
+                },
+                null,
+
+                function (data)
+                {
+                    // NOTHING TO DO ESPECIALLY
+                }
+            );
+
+            this.id = "";
+            super.eraseFromServer();
         }
 
-        public insertFaceToServer(face: FacePair): void
+        public insertFaceToServer(face: face.FacePair): void
         {
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces",
+                "POST",
 
+                {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id,
+                    "targetFace": "targetFace=" + face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
+                    "userData": ""
+                },
+                {
+                    "url": face.getPictureURL()
+                },
+
+                function (data): void
+                {
+                    face.setID( data["persistedFaceId"] );
+                }
+            );
         }
-        public eraseFaceFromServer(face: FacePair): void
+        public eraseFaceFromServer(face: face.FacePair): void
         {
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(),
+                "DELETE",
 
+                {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id,
+                    "persistedFaceId": face.getID()
+                },
+                null,
+
+                null
+            );
+
+            super.eraseFaceFromServer(face);
         }
 
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
-        public key(): any
-        {
-            return this.name;
-        }
-
         public getGroup(): PersonGroup
         {
             return this.group;
-        }
-        public getName(): string
-        {
-            return this.name;
         }
 
         /* --------------------------------------------------------

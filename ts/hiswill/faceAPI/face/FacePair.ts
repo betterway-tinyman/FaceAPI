@@ -30,6 +30,8 @@ namespace hiswill.faceAPI.face
 
             this.pairArray = pairArray;
 
+            this.id = "";
+            this.pictureURL = "";
             this.registered = false;
             this.face = null;
         }
@@ -83,9 +85,10 @@ namespace hiswill.faceAPI.face
             this.width = rectangle.getWidth();
             this.height = rectangle.getHeight();
         }
-        public setRegistered(flag: boolean): void
+        public setID(id: string): void
         {
-            this.registered = flag;
+            this.id = id;
+            this.registered = (id != "");
         }
 
         public key(): string

@@ -10,15 +10,21 @@ namespace hiswill.faceAPI.face
         extends EntityArray<FaceRectangle>
         implements IGroup<FaceRectangle>
     {
+        protected id: string;
+
+        protected name: string;
+
         protected registered: boolean;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
-        public constructor()
+        public constructor(name: string = "")
         {
             super();
 
+            this.id = "";
+            this.name = name;
             this.registered = false;
         }
     
@@ -81,29 +87,57 @@ namespace hiswill.faceAPI.face
         public eraseFromServer(): void
         {
             // TO BE OVERRIDEN
+            // ...
+
+            this.registered = false;
         }
 
-        public insertFaceToServer(facePair: FacePair): void
+        public insertFaceToServer(face: FacePair): void
         {
             // TO BE OVERRIDEN
         }
-        public eraseFaceFromServer(facePair: FacePair): void
+        public eraseFaceFromServer(face: FacePair): void
         {
             // TO BE OVERRIDEN
+            // ...
+
+            face.setID("");
         }
 
         /* --------------------------------------------------------
-            GETTERS
+            GETTERS & SETTERS
         -------------------------------------------------------- */
+        public key(): any
+        {
+            return this.id;
+        }
+        
         public getFaceAPI(): FaceAPI
         {
             // TO BE OVERRIDEN
             return null;
         }
 
+        public getID(): string
+        {
+            return this.id;
+        }
+        public getName(): string
+        {
+            return this.name;
+        }
+
         public isRegistered(): boolean
         {
             return this.registered;
+        }
+
+        public setName(name: string): void
+        {
+            // SOMETHING TO BE OVERRIDEN
+            // ...
+
+            this.name = name;
         }
 
         /* --------------------------------------------------------
