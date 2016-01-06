@@ -88,6 +88,23 @@ namespace hiswill.faceAPI.faceList
             super.eraseFromServer();
         }
 
+        protected setNameInServer(name: string): void
+        {
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id,
+                "PATCH",
+
+                { "faceListId": this.id },
+                {
+                    "name": this.name,
+                    "userData": ""
+                },
+
+                null
+            );
+        }
+
         /**
          * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.
          *

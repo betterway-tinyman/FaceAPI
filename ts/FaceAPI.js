@@ -3578,6 +3578,9 @@ var hiswill;
                     // ...
                     this.registered = false;
                 };
+                FacePairArray.prototype.setNameInServer = function (name) {
+                    // SOMETHING TO BE OVERRIDEN
+                };
                 FacePairArray.prototype.insertFaceToServer = function (face) {
                     // TO BE OVERRIDEN
                 };
@@ -3606,8 +3609,7 @@ var hiswill;
                     return this.registered;
                 };
                 FacePairArray.prototype.setName = function (name) {
-                    // SOMETHING TO BE OVERRIDEN
-                    // ...
+                    this.setNameInServer(name);
                     this.name = name;
                 };
                 /* --------------------------------------------------------
@@ -3671,6 +3673,15 @@ var hiswill;
                     });
                     this.id = "";
                     _super.prototype.eraseFromServer.call(this);
+                };
+                Person.prototype.setNameInServer = function (name) {
+                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "PATCH", {
+                        "personGroupId": this.group.getID(),
+                        "personId": this.id
+                    }, {
+                        "name": this.name,
+                        "userData": ""
+                    }, null);
                 };
                 Person.prototype.insertFaceToServer = function (face) {
                     faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
@@ -4019,6 +4030,12 @@ var hiswill;
                     // 전송
                     faceAPI.FaceAPI.query(url, method, params, null, null);
                     _super.prototype.eraseFromServer.call(this);
+                };
+                FaceList.prototype.setNameInServer = function (name) {
+                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id, "PATCH", { "faceListId": this.id }, {
+                        "name": this.name,
+                        "userData": ""
+                    }, null);
                 };
                 /**
                  * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.

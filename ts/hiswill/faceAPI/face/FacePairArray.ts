@@ -92,6 +92,11 @@ namespace hiswill.faceAPI.face
             this.registered = false;
         }
 
+        protected setNameInServer(name: string): void 
+        {
+            // SOMETHING TO BE OVERRIDEN
+        }
+
         public insertFaceToServer(face: FacePair): void
         {
             // TO BE OVERRIDEN
@@ -134,8 +139,7 @@ namespace hiswill.faceAPI.face
 
         public setName(name: string): void
         {
-            // SOMETHING TO BE OVERRIDEN
-            // ...
+            this.setNameInServer(name);
 
             this.name = name;
         }

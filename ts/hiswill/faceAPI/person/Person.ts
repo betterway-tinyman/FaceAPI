@@ -78,6 +78,26 @@ namespace hiswill.faceAPI.person
             super.eraseFromServer();
         }
 
+        protected setNameInServer(name: string): void
+        {
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id,
+                "PATCH",
+
+                { 
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id
+                },
+                {
+                    "name": this.name,
+                    "userData": ""
+                },
+
+                null
+            );
+        }
+
         public insertFaceToServer(face: face.FacePair): void
         {
             FaceAPI.query
