@@ -1,13 +1,13 @@
 ﻿/// <reference path="../FaceAPI.ts" />
 
-/// <reference path="../Point.ts" />
-/// <reference path="../IJSonEntity.ts" />
+/// <reference path="../basic/Point.ts" />
+/// <reference path="../basic/IJSonEntity.ts" />
 
 namespace hiswill.faceAPI.face 
 {
     export class FaceRectangle
-        extends Point
-        implements IJSONEntity
+        extends basic.Point
+        implements basic.IJSONEntity
     {
         protected width: number;
         protected height: number;
@@ -17,7 +17,7 @@ namespace hiswill.faceAPI.face
         -------------------------------------------------------- */
         public constructor()
         {
-            super("");
+            super();
         
             this.width = 0;
             this.height = 0;

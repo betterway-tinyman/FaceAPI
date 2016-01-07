@@ -5,10 +5,6 @@
 /// <reference path="faceList/FaceListArray.ts" />
 /// <reference path="picture/PictureArray.ts" />
 
-/* ============================================================
-    ROOT ENTITIES
-        - FACE_API
-============================================================ */
 namespace hiswill.faceAPI
 {
     /**
@@ -152,7 +148,7 @@ namespace hiswill.faceAPI
         {
             $.ajax
             ({
-                url: url + "?" + $.param(params),
+                url: url + (params == null ? "" : "?" + $.param(params)),
                 beforeSend: function (xhrObj) 
                 {
                     // Request headers
@@ -162,10 +158,15 @@ namespace hiswill.faceAPI
                 type: method,
                 async: false,
 
-                data: JSON.stringify(data),
-                success: function (data)
+                data: (data == null) ? "" : JSON.stringify(data),
+                success: function (data, textStatus, xhr)
                 {
-                    success.apply(data);
+                    if (success != null)
+                        success.apply(null, [data]);
+                },
+                error: function(jqXHR: JQueryXHR, textStatus: string, errorThrow: string): any
+                {
+                    trace(JSON.stringify(jqXHR), url);
                 }
             });
         }
@@ -174,16 +175,7 @@ namespace hiswill.faceAPI
 
         public static issueID(prefix: string): string
         {
-            var date: Date = new Date();
-        
-            return prefix + "_hiswill_" + date.toString() + "_" + (++FaceAPI.sequence);
-        }
-
-        public static main()
-        {
-            var api: FaceAPI = new FaceAPI();
-
-            // WHAT TO DO
+            return prefix + "_hiswill_" + new Date().getTime() + "_" + (++FaceAPI.sequence);
         }
     }
 }

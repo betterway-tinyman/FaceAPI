@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
-/// <reference path="../../IJSonEntity.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
 
 /// <reference path='FaceAttributes.ts' />
 
@@ -8,7 +8,7 @@ namespace hiswill.faceAPI.face.attribute
 {
     export class FaceAttribute
         extends Entity
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         protected attributes: FaceAttributes;
 

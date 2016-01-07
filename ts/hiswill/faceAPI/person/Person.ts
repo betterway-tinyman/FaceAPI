@@ -35,17 +35,19 @@ namespace hiswill.faceAPI.person
         -------------------------------------------------------- */
         public insertToServer(): void
         {
-            if (this.isRegistered() == false)
-                this.insertToServer();
+            if (this.group.isRegistered() == false)
+                this.group.insertToServer();
 
             var this_ = this;
+
+            trace("Person::insertToServer", this.name, this.group.getID());
 
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons",
                 "POST",
 
-                {"personGroupId": this.group.getID()},
+                null, //{"personGroupId": this.group.getID()},
                 {"name": this.name, "userData": ""},
 
                 function (data)
@@ -68,10 +70,7 @@ namespace hiswill.faceAPI.person
                 },
                 null,
 
-                function (data)
-                {
-                    // NOTHING TO DO ESPECIALLY
-                }
+                null // NOTHING TO DO ESPECIALLY
             );
 
             this.id = "";
@@ -108,7 +107,7 @@ namespace hiswill.faceAPI.person
                 {
                     "personGroupId": this.group.getID(),
                     "personId": this.id,
-                    "targetFace": "targetFace=" + face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
+                    "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
                     "userData": ""
                 },
                 {

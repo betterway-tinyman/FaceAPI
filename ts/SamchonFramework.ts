@@ -679,7 +679,7 @@ class SetIterator<_Ty>
      * 
      * @return A key value of the iterator.
      */
-    public value(): _Ty 
+    public get value(): _Ty 
     {
         return this.set_.data()[this.index];
     }
@@ -2785,8 +2785,6 @@ class EntityArray<_Ty extends IEntity>
                 && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string") 
                 && v_it.first != "length")
             {
-                trace(v_it.first);
-
                 this[v_it.first] = v_it.second;
             }
 

@@ -2,13 +2,13 @@
 
 /// <reference path="FaceRectangle.ts" />
 ///     <reference path="FacePair.ts" />
-/// <reference path="../IGroup.ts" />
+/// <reference path="../basic/IGroup.ts" />
 
 namespace hiswill.faceAPI.face
 {
     export class FacePairArray
         extends EntityArray<FaceRectangle>
-        implements IGroup<FaceRectangle>
+        implements basic.IGroup<FaceRectangle>
     {
         protected id: string;
 
@@ -52,15 +52,15 @@ namespace hiswill.faceAPI.face
                     else
                         pair.setRectangle(items[i]);
 
+                    // 서버에 등록
+                    pair.insertToServer();
+                    
                     // 대치
                     items[i] = pair;
                 }
-            
-                // 서버에 등록
-                (<FacePair>items[i]).insertToServer();
             }
 
-            return this.length;
+            return super.push(...items);
         }
 
         public splice(start: number, end?: number, ... items: FaceRectangle[]): FaceRectangle[]

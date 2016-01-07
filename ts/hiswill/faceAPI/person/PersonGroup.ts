@@ -1,7 +1,7 @@
 ﻿/// <reference path="../FaceAPI.ts" />
 
 /// <reference path="Person.ts" />
-/// <reference path="../IGroup.ts" />
+/// <reference path="../basic/IGroup.ts" />
 
 /// <reference path="PersonGroupArray.ts" />
 
@@ -22,7 +22,7 @@ namespace hiswill.faceAPI.person
      */
     export class PersonGroup
         extends EntityArray<Person>
-        implements IGroup<Person>
+        implements basic.IGroup<Person>
     {
         protected groupArray: PersonGroupArray;
 
@@ -31,6 +31,8 @@ namespace hiswill.faceAPI.person
 
         protected registered: boolean;
         protected trained: boolean;
+
+        protected listeners: Map<string, Set<(ev: Event) => void>>;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -103,7 +105,7 @@ namespace hiswill.faceAPI.person
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train",
                 "POST",
 
-                {"personGroupId": this.id},
+                null, //{"personGroupId": this.id},
                 null,
 
                 function (data)
@@ -111,6 +113,45 @@ namespace hiswill.faceAPI.person
                     this_.trained = true;
                 }
             );
+
+            // 수행 작업 현황을 확인한다.
+            /*var prev: Date = new Date();
+
+            while (true)
+            {
+                var now: Date = new Date();
+                if (now.getTime() - prev.getTime() < 500)
+                    continue;
+                
+                var completed = false;
+
+                FaceAPI.query
+                (
+                    "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/training",
+                    "GET",
+
+                    null,
+                    null,
+
+                    function (data)
+                    {
+                        trace( "training process", data["status"], now.toString());
+
+                        if (data["status"] == "succeded")
+                            completed = true;
+                    }
+                );
+
+                if (completed == true)
+                    break;
+
+                prev = now;
+            }*/
+        }
+
+        protected checkTrainStatus(): void
+        {
+
         }
 
         /**
@@ -134,6 +175,8 @@ namespace hiswill.faceAPI.person
             var this_: PersonGroup = this;
             var personArray: Array<Pair<Person, number>> = new Array<Pair<Person, number>>();
 
+            trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
+
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/identify",
@@ -148,6 +191,8 @@ namespace hiswill.faceAPI.person
 
                 function (args) 
                 {
+                    trace("Succeded to identify");
+
                     var data: Object = args[0];
                     var faces: Array<Object> = data["candidates"];
 
@@ -183,13 +228,15 @@ namespace hiswill.faceAPI.person
 
             var this_: PersonGroup = this;
 
+            trace("PersonGroup::insertToServer");
+
             // 서버에 등록
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
                 "PUT",
             
-                {"personGroupId": this.id},
+                null,//{"personGroupId": this.id},
                 {"name": this.name, "userData": ""},
             
                 function (data)
@@ -221,6 +268,37 @@ namespace hiswill.faceAPI.person
 
             this.trained = false;
             this.registered = false;
+        }
+
+        /* --------------------------------------------------------
+            EVENT LISTENERS
+        -------------------------------------------------------- */
+        public addEventListener(type: string, listener:(event:Event) => void): void
+        {
+            if (this.listeners.has(type) == false)
+                this.listeners.set(type, new Set<(ev: Event) => void>());
+
+            var listenerSet = this.listeners.get(type);
+            listenerSet.insert(listener);
+        }
+
+        public removeEventListener(type: string, listener: (event: Event) => void): void
+        {
+            if (this.listeners.has(type) == false)
+                return;
+
+            var listenerSet = this.listeners.get(type);
+            listenerSet.erase(listener);
+        }
+
+        public dispatchEvent(event: Event): void
+        {
+            if (this.listeners.has(event.type) == false)
+                return;
+
+            var listenerSet = this.listeners.get(event.type);
+            for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
+                it.value(event);
         }
 
         /* --------------------------------------------------------

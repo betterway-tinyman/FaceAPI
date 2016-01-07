@@ -1,7 +1,7 @@
 ﻿/// <reference path="../FaceAPI.ts" />
 
 /// <reference path="../face/Face.ts" />
-/// <reference path="../IJSONEntity.ts" />
+/// <reference path="../basic/IJSONEntity.ts" />
 
 /// <reference path="PictureArray.ts" />
 
@@ -19,7 +19,7 @@ namespace hiswill.faceAPI.picture
      */
     export class Picture 
         extends EntityArray<face.Face>
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         protected pictureArray: PictureArray;
 

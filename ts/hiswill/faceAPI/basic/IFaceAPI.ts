@@ -1,6 +1,6 @@
-﻿namespace hiswill.faceAPI 
+﻿namespace hiswill.faceAPI.basic
 {
-    export interface IFaceAPI 
+    export interface IFaceAPI
     {
         // protected registered: bool
 

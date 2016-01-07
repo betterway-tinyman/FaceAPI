@@ -540,17 +540,21 @@ var SetIterator = (function () {
         this.set_ = set_;
         this.index = index;
     }
-    /* ---------------------------------------------------------
-        GETTERS
-    --------------------------------------------------------- */
-    /**
-     * <p> Get key value of the iterator is pointing. </p>
-     *
-     * @return A key value of the iterator.
-     */
-    SetIterator.prototype.value = function () {
-        return this.set_.data()[this.index];
-    };
+    Object.defineProperty(SetIterator.prototype, "value", {
+        /* ---------------------------------------------------------
+            GETTERS
+        --------------------------------------------------------- */
+        /**
+         * <p> Get key value of the iterator is pointing. </p>
+         *
+         * @return A key value of the iterator.
+         */
+        get: function () {
+            return this.set_.data()[this.index];
+        },
+        enumerable: true,
+        configurable: true
+    });
     /**
      * <p> Whether an iterator is equal with the iterator. </p>
      * <p> Compare two iterators and returns whether they are equal or not. </p>
@@ -2106,7 +2110,6 @@ var EntityArray = (function (_super) {
             if (this.hasOwnProperty(v_it.first) == true
                 && (typeof this[v_it.first] == "number" || typeof this[v_it.first] == "string")
                 && v_it.first != "length") {
-                trace(v_it.first);
                 this[v_it.first] = v_it.second;
             }
         // MEMBER ENTITIES
@@ -3366,8 +3369,71 @@ var PackerSlaveSystem = (function (_super) {
     return PackerSlaveSystem;
 })(SlaveSystem);
 /// <reference path="../FaceAPI.ts" />
-/// <reference path="../Point.ts" />
-/// <reference path="../IJSonEntity.ts" />
+/// <reference path="IJSonEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceAPI;
+    (function (faceAPI) {
+        var basic;
+        (function (basic) {
+            /**
+             * X-Y 좌표 엔티티.
+             *
+             * @author 남정호
+             */
+            var Point = (function (_super) {
+                __extends(Point, _super);
+                /* --------------------------------------------------------
+                    CONSTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * 생성자 with XML 태그명.
+                 */
+                function Point(tag) {
+                    if (tag === void 0) { tag = ""; }
+                    _super.call(this);
+                    this.tag = tag;
+                    this.x = 0;
+                    this.y = 0;
+                }
+                Point.prototype.constructByJSON = function (val) {
+                    faceAPI.Global.fetch(this, val);
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                /**
+                 * Get X 좌표.
+                 */
+                Point.prototype.getX = function () {
+                    return this.x;
+                };
+                /**
+                 * Get Y 좌표.
+                 */
+                Point.prototype.getY = function () {
+                    return this.y;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                Point.prototype.TAG = function () {
+                    return this.tag;
+                };
+                Point.prototype.toXML = function () {
+                    var xml = _super.prototype.toXML.call(this);
+                    xml.eraseProperty("tag");
+                    return xml;
+                };
+                return Point;
+            })(Entity);
+            basic.Point = Point;
+        })(basic = faceAPI.basic || (faceAPI.basic = {}));
+    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="../basic/Point.ts" />
+/// <reference path="../basic/IJSonEntity.ts" />
 var hiswill;
 (function (hiswill) {
     var faceAPI;
@@ -3380,7 +3446,7 @@ var hiswill;
                     CONTRUCTORS
                 -------------------------------------------------------- */
                 function FaceRectangle() {
-                    _super.call(this, "");
+                    _super.call(this);
                     this.width = 0;
                     this.height = 0;
                 }
@@ -3399,14 +3465,14 @@ var hiswill;
                     return this.height;
                 };
                 return FaceRectangle;
-            })(faceAPI.Point);
+            })(faceAPI.basic.Point);
             face.FaceRectangle = FaceRectangle;
         })(face = faceAPI.face || (faceAPI.face = {}));
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="../IFaceAPI.ts" />
+/// <reference path="../basic/IFaceAPI.ts" />
 /// <reference path="FacePairArray.ts" />
 var hiswill;
 (function (hiswill) {
@@ -3507,7 +3573,7 @@ var hiswill;
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
 ///     <reference path="FacePair.ts" />
-/// <reference path="../IGroup.ts" />
+/// <reference path="../basic/IGroup.ts" />
 var hiswill;
 (function (hiswill) {
     var faceAPI;
@@ -3546,13 +3612,13 @@ var hiswill;
                                 pair.setFile(items[i]);
                             else
                                 pair.setRectangle(items[i]);
+                            // 서버에 등록
+                            pair.insertToServer();
                             // 대치
                             items[i] = pair;
                         }
-                        // 서버에 등록
-                        items[i].insertToServer();
                     }
-                    return this.length;
+                    return _super.prototype.push.apply(this, items);
                 };
                 FacePairArray.prototype.splice = function (start, end) {
                     var items = [];
@@ -3656,10 +3722,12 @@ var hiswill;
                     INTERACTION WITH FACE API
                 -------------------------------------------------------- */
                 Person.prototype.insertToServer = function () {
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
+                    if (this.group.isRegistered() == false)
+                        this.group.insertToServer();
                     var this_ = this;
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", { "personGroupId": this.group.getID() }, { "name": this.name, "userData": "" }, function (data) {
+                    trace("Person::insertToServer", this.name, this.group.getID());
+                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, //{"personGroupId": this.group.getID()},
+                    { "name": this.name, "userData": "" }, function (data) {
                         this_.id = data["personId"];
                         this_.registered = true;
                     });
@@ -3668,9 +3736,8 @@ var hiswill;
                     faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "DELETE", {
                         "personGroupId": this.group.getID(),
                         "personId": this.id
-                    }, null, function (data) {
-                        // NOTHING TO DO ESPECIALLY
-                    });
+                    }, null, null // NOTHING TO DO ESPECIALLY
+                    );
                     this.id = "";
                     _super.prototype.eraseFromServer.call(this);
                 };
@@ -3687,7 +3754,7 @@ var hiswill;
                     faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
                         "personGroupId": this.group.getID(),
                         "personId": this.id,
-                        "targetFace": "targetFace=" + face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
+                        "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
                         "userData": ""
                     }, {
                         "url": face.getPictureURL()
@@ -3723,7 +3790,7 @@ var hiswill;
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="Person.ts" />
-/// <reference path="../IGroup.ts" />
+/// <reference path="../basic/IGroup.ts" />
 /// <reference path="PersonGroupArray.ts" />
 var hiswill;
 (function (hiswill) {
@@ -3803,9 +3870,45 @@ var hiswill;
                         this.insertToServer();
                     // 학습 수행
                     var this_ = this;
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", { "personGroupId": this.id }, null, function (data) {
+                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", null, //{"personGroupId": this.id},
+                    null, function (data) {
                         this_.trained = true;
                     });
+                    // 수행 작업 현황을 확인한다.
+                    /*var prev: Date = new Date();
+        
+                    while (true)
+                    {
+                        var now: Date = new Date();
+                        if (now.getTime() - prev.getTime() < 500)
+                            continue;
+                        
+                        var completed = false;
+        
+                        FaceAPI.query
+                        (
+                            "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/training",
+                            "GET",
+        
+                            null,
+                            null,
+        
+                            function (data)
+                            {
+                                trace( "training process", data["status"], now.toString());
+        
+                                if (data["status"] == "succeded")
+                                    completed = true;
+                            }
+                        );
+        
+                        if (completed == true)
+                            break;
+        
+                        prev = now;
+                    }*/
+                };
+                PersonGroup.prototype.checkTrainStatus = function () {
                 };
                 /**
                  * 특정 얼굴의 주인이 누구일지 판별해 본다.
@@ -3826,11 +3929,13 @@ var hiswill;
                         this.train();
                     var this_ = this;
                     var personArray = new Array();
+                    trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
                     faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/identify", "POST", null, {
                         "personGroupId": this.id,
                         "faceIds": [face.getID()],
                         "maxNumOfCandidatesReturned": maxCandidates
                     }, function (args) {
+                        trace("Succeded to identify");
                         var data = args[0];
                         var faces = data["candidates"];
                         for (var i = 0; i < faces.length; i++) {
@@ -3856,8 +3961,10 @@ var hiswill;
                     if (this.id == "")
                         this.id = faceAPI.FaceAPI.issueID("person_group");
                     var this_ = this;
+                    trace("PersonGroup::insertToServer");
                     // 서버에 등록
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", { "personGroupId": this.id }, { "name": this.name, "userData": "" }, function (data) {
+                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", null, //{"personGroupId": this.id},
+                    { "name": this.name, "userData": "" }, function (data) {
                         this_.registered = true;
                     });
                 };
@@ -3872,6 +3979,28 @@ var hiswill;
                     faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, null);
                     this.trained = false;
                     this.registered = false;
+                };
+                /* --------------------------------------------------------
+                    EVENT LISTENERS
+                -------------------------------------------------------- */
+                PersonGroup.prototype.addEventListener = function (type, listener) {
+                    if (this.listeners.has(type) == false)
+                        this.listeners.set(type, new Set());
+                    var listenerSet = this.listeners.get(type);
+                    listenerSet.insert(listener);
+                };
+                PersonGroup.prototype.removeEventListener = function (type, listener) {
+                    if (this.listeners.has(type) == false)
+                        return;
+                    var listenerSet = this.listeners.get(type);
+                    listenerSet.erase(listener);
+                };
+                PersonGroup.prototype.dispatchEvent = function (event) {
+                    if (this.listeners.has(event.type) == false)
+                        return;
+                    var listenerSet = this.listeners.get(event.type);
+                    for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
+                        it.value(event);
                 };
                 /* --------------------------------------------------------
                     GETTERS
@@ -4048,9 +4177,9 @@ var hiswill;
                     if (this.isRegistered() == false)
                         this.insertToServer();
                     faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
-                        "faceListId": this.id,
+                        //"faceListId": this.id,
                         "userData": "",
-                        "targetFace": "targetFace=" + face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
+                        "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
                     }, {
                         "url": face.getPictureURL()
                     }, function (data) {
@@ -4140,7 +4269,7 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path='../../IJSonEntity.ts' />
+/// <reference path='../../basic/IJSonEntity.ts' />
 /// <referench path='FaceLandmark.ts' />
 /// <referench path='Eyebrows.ts' />
 /// <referench path='Nose.ts' />
@@ -4215,7 +4344,7 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../IJSonEntity.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
 /// <reference path='FaceAttributes.ts' />
 var hiswill;
 (function (hiswill) {
@@ -4334,7 +4463,7 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path='../../IJSonEntity.ts' />
+/// <reference path='../../basic/IJSonEntity.ts' />
 /// <reference path="FaceAttribute.ts" />
 /// <reference path="FacialHair.ts" />
 /// <reference path="HeadPose.ts" />
@@ -4405,7 +4534,7 @@ var hiswill;
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="../IJSonEntity.ts" />
+/// <reference path="../basic/IJSonEntity.ts" />
 /// <reference path="landmark/FaceLandmarks.ts" />
 /// <reference path="attribute/FaceAttributes.ts" />
 /// <reference path="../picture/Picture.ts" />
@@ -4446,7 +4575,6 @@ var hiswill;
                     var personGroupID = person.getProperty("groupID");
                 };
                 Face.prototype.constructByJSON = function (obj) {
-                    trace(JSON.stringify(obj));
                     this.id = obj["faceId"];
                     _super.prototype.constructByJSON.call(this, obj["faceRectangle"]);
                     this.landmarks.constructByJSON(obj["faceLandmarks"]);
@@ -4525,7 +4653,7 @@ var hiswill;
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="../face/Face.ts" />
-/// <reference path="../IJSONEntity.ts" />
+/// <reference path="../basic/IJSONEntity.ts" />
 /// <reference path="PictureArray.ts" />
 var hiswill;
 (function (hiswill) {
@@ -4681,10 +4809,6 @@ var hiswill;
 /// <reference path="person/PersonGroupArray.ts" />
 /// <reference path="faceList/FaceListArray.ts" />
 /// <reference path="picture/PictureArray.ts" />
-/* ============================================================
-    ROOT ENTITIES
-        - FACE_API
-============================================================ */
 var hiswill;
 (function (hiswill) {
     var faceAPI;
@@ -4788,7 +4912,7 @@ var hiswill;
              */
             FaceAPI.query = function (url, method, params, data, success) {
                 $.ajax({
-                    url: url + "?" + $.param(params),
+                    url: url + (params == null ? "" : "?" + $.param(params)),
                     beforeSend: function (xhrObj) {
                         // Request headers
                         xhrObj.setRequestHeader("Content-Type", "application/json");
@@ -4796,19 +4920,18 @@ var hiswill;
                     },
                     type: method,
                     async: false,
-                    data: JSON.stringify(data),
-                    success: function (data) {
-                        success.apply(data);
+                    data: (data == null) ? "" : JSON.stringify(data),
+                    success: function (data, textStatus, xhr) {
+                        if (success != null)
+                            success.apply(null, [data]);
+                    },
+                    error: function (jqXHR, textStatus, errorThrow) {
+                        trace(JSON.stringify(jqXHR), url);
                     }
                 });
             };
             FaceAPI.issueID = function (prefix) {
-                var date = new Date();
-                return prefix + "_hiswill_" + date.toString() + "_" + (++FaceAPI.sequence);
-            };
-            FaceAPI.main = function () {
-                var api = new FaceAPI();
-                // WHAT TO DO
+                return prefix + "_hiswill_" + new Date().getTime() + "_" + (++FaceAPI.sequence);
             };
             FaceAPI.sequence = 0;
             return FaceAPI;
@@ -4816,96 +4939,39 @@ var hiswill;
         faceAPI.FaceAPI = FaceAPI;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="FaceAPI.ts" />
-/// <reference path="IJSonEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        /**
-         * X-Y 좌표 엔티티.
-         *
-         * @author 남정호
-         */
-        var Point = (function (_super) {
-            __extends(Point, _super);
-            /* --------------------------------------------------------
-                CONSTRUCTORS
-            -------------------------------------------------------- */
-            /**
-             * 생성자 with XML 태그명.
-             */
-            function Point(tag) {
-                _super.call(this);
-                this.tag = tag;
-                this.x = 0;
-                this.y = 0;
-            }
-            Point.prototype.constructByJSON = function (val) {
-                faceAPI.Global.fetch(this, val);
-            };
-            /* --------------------------------------------------------
-                GETTERS
-            -------------------------------------------------------- */
-            /**
-             * Get X 좌표.
-             */
-            Point.prototype.getX = function () {
-                return this.x;
-            };
-            /**
-             * Get Y 좌표.
-             */
-            Point.prototype.getY = function () {
-                return this.y;
-            };
-            /* --------------------------------------------------------
-                EXPORTERS
-            -------------------------------------------------------- */
-            Point.prototype.TAG = function () {
-                return this.tag;
-            };
-            Point.prototype.toXML = function () {
-                var xml = _super.prototype.toXML.call(this);
-                xml.eraseProperty("tag");
-                return xml;
-            };
-            return Point;
-        })(Entity);
-        faceAPI.Point = Point;
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
 /// <reference path="hiswill/faceAPI/FaceAPI.ts" />
 var api = hiswill.faceAPI;
 function main() {
     var faceAPI = new api.FaceAPI();
+    var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
+    picture.detect();
+    trace("Detected");
+    //var faceList = faceAPI.createFaceList("other_group");
+    var personGroup = faceAPI.createPersonGroup("others");
+    for (var i = 0; i < 4; i++) {
+        var face = picture[i];
+        //faceList.push(face);
+        var person = new api.person.Person(personGroup, "my_name_" + (i + 1));
+        personGroup.push(person);
+        person.push(face);
+    }
+    trace("Registered");
+    face = picture[2];
+    var http;
+    personGroup.train();
+    window.setTimeout(identify, 500, personGroup, face);
 }
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var Direction = (function () {
-            function Direction() {
-            }
-            Object.defineProperty(Direction, "LEFT", {
-                get: function () { return 1; },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            Object.defineProperty(Direction, "RIGHT", {
-                get: function () { return 2; },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            return Direction;
-        })();
-        faceAPI.Direction = Direction;
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
+function identify(personGroup, face) {
+    var candidates = personGroup.identify(face, 2);
+    for (var i = 0; i < candidates.length; i++) {
+        var person = candidates[i].first;
+        var degree = candidates[i].second;
+        trace(face.key(), person.key(), degree);
+    }
+    trace("Identified");
+}
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../IJSonEntity.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
 /// <reference path="FaceLandmarks.ts" />
 var hiswill;
 (function (hiswill) {
@@ -4934,8 +5000,60 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../IJSonEntity.ts" />
-/// <reference path="../../Point.ts" />
+/// <reference path="FaceLandmark.ts" />
+/// <reference path="Eye.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceAPI;
+    (function (faceAPI) {
+        var face;
+        (function (face) {
+            var landmark;
+            (function (landmark) {
+                var Eyes = (function (_super) {
+                    __extends(Eyes, _super);
+                    /* --------------------------------------------------------
+                        CONSTRUCTORS
+                    -------------------------------------------------------- */
+                    function Eyes(landmarks) {
+                        _super.call(this, landmarks);
+                        this.left = new landmark.Eye(this, faceAPI.Direction.LEFT);
+                        this.right = new landmark.Eye(this, faceAPI.Direction.RIGHT);
+                    }
+                    Eyes.prototype.constructByJSON = function (obj) {
+                        this.left.constructByJSON(obj);
+                        this.right.constructByJSON(obj);
+                    };
+                    /* --------------------------------------------------------
+                        GETTERS
+                    -------------------------------------------------------- */
+                    Eyes.prototype.getLeft = function () {
+                        return this.left;
+                    };
+                    Eyes.prototype.getRight = function () {
+                        return this.right;
+                    };
+                    /* --------------------------------------------------------
+                        EXPORTERS
+                    -------------------------------------------------------- */
+                    Eyes.prototype.TAG = function () {
+                        return "eyes";
+                    };
+                    Eyes.prototype.toXML = function () {
+                        var xml = _super.prototype.toXML.call(this);
+                        xml.push(this.left.toXML(), this.right.toXML());
+                        return xml;
+                    };
+                    return Eyes;
+                })(landmark.FaceLandmark);
+                landmark.Eyes = Eyes;
+            })(landmark = face.landmark || (face.landmark = {}));
+        })(face = faceAPI.face || (faceAPI.face = {}));
+    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../../FaceAPI.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
+/// <reference path="../../basic/Point.ts" />
 /// <reference path="Eyes.ts" />
 var hiswill;
 (function (hiswill) {
@@ -4954,10 +5072,10 @@ var hiswill;
                         _super.call(this);
                         this.eyes = eyes;
                         this.direction = direction;
-                        this.top = new faceAPI.Point("top");
-                        this.bottom = new faceAPI.Point("bottom");
-                        this.inner = new faceAPI.Point("inner");
-                        this.outer = new faceAPI.Point("outer");
+                        this.top = new faceAPI.basic.Point("top");
+                        this.bottom = new faceAPI.basic.Point("bottom");
+                        this.inner = new faceAPI.basic.Point("inner");
+                        this.outer = new faceAPI.basic.Point("outer");
                         this.pupil = new landmark.Pupil(this);
                     }
                     Eye.prototype.constructByJSON = function (obj) {
@@ -5027,139 +5145,6 @@ var hiswill;
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
-/// <reference path="../../IJSonEntity.ts" />
-/// <reference path="Eye.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                var Eyes = (function (_super) {
-                    __extends(Eyes, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    function Eyes(landmarks) {
-                        _super.call(this, landmarks);
-                        this.left = new landmark.Eye(this, faceAPI.Direction.LEFT);
-                        this.right = new landmark.Eye(this, faceAPI.Direction.RIGHT);
-                    }
-                    Eyes.prototype.constructByJSON = function (obj) {
-                        this.left.constructByJSON(obj);
-                        this.right.constructByJSON(obj);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    Eyes.prototype.getLeft = function () {
-                        return this.left;
-                    };
-                    Eyes.prototype.getRight = function () {
-                        return this.right;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eyes.prototype.TAG = function () {
-                        return "eyes";
-                    };
-                    Eyes.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.left.toXML(), this.right.toXML());
-                        return xml;
-                    };
-                    return Eyes;
-                })(landmark.FaceLandmark);
-                landmark.Eyes = Eyes;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../IJSonEntity.ts" />
-/// <reference path="../../Point.ts" />
-/// <reference path="Eyebrows.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * 눈썹.
-                 *
-                 * @author 남정호
-                 */
-                var Eyebrow = (function (_super) {
-                    __extends(Eyebrow, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    function Eyebrow(eyeBrows, direction) {
-                        _super.call(this);
-                        this.eyeBrows = eyeBrows;
-                        this.direction = direction;
-                        this.inner = new faceAPI.Point("inner");
-                        this.outer = new faceAPI.Point("outer");
-                    }
-                    Eyebrow.prototype.constructByJSON = function (obj) {
-                        if (this.direction == faceAPI.Direction.LEFT) {
-                            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
-                            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
-                        }
-                        else {
-                            this.inner.constructByJSON(obj["eyebrowRightInner"]);
-                            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
-                        }
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    Eyebrow.prototype.getEyeBrows = function () {
-                        return this.eyeBrows;
-                    };
-                    Eyebrow.prototype.getOpposite = function () {
-                        if (this.direction == faceAPI.Direction.LEFT)
-                            return this.eyeBrows.getRight();
-                        else
-                            return this.eyeBrows.getLeft();
-                    };
-                    Eyebrow.prototype.getInner = function () {
-                        return this.inner;
-                    };
-                    Eyebrow.prototype.getOuter = function () {
-                        return this.outer;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eyebrow.prototype.TAG = function () {
-                        if (this.direction == faceAPI.Direction.LEFT)
-                            return "left";
-                        else
-                            return "right";
-                    };
-                    Eyebrow.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.eraseProperty("direction");
-                        xml.push(this.inner.toXML(), this.outer.toXML());
-                        return xml;
-                    };
-                    return Eyebrow;
-                })(Entity);
-                landmark.Eyebrow = Eyebrow;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="FaceLandmark.ts" />
-/// <reference path="../../IJSonEntity.ts" />
 /// <reference path="Eyebrow.ts" />
 var hiswill;
 (function (hiswill) {
@@ -5214,8 +5199,197 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path='../../IJSonEntity.ts' />
-/// <reference path='../../Point.ts' />
+/// <reference path="../../basic/IJSonEntity.ts" />
+/// <reference path="../../basic/Point.ts" />
+/// <reference path="Eyebrows.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceAPI;
+    (function (faceAPI) {
+        var face;
+        (function (face) {
+            var landmark;
+            (function (landmark) {
+                /**
+                 * 눈썹.
+                 *
+                 * @author 남정호
+                 */
+                var Eyebrow = (function (_super) {
+                    __extends(Eyebrow, _super);
+                    /* --------------------------------------------------------
+                        CONSTRUCTORS
+                    -------------------------------------------------------- */
+                    function Eyebrow(eyeBrows, direction) {
+                        _super.call(this);
+                        this.eyeBrows = eyeBrows;
+                        this.direction = direction;
+                        this.inner = new faceAPI.basic.Point("inner");
+                        this.outer = new faceAPI.basic.Point("outer");
+                    }
+                    Eyebrow.prototype.constructByJSON = function (obj) {
+                        if (this.direction == faceAPI.Direction.LEFT) {
+                            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
+                            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
+                        }
+                        else {
+                            this.inner.constructByJSON(obj["eyebrowRightInner"]);
+                            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
+                        }
+                    };
+                    /* --------------------------------------------------------
+                        GETTERS
+                    -------------------------------------------------------- */
+                    Eyebrow.prototype.getEyeBrows = function () {
+                        return this.eyeBrows;
+                    };
+                    Eyebrow.prototype.getOpposite = function () {
+                        if (this.direction == faceAPI.Direction.LEFT)
+                            return this.eyeBrows.getRight();
+                        else
+                            return this.eyeBrows.getLeft();
+                    };
+                    Eyebrow.prototype.getInner = function () {
+                        return this.inner;
+                    };
+                    Eyebrow.prototype.getOuter = function () {
+                        return this.outer;
+                    };
+                    /* --------------------------------------------------------
+                        EXPORTERS
+                    -------------------------------------------------------- */
+                    Eyebrow.prototype.TAG = function () {
+                        if (this.direction == faceAPI.Direction.LEFT)
+                            return "left";
+                        else
+                            return "right";
+                    };
+                    Eyebrow.prototype.toXML = function () {
+                        var xml = _super.prototype.toXML.call(this);
+                        xml.eraseProperty("direction");
+                        xml.push(this.inner.toXML(), this.outer.toXML());
+                        return xml;
+                    };
+                    return Eyebrow;
+                })(Entity);
+                landmark.Eyebrow = Eyebrow;
+            })(landmark = face.landmark || (face.landmark = {}));
+        })(face = faceAPI.face || (faceAPI.face = {}));
+    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="basic/IJSONEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceAPI;
+    (function (faceAPI) {
+        /**
+         * 전역 클래스.
+         *
+         * @author 남정호
+         */
+        var Global = (function () {
+            function Global() {
+            }
+            /**
+             * 엔티티의 멤버를 JSON 객체로부터 구성한다.
+             */
+            Global.fetch = function (entity, json) {
+                for (var key in json) {
+                    if (typeof key != "string" || entity.hasOwnProperty(key) == false)
+                        continue;
+                    if (typeof entity[key] == "number" || typeof entity[key] == "string")
+                        entity[key] = json[key];
+                    else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray) {
+                        var json_entity = entity[key];
+                        json_entity.constructByJSON(json[key]);
+                    }
+                }
+            };
+            return Global;
+        })();
+        faceAPI.Global = Global;
+        var Direction = (function () {
+            function Direction() {
+            }
+            Object.defineProperty(Direction, "LEFT", {
+                get: function () { return 1; },
+                enumerable: true,
+                configurable: true
+            });
+            ;
+            Object.defineProperty(Direction, "RIGHT", {
+                get: function () { return 2; },
+                enumerable: true,
+                configurable: true
+            });
+            ;
+            return Direction;
+        })();
+        faceAPI.Direction = Direction;
+    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../../FaceAPI.ts" />
+/// <reference path='FaceLandmark.ts' />
+/// <reference path='Lip.ts' />
+/// <reference path='../../basic/Point.ts' />
+var hiswill;
+(function (hiswill) {
+    var faceAPI;
+    (function (faceAPI) {
+        var face;
+        (function (face) {
+            var landmark;
+            (function (landmark) {
+                var Mouth = (function (_super) {
+                    __extends(Mouth, _super);
+                    /* --------------------------------------------------------
+                        CONTRUCTORS
+                    -------------------------------------------------------- */
+                    function Mouth(landmarks) {
+                        _super.call(this, landmarks);
+                        this.lip = new landmark.Lip(this);
+                        this.left = new faceAPI.basic.Point("left");
+                        this.right = new faceAPI.basic.Point("right");
+                    }
+                    Mouth.prototype.constructByJSON = function (obj) {
+                        this.lip.constructByJSON(obj);
+                        this.left.constructByJSON(obj["mouthLeft"]);
+                        this.right.constructByJSON(obj["mouthRight"]);
+                    };
+                    /* --------------------------------------------------------
+                        GETTERS
+                    -------------------------------------------------------- */
+                    Mouth.prototype.getLip = function () {
+                        return this.lip;
+                    };
+                    Mouth.prototype.getLeft = function () {
+                        return this.left;
+                    };
+                    Mouth.prototype.getRight = function () {
+                        return this.right;
+                    };
+                    /* --------------------------------------------------------
+                        EXPORTERS
+                    -------------------------------------------------------- */
+                    Mouth.prototype.TAG = function () {
+                        return "mouth";
+                    };
+                    Mouth.prototype.toXML = function () {
+                        var xml = _super.prototype.toXML.call(this);
+                        xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
+                        return xml;
+                    };
+                    return Mouth;
+                })(landmark.FaceLandmark);
+                landmark.Mouth = Mouth;
+            })(landmark = face.landmark || (face.landmark = {}));
+        })(face = faceAPI.face || (faceAPI.face = {}));
+    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../../FaceAPI.ts" />
+/// <reference path='../../basic/IJSonEntity.ts' />
+/// <reference path='../../basic/Point.ts' />
 /// <reference path='Mouth.ts' />
 var hiswill;
 (function (hiswill) {
@@ -5233,10 +5407,10 @@ var hiswill;
                     function Lip(mouth) {
                         _super.call(this);
                         this.mouth = mouth;
-                        this.upperTop = new faceAPI.Point("upperTop");
-                        this.upperBottom = new faceAPI.Point("upperBottom");
-                        this.underTop = new faceAPI.Point("underTop");
-                        this.underBottom = new faceAPI.Point("underBottom");
+                        this.upperTop = new faceAPI.basic.Point("upperTop");
+                        this.upperBottom = new faceAPI.basic.Point("upperBottom");
+                        this.underTop = new faceAPI.basic.Point("underTop");
+                        this.underBottom = new faceAPI.basic.Point("underBottom");
                     }
                     Lip.prototype.constructByJSON = function (obj) {
                         this.upperTop.constructByJSON(obj["upperLipTop"]);
@@ -5281,66 +5455,8 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path='FaceLandmark.ts' />
-/// <reference path='Lip.ts' />
-/// <reference path='../../Point.ts' />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                var Mouth = (function (_super) {
-                    __extends(Mouth, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    function Mouth(landmarks) {
-                        _super.call(this, landmarks);
-                        this.lip = new landmark.Lip(this);
-                        this.left = new faceAPI.Point("left");
-                        this.right = new faceAPI.Point("right");
-                    }
-                    Mouth.prototype.constructByJSON = function (obj) {
-                        this.lip.constructByJSON(obj);
-                        this.left.constructByJSON(obj["mouthLeft"]);
-                        this.right.constructByJSON(obj["mouthRight"]);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    Mouth.prototype.getLip = function () {
-                        return this.lip;
-                    };
-                    Mouth.prototype.getLeft = function () {
-                        return this.left;
-                    };
-                    Mouth.prototype.getRight = function () {
-                        return this.right;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Mouth.prototype.TAG = function () {
-                        return "mouth";
-                    };
-                    Mouth.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
-                        return xml;
-                    };
-                    return Mouth;
-                })(landmark.FaceLandmark);
-                landmark.Mouth = Mouth;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
-/// <reference path="../../Point.ts" />
+/// <reference path="../../basic/Point.ts" />
 var hiswill;
 (function (hiswill) {
     var faceAPI;
@@ -5356,13 +5472,13 @@ var hiswill;
                     -------------------------------------------------------- */
                     function Nose(landmarks) {
                         _super.call(this, landmarks);
-                        this.tip = new faceAPI.Point("tip");
-                        this.leftRoot = new faceAPI.Point("leftRoot");
-                        this.rightRoot = new faceAPI.Point("rightRoot");
-                        this.leftAlarTop = new faceAPI.Point("leftAlarTop");
-                        this.rightAlarTop = new faceAPI.Point("rightAlarTop");
-                        this.leftAlarOutTip = new faceAPI.Point("leftAlarOutTip");
-                        this.rightAlarOutTip = new faceAPI.Point("rightAlarOutTip");
+                        this.tip = new faceAPI.basic.Point("tip");
+                        this.leftRoot = new faceAPI.basic.Point("leftRoot");
+                        this.rightRoot = new faceAPI.basic.Point("rightRoot");
+                        this.leftAlarTop = new faceAPI.basic.Point("leftAlarTop");
+                        this.rightAlarTop = new faceAPI.basic.Point("rightAlarTop");
+                        this.leftAlarOutTip = new faceAPI.basic.Point("leftAlarOutTip");
+                        this.rightAlarOutTip = new faceAPI.basic.Point("rightAlarOutTip");
                     }
                     Nose.prototype.constructByJSON = function (obj) {
                         this.tip.constructByJSON(obj["noseTip"]);
@@ -5416,7 +5532,7 @@ var hiswill;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../Point.ts" />
+/// <reference path="../../basic/Point.ts" />
 /// <reference path="Eye.ts" />
 var hiswill;
 (function (hiswill) {
@@ -5453,44 +5569,10 @@ var hiswill;
                         return _super.prototype.TAG.call(this);
                     };
                     return Pupil;
-                })(faceAPI.Point);
+                })(faceAPI.basic.Point);
                 landmark.Pupil = Pupil;
             })(landmark = face.landmark || (face.landmark = {}));
         })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="FaceAPI.ts" />
-/// <reference path="IJSONEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        /**
-         * 전역 클래스.
-         *
-         * @author 남정호
-         */
-        var Global = (function () {
-            function Global() {
-            }
-            /**
-             * 엔티티의 멤버를 JSON 객체로부터 구성한다.
-             */
-            Global.fetch = function (entity, json) {
-                for (var key in json) {
-                    if (typeof key != "string" || entity.hasOwnProperty(key) == false)
-                        continue;
-                    if (typeof entity[key] == "number" || typeof entity[key] == "string")
-                        entity[key] = json[key];
-                    else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray) {
-                        var json_entity = entity[key];
-                        json_entity.constructByJSON(json[key]);
-                    }
-                }
-            };
-            return Global;
-        })();
-        faceAPI.Global = Global;
     })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
 })(hiswill || (hiswill = {}));
 //# sourceMappingURL=FaceAPI.js.map

@@ -123,9 +123,9 @@ namespace hiswill.faceAPI.faceList
                 "POST",
 
                 {
-                    "faceListId": this.id,
+                    //"faceListId": this.id,
                     "userData": "",
-                    "targetFace": "targetFace=" + face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
+                    "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
                 },
                 {
                     "url": face.getPictureURL()

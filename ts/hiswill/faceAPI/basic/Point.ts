@@ -1,8 +1,8 @@
-﻿/// <reference path="FaceAPI.ts" />
+﻿/// <reference path="../FaceAPI.ts" />
 
 /// <reference path="IJSonEntity.ts" />
 
-namespace hiswill.faceAPI 
+namespace hiswill.faceAPI.basic
 {
     /**
      * X-Y 좌표 엔티티.
@@ -34,7 +34,7 @@ namespace hiswill.faceAPI
         /**
          * 생성자 with XML 태그명.
          */
-        public constructor(tag: string) 
+        public constructor(tag: string = "") 
         {
             super();
 

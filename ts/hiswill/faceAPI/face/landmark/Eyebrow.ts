@@ -1,8 +1,8 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
-/// <reference path="../../IJSonEntity.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
 
-/// <reference path="../../Point.ts" />
+/// <reference path="../../basic/Point.ts" />
 
 /// <reference path="Eyebrows.ts" />
 
@@ -15,13 +15,13 @@ namespace hiswill.faceAPI.face.landmark
      */
     export class Eyebrow 
         extends Entity
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         protected eyeBrows: Eyebrows;
         protected direction: number;
 
-        protected inner: Point;
-        protected outer: Point;
+        protected inner: basic.Point;
+        protected outer: basic.Point;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
@@ -33,8 +33,8 @@ namespace hiswill.faceAPI.face.landmark
             this.eyeBrows = eyeBrows;
             this.direction = direction;
 
-            this.inner = new Point("inner");
-            this.outer = new Point("outer");
+            this.inner = new basic.Point("inner");
+            this.outer = new basic.Point("outer");
         }
 
         public constructByJSON(obj: any): void 
@@ -66,11 +66,11 @@ namespace hiswill.faceAPI.face.landmark
                 return this.eyeBrows.getLeft();
         }
 
-        public getInner(): Point
+        public getInner(): basic.Point
         {
             return this.inner;
         }
-        public getOuter(): Point
+        public getOuter(): basic.Point
         {
             return this.outer;
         }

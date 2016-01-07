@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
-/// <reference path="../../Point.ts" />
+/// <reference path="../../basic/Point.ts" />
 
 /// <reference path="Eye.ts" />
 
@@ -12,7 +12,7 @@ namespace hiswill.faceAPI.face.landmark
      * @author 남정호
      */
     export class Pupil
-        extends Point
+        extends basic.Point
     {
         protected eye: Eye;
 

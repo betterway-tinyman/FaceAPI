@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
-/// <reference path='../../IJSonEntity.ts' />
+/// <reference path='../../basic/IJSonEntity.ts' />
 
 /// <referench path='FaceLandmark.ts' />
 /// <referench path='Eyebrows.ts' />
@@ -18,7 +18,7 @@ namespace hiswill.faceAPI.face.landmark
      */
     export class FaceLandmarks 
         extends Entity
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         protected face: Face;
 

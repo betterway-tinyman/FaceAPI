@@ -1,7 +1,6 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
 /// <reference path="FaceLandmark.ts" />
-/// <reference path="../../IJSonEntity.ts" />
 
 /// <reference path="Eyebrow.ts" />
 

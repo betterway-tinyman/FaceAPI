@@ -1,6 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="IJSONEntity.ts" />
+/// <reference path="basic/IJSONEntity.ts" />
 
 namespace hiswill.faceAPI
 {
@@ -25,10 +25,16 @@ namespace hiswill.faceAPI
                     entity[key] = json[key];
                 else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray)
                 {
-                    var json_entity: IJSONEntity = <IJSONEntity>entity[key];
+                    var json_entity: basic.IJSONEntity = <basic.IJSONEntity>entity[key];
                     json_entity.constructByJSON(json[key]);
                 }
             }
         }
+    }
+
+    export class Direction 
+    {
+        public static get LEFT(): number { return 1 };
+        public static get RIGHT(): number { return 2 };
     }
 }

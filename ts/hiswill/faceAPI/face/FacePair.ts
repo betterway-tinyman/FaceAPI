@@ -1,7 +1,7 @@
 ﻿/// <reference path="../FaceAPI.ts" />
 
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="../IFaceAPI.ts" />
+/// <reference path="../basic/IFaceAPI.ts" />
 
 /// <reference path="FacePairArray.ts" />
 
@@ -9,7 +9,7 @@ namespace hiswill.faceAPI.face
 {
     export class FacePair
         extends FaceRectangle
-        implements IFaceAPI
+        implements basic.IFaceAPI
     {
         protected pairArray: FacePairArray;
 

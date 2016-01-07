@@ -1,8 +1,8 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
-/// <reference path='../../IJSonEntity.ts' />
+/// <reference path='../../basic/IJSonEntity.ts' />
 
-/// <reference path='../../Point.ts' />
+/// <reference path='../../basic/Point.ts' />
 
 /// <reference path='Mouth.ts' />
 
@@ -10,15 +10,15 @@ namespace hiswill.faceAPI.face.landmark
 {
     export class Lip
         extends Entity
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         protected mouth: Mouth;
 
-        protected upperTop: Point;
-        protected upperBottom: Point;
+        protected upperTop: basic.Point;
+        protected upperBottom: basic.Point;
     
-        protected underTop: Point;
-        protected underBottom: Point;
+        protected underTop: basic.Point;
+        protected underBottom: basic.Point;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -28,11 +28,11 @@ namespace hiswill.faceAPI.face.landmark
             super();
             this.mouth = mouth;
 
-            this.upperTop = new Point("upperTop");
-            this.upperBottom = new Point("upperBottom");
+            this.upperTop = new basic.Point("upperTop");
+            this.upperBottom = new basic.Point("upperBottom");
         
-            this.underTop = new Point("underTop");
-            this.underBottom = new Point("underBottom");
+            this.underTop = new basic.Point("underTop");
+            this.underBottom = new basic.Point("underBottom");
         }
 
         public constructByJSON(obj: any): void
@@ -52,20 +52,20 @@ namespace hiswill.faceAPI.face.landmark
             return this.mouth;
         }
     
-        public getUpperTop(): Point
+        public getUpperTop(): basic.Point
         {
             return this.upperTop;
         }
-        public getUpperBottom(): Point
+        public getUpperBottom(): basic.Point
         {
             return this.upperBottom;
         }
 
-        public getUnderTop(): Point
+        public getUnderTop(): basic.Point
         {
             return this.underTop;
         }
-        public getUnderBottom(): Point
+        public getUnderBottom(): basic.Point
         {
             return this.underBottom;
         }

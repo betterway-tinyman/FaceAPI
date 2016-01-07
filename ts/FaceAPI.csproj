@@ -22,8 +22,7 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="FaceAPI.ts" />
-    <TypeScriptCompile Include="hiswill\faceAPI\Direction.ts" />
+    <TypeScriptCompile Include="main.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\landmark\Eye.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\landmark\Eyebrow.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\landmark\Eyebrows.ts" />
@@ -42,9 +41,9 @@
     <TypeScriptCompile Include="hiswill\faceAPI\face\attribute\FacialHair.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\Global.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\attribute\HeadPose.ts" />
-    <TypeScriptCompile Include="hiswill\faceAPI\IFaceAPI.ts" />
-    <TypeScriptCompile Include="hiswill\faceAPI\IGroup.ts" />
-    <TypeScriptCompile Include="hiswill\faceAPI\IJSONEntity.ts" />
+    <TypeScriptCompile Include="hiswill\faceAPI\basic\IFaceAPI.ts" />
+    <TypeScriptCompile Include="hiswill\faceAPI\basic\IGroup.ts" />
+    <TypeScriptCompile Include="hiswill\faceAPI\basic\IJSONEntity.ts" />
     <TypeScriptCompile Include="jquery.d.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\landmark\Lip.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\landmark\Mouth.ts" />
@@ -54,7 +53,7 @@
     <TypeScriptCompile Include="hiswill\faceAPI\person\PersonGroupArray.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\picture\Picture.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\picture\PictureArray.ts" />
-    <TypeScriptCompile Include="hiswill\faceAPI\Point.ts" />
+    <TypeScriptCompile Include="hiswill\faceAPI\basic\Point.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\face\landmark\Pupil.ts" />
     <TypeScriptCompile Include="SamchonFramework.ts" />
   </ItemGroup>

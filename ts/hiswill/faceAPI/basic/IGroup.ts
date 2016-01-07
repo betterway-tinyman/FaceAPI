@@ -1,6 +1,6 @@
 ﻿/// <reference path="IFaceAPI.ts" />
 
-namespace hiswill.faceAPI 
+namespace hiswill.faceAPI.basic
 {
     export interface IGroup<_Ty>
         extends IFaceAPI, 

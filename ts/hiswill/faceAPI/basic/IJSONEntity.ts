@@ -1,4 +1,4 @@
-﻿namespace hiswill.faceAPI 
+﻿namespace hiswill.faceAPI.basic
 {
     /**
      * JSON을 통하여 멤버가 구성되는 엔티티를 위한 인터페이스.

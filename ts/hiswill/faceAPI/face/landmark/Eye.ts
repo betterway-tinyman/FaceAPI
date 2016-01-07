@@ -1,8 +1,8 @@
 ﻿/// <reference path="../../FaceAPI.ts" />
 
-/// <reference path="../../IJSonEntity.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
 
-/// <reference path="../../Point.ts" />
+/// <reference path="../../basic/Point.ts" />
 
 /// <reference path="Eyes.ts" />
 
@@ -10,15 +10,15 @@ namespace hiswill.faceAPI.face.landmark
 {
     export class Eye 
         extends Entity
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         protected eyes: Eyes;
         protected direction: number;
 
-        protected top: Point;
-        protected bottom: Point;
-        protected inner: Point;
-        protected outer: Point;
+        protected top: basic.Point;
+        protected bottom: basic.Point;
+        protected inner: basic.Point;
+        protected outer: basic.Point;
 
         protected pupil: Pupil;
 
@@ -32,10 +32,10 @@ namespace hiswill.faceAPI.face.landmark
             this.eyes = eyes;
             this.direction = direction;
 
-            this.top = new Point("top");
-            this.bottom = new Point("bottom");
-            this.inner = new Point("inner");
-            this.outer = new Point("outer");
+            this.top = new basic.Point("top");
+            this.bottom = new basic.Point("bottom");
+            this.inner = new basic.Point("inner");
+            this.outer = new basic.Point("outer");
 
             this.pupil = new Pupil(this);
         }
@@ -77,19 +77,19 @@ namespace hiswill.faceAPI.face.landmark
                 return this.eyes.getLeft();
         }
 
-        public getTop(): Point
+        public getTop(): basic.Point
         {
             return this.top;
         }
-        public getBottom(): Point 
+        public getBottom(): basic.Point 
         {
             return this.bottom;
         }
-        public getInner(): Point 
+        public getInner(): basic.Point 
         {
             return this.inner;
         }
-        public getOuter(): Point 
+        public getOuter(): basic.Point 
         {
             return this.outer;
         }

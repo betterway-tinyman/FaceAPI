@@ -2,23 +2,23 @@
 
 /// <reference path="FaceLandmark.ts" />
 
-/// <reference path="../../Point.ts" />
+/// <reference path="../../basic/Point.ts" />
 
 namespace hiswill.faceAPI.face.landmark 
 {
     export class Nose
         extends FaceLandmark
     {
-        protected tip: Point;
+        protected tip: basic.Point;
     
-        protected leftRoot: Point;
-        protected rightRoot: Point;
+        protected leftRoot: basic.Point;
+        protected rightRoot: basic.Point;
     
-        protected leftAlarTop: Point;
-        protected rightAlarTop: Point;
+        protected leftAlarTop: basic.Point;
+        protected rightAlarTop: basic.Point;
     
-        protected leftAlarOutTip: Point;
-        protected rightAlarOutTip: Point;
+        protected leftAlarOutTip: basic.Point;
+        protected rightAlarOutTip: basic.Point;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -27,16 +27,16 @@ namespace hiswill.faceAPI.face.landmark
         {
             super(landmarks);
         
-            this.tip = new Point("tip");
+            this.tip = new basic.Point("tip");
 
-            this.leftRoot = new Point("leftRoot");
-            this.rightRoot = new Point("rightRoot");
+            this.leftRoot = new basic.Point("leftRoot");
+            this.rightRoot = new basic.Point("rightRoot");
         
-            this.leftAlarTop = new Point("leftAlarTop");
-            this.rightAlarTop = new Point("rightAlarTop");
+            this.leftAlarTop = new basic.Point("leftAlarTop");
+            this.rightAlarTop = new basic.Point("rightAlarTop");
         
-            this.leftAlarOutTip = new Point("leftAlarOutTip");
-            this.rightAlarOutTip = new Point("rightAlarOutTip");
+            this.leftAlarOutTip = new basic.Point("leftAlarOutTip");
+            this.rightAlarOutTip = new basic.Point("rightAlarOutTip");
         }
 
         public constructByJSON(obj: any): void
@@ -56,34 +56,34 @@ namespace hiswill.faceAPI.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
-        public getTip(): Point
+        public getTip(): basic.Point
         {
             return this.tip;
         }
 
-        public getLeftRoot(): Point
+        public getLeftRoot(): basic.Point
         {
             return this.leftRoot;
         }
-        public getRightRoot(): Point
+        public getRightRoot(): basic.Point
         {
             return this.rightRoot;
         }
 
-        public getLeftAlarTop(): Point
+        public getLeftAlarTop(): basic.Point
         {
             return this.leftAlarTop;
         }
-        public getRightAlarTop(): Point
+        public getRightAlarTop(): basic.Point
         {
             return this.rightAlarTop;
         }
 
-        public getLeftAlarOutTip(): Point
+        public getLeftAlarOutTip(): basic.Point
         {
             return this.leftAlarOutTip;
         }
-        public getRightAlarOutTip(): Point
+        public getRightAlarOutTip(): basic.Point
         {
             return this.rightAlarOutTip;
         }

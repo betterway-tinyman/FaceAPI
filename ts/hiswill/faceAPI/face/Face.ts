@@ -1,7 +1,7 @@
 ﻿/// <reference path="../FaceAPI.ts" />
 
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="../IJSonEntity.ts" />
+/// <reference path="../basic/IJSonEntity.ts" />
 
 /// <reference path="landmark/FaceLandmarks.ts" />
 /// <reference path="attribute/FaceAttributes.ts" />
@@ -17,7 +17,7 @@ namespace hiswill.faceAPI.face
 {
     export class Face
         extends FaceRectangle 
-        implements IJSONEntity
+        implements basic.IJSONEntity
     {
         /**
          * 해당 Face가 찍혀있는 Picture.
@@ -73,8 +73,6 @@ namespace hiswill.faceAPI.face
 
         public constructByJSON(obj: any): void
         {
-            trace(JSON.stringify(obj));
-
             this.id = obj["faceId"];
         
             super.constructByJSON(obj["faceRectangle"]);

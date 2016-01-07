@@ -3,7 +3,7 @@
 /// <reference path='FaceLandmark.ts' />
 
 /// <reference path='Lip.ts' />
-/// <reference path='../../Point.ts' />
+/// <reference path='../../basic/Point.ts' />
 
 namespace hiswill.faceAPI.face.landmark 
 {
@@ -11,8 +11,8 @@ namespace hiswill.faceAPI.face.landmark
         extends FaceLandmark
     {
         protected lip: Lip;
-        protected left: Point;
-        protected right: Point;
+        protected left: basic.Point;
+        protected right: basic.Point;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -22,8 +22,8 @@ namespace hiswill.faceAPI.face.landmark
             super(landmarks);
         
             this.lip = new Lip(this);
-            this.left = new Point("left");
-            this.right = new Point("right");
+            this.left = new basic.Point("left");
+            this.right = new basic.Point("right");
         }
 
         public constructByJSON(obj: any): void
@@ -41,11 +41,11 @@ namespace hiswill.faceAPI.face.landmark
         {
             return this.lip;
         }
-        public getLeft(): Point
+        public getLeft(): basic.Point
         {
             return this.left;
         }
-        public getRight(): Point
+        public getRight(): basic.Point
         {
             return this.right;
         }
