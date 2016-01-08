@@ -4,7 +4,7 @@
 
 /// <reference path='FaceAttributes.ts' />
 
-namespace hiswill.faceAPI.face.attribute 
+namespace hiswill.faceapi.face.attribute 
 {
     export class FaceAttribute
         extends Entity

@@ -4,7 +4,7 @@
 
 /// <reference path="FaceLandmarks.ts" />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     export class FaceLandmark
         extends Entity

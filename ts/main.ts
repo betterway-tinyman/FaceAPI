@@ -1,6 +1,6 @@
-﻿/// <reference path="hiswill/faceAPI/FaceAPI.ts" />
+﻿/// <reference path="hiswill/faceapi/FaceAPI.ts" />
 
-import api = hiswill.faceAPI;
+import api = hiswill.faceapi;
 
 function main(): void
 {
@@ -14,7 +14,7 @@ function main(): void
     //var faceList = faceAPI.createFaceList("other_group");
     var personGroup = faceAPI.createPersonGroup("others");
 
-    for (var i: number = 0; i < 4; i++)
+    for (var i: number = 0; i < 3; i++)
     {
         var face = picture[i];
 
@@ -27,25 +27,17 @@ function main(): void
 
     trace("Registered");
 
-    face = picture[2];
+    personGroup.addEventListener("complete",
+        function(ev: Event): void
+        {
+            trace("Trained");
 
-    var http:XMLHttpRequest;
-    
+            var face = picture[0];
+            var candidates = personGroup.identify(face, 2);
+
+            trace("Identified", candidates.toXML());
+        }
+    );
+
     personGroup.train();
-    window.setTimeout(identify, 500, personGroup, face);
-}
-
-function identify(personGroup: api.person.PersonGroup, face: api.face.Face): void
-{
-    var candidates = personGroup.identify(face, 2);
-
-    for (var i: number = 0; i < candidates.length; i++) 
-    {
-        var person = candidates[i].first;
-        var degree = candidates[i].second;
-
-        trace(face.key(), person.key(), degree);
-    }
-
-    trace("Identified");
 }

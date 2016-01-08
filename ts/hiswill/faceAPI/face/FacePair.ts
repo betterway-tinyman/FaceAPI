@@ -5,25 +5,59 @@
 
 /// <reference path="FacePairArray.ts" />
 
-namespace hiswill.faceAPI.face 
+namespace hiswill.faceapi.face 
 {
+    /**
+     * <p> An entity directing a Face and its basic data. </p>
+     *
+     * <p> Reference </p>
+     * <ul>
+     *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+     *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+     * </ul>
+     *
+     * @author Jeongho Nam
+     */
     export class FacePair
         extends FaceRectangle
         implements basic.IFaceAPI
     {
+        /**
+         * An array and parent of the FacePair.
+         */
         protected pairArray: FacePairArray;
 
+        /**
+         * An identifier issued by Face-API server.
+         */
         protected id: string;
 
+        /**
+         * URL-address of a picture containing the targeting face.
+         */
         protected pictureURL: string;
 
+        /**
+         * <p> Related Face instance. </p>
+         *
+         * <p> When related Face exists, the FacePair follows data of the Face. However, the related
+         * Face is not, FacePair construct its own data by itself (by inheriting FaceRectangle). </p>
+         */
         protected face: Face;
 
+        /**
+         * Whether the instance is registered on the Face-API server.
+         */
         protected registered: boolean;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a FacePairArray.
+         *
+         * @param pairArray An array and parent of the FacePair.
+         */
         public constructor(pairArray: FacePairArray)
         {
             super();
@@ -71,6 +105,11 @@ namespace hiswill.faceAPI.face
         /* --------------------------------------------------------
             SETTERS & GETTERS
         -------------------------------------------------------- */
+        /**
+         * Set (related) file. 
+         *
+         * @param face A related file with the FacePair.
+         */
         public setFile(face: Face): void
         {
             this.face = face;
@@ -78,13 +117,29 @@ namespace hiswill.faceAPI.face
 
             this.setRectangle(face);
         }
+
+        /**
+         * <p> Set rectangle data. 
+         * Constructs members of FaceRectangle, basic class of the FacePair. 
+         *
+         * @param rectangle A FaceRentangle instance to copy.
+         */
         public setRectangle(rectangle: FaceRectangle): void
         {
+            // POINT'S MEMBERS
             this.x = rectangle.getX();
             this.y = rectangle.getY();
+
+            // FACE_RECTANGLE'S MEMBERS
             this.width = rectangle.getWidth();
             this.height = rectangle.getHeight();
         }
+
+        /**
+         * Set identifier. 
+         *
+         * @param id An identifier gotten from Face-API server.
+         */
         public setID(id: string): void
         {
             this.id = id;
@@ -96,19 +151,33 @@ namespace hiswill.faceAPI.face
             return this.id;
         }
 
+        /**
+         * Get pairArray.
+         */
         public getPairArray(): FacePairArray
         {
             return this.pairArray;
         }
+
+        /**
+         * Get face.
+         */
         public getFace(): Face
         {
             return this.face;
         }
 
+        /**
+         * Get id.
+         */
         public getID(): string
         {
             return this.id;
         }
+
+        /**
+         * Get pictureURL.
+         */
         public getPictureURL(): string
         {
             return this.pictureURL;

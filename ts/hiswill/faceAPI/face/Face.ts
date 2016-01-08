@@ -6,43 +6,55 @@
 /// <reference path="landmark/FaceLandmarks.ts" />
 /// <reference path="attribute/FaceAttributes.ts" />
 
-/// <reference path="../picture/Picture.ts" />
 /// <reference path="../person/Person.ts" />
 /// <reference path="../person/PersonGroup.ts" />
+/// <reference path="../result/CandidatePersonArray.ts" />
+
+/// <reference path="../picture/Picture.ts" />
 
 /**
- * 얼굴 엔티티.
+ * A face.
+ *
+ * @author Jeongho Nam
  */
-namespace hiswill.faceAPI.face 
+namespace hiswill.faceapi.face 
 {
     export class Face
         extends FaceRectangle 
         implements basic.IJSONEntity
     {
         /**
-         * 해당 Face가 찍혀있는 Picture.
+         * A picture contaning the Face.
          */
         protected picture: picture.Picture;
     
         /**
-         * 현재의 Face은 누구(Person)의 것인가.
+         * Who is owner of the Face.
          */
         protected person: person.Person;
 
         /**
-         * FaceAPI에서 발급해준 식별자 번호.
+         * An identifier issued by FaceAPI Server.
          */
         protected id: string;
 
+        /**
+         * Landmarks belongs to the Face.
+         */
         protected landmarks: landmark.FaceLandmarks;
 
+        /**
+         * Attributes about the Face.
+         */
         protected attributes: attribute.FaceAttributes;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 from Picture.
+         * Constructor from Picture.
+         *
+         * @param picture A picture that containing the Face.
          */
         public constructor(picture: picture.Picture)
         {
@@ -84,30 +96,41 @@ namespace hiswill.faceAPI.face
             COMPARES
         -------------------------------------------------------- */
         /**
-         * <p> 이 얼굴(Face)이 누구인지(Person in PersonGroup) 감지해냄. </p>
+         * <p> Identify the Face is whom (Person, from a PersonGroup). </p>
+         *
+         * <p> You've to execute PersonGroup.train() method, asynchronous method dispatching 
+         * "complete" Event when the training was completed, before running the identify() method. </p>
          *
          * <ul>
-         *  <li> 참고자료:  </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
          * </ul>
+         *
+         * @param personGroup A PersonGroup, candidates of the owner.
+         * @param maxCandidates Permitted number of candidates to return.
+         *
+         * @return Candidates of the owner with conformaility degrees.
          */
-        public identify(personGroup: person.PersonGroup, maxCandidates: number = 1): Array<Pair<person.Person, number>>
+        public identify(personGroup: person.PersonGroup, maxCandidates: number = 1): result.CandidatePersonArray
         {
             return personGroup.identify(this, maxCandidates);
         }
 
         /**
-         * 두 얼굴이 같은 사람인 지 검사한다.
+         * Test whether two Faces are owned by a same Person.
          *
          * <ul>
-         *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
          * </ul>
          * 
-         * @return 같은 사람인 지 (true, false) &amp; 유사도 (0.0 ~ 1.0)
+         * @param face Target Face to compare with.
+         * @return A pair of flag (whether two Faces are from a same person) and confidence (conformality degree).
          */
         public equals(face: Face): Pair<boolean, number>
         {
             if (this == face)
                 return new Pair<boolean, number>(true, 1.0);
+
+            var pair: Pair<boolean, number> = new Pair<boolean, number>(false, -1.0);
 
             FaceAPI.query
             (
@@ -120,13 +143,13 @@ namespace hiswill.faceAPI.face
                 function (data) 
                 {
                     var isIdentical: boolean = data["isIdentical"];
-                    var confidence: number = data["confidental"];
+                    var confidence: number = data["confidence"];
 
-                    return new Pair<boolean, number>(isIdentical, confidence);
+                    pair = new Pair<boolean, number>(isIdentical, confidence);
                 }
             );
 
-            return new Pair<boolean, number>(false, -1.0);
+            return pair;
         }
 
         /* --------------------------------------------------------
@@ -137,24 +160,41 @@ namespace hiswill.faceAPI.face
             return this.id;
         }
 
+        /**
+         * Get id.
+         */
         public getID(): string
         {
             return this.id;
         }
     
+        /**
+         * Get picture.
+         */
         public getPicture(): picture.Picture
         {
             return this.picture;
         }
+
+        /**
+         * Get person.
+         */
         public getPerson(): person.Person
         {
             return this.person;
         }
     
+        /**
+         * Get landmarks.
+         */
         public getLandmarks(): landmark.FaceLandmarks
         {
             return this.landmarks;
         }
+
+        /**
+         * Get attributes.
+         */
         public getAttributes(): attribute.FaceAttributes
         {
             return this.attributes;
@@ -167,6 +207,7 @@ namespace hiswill.faceAPI.face
         {
             return "face";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

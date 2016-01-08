@@ -4,21 +4,40 @@
 ///     <reference path="FacePair.ts" />
 /// <reference path="../basic/IGroup.ts" />
 
-namespace hiswill.faceAPI.face
+namespace hiswill.faceapi.face
 {
+    /**
+     * An abstract class containing FacePair objects as an array and parent of them.
+     *
+     * @author Jeongho Nam
+     */
     export class FacePairArray
         extends EntityArray<FaceRectangle>
         implements basic.IGroup<FaceRectangle>
     {
+        /**
+         * An identifier issued by FaceAPI Server.
+         */
         protected id: string;
 
+        /**
+         * A name representing the instance.
+         */
         protected name: string;
 
+        /**
+         * Whether the instance is registered on the Face-API server.
+         */
         protected registered: boolean;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from name. 
+         *
+         * @param name Name representing the FacePairArray.
+         */
         public constructor(name: string = "")
         {
             super();
@@ -65,11 +84,11 @@ namespace hiswill.faceAPI.face
 
         public splice(start: number, end?: number, ... items: FaceRectangle[]): FaceRectangle[]
         {
-            // 각 원소들을 서버에서도 제거
+            // Remove the elements from Face-API server.
             for (var i: number = start;  i < Math.min(start + end, this.length); i++)
                 (<FacePair>this[i]).eraseFromServer();
 
-            // 리턴
+            // To return
             var output = super.splice(start, end);
 
             this.push(...items);
@@ -92,15 +111,31 @@ namespace hiswill.faceAPI.face
             this.registered = false;
         }
 
-        protected setNameInServer(name: string): void 
+        /**
+         * Notify the name is changed to Face-API server.
+         *
+         * @param name New name of the FacePairArray.
+         */
+        protected notifySetName(name: string): void 
         {
             // SOMETHING TO BE OVERRIDEN
         }
 
+        /**
+         * An abstract method inserting the child FacePair instance to the Face-API server. 
+         *
+         * @param face A newly inserted FacePair object.
+         */
         public insertFaceToServer(face: FacePair): void
         {
             // TO BE OVERRIDEN
         }
+
+        /**
+         * An abstract method removing the child FacePair instance from the Face-API server. 
+         *
+         * @param face A just removed FacePair object.
+         */
         public eraseFaceFromServer(face: FacePair): void
         {
             // TO BE OVERRIDEN
@@ -117,16 +152,26 @@ namespace hiswill.faceAPI.face
             return this.id;
         }
         
+        /**
+         * An abstract method getting FaceAPI instance.
+         */
         public getFaceAPI(): FaceAPI
         {
             // TO BE OVERRIDEN
             return null;
         }
 
+        /**
+         * Get id.
+         */
         public getID(): string
         {
             return this.id;
         }
+
+        /**
+         * Get name.
+         */
         public getName(): string
         {
             return this.name;
@@ -137,9 +182,14 @@ namespace hiswill.faceAPI.face
             return this.registered;
         }
 
+        /**
+         * Set name 
+         *
+         * @param name New name.
+         */
         public setName(name: string): void
         {
-            this.setNameInServer(name);
+            this.notifySetName(name);
 
             this.name = name;
         }

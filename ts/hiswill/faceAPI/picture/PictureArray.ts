@@ -2,7 +2,7 @@
 
 /// <reference path="Picture.ts" />
 
-namespace hiswill.faceAPI.picture 
+namespace hiswill.faceapi.picture 
 {
     /**
      * 사진 목록.

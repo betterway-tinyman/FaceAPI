@@ -2,7 +2,7 @@
 
 /// <reference path="PersonGroup.ts" />
 
-namespace hiswill.faceAPI.person 
+namespace hiswill.faceapi.person 
 {
     /**
      * 사람 그룹 리스트 엔티티.

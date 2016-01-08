@@ -5,7 +5,7 @@
 
 /// <reference path="PictureArray.ts" />
 
-namespace hiswill.faceAPI.picture
+namespace hiswill.faceapi.picture
 {
     /**
      * <p> 사진 엔티티. </p>
@@ -44,11 +44,13 @@ namespace hiswill.faceAPI.picture
     
         public constructByJSON(val: any): void
         {
+            this.splice(0, this.length); // CLEAR
+
             var array: Array<any> = val;
 
             for (var i: number = 0; i < array.length; i++)
             {
-                var face: face.Face = new faceAPI.face.Face(this);
+                var face: face.Face = new faceapi.face.Face(this);
                 face.constructByJSON(array[i]);
 
                 this.push(face);

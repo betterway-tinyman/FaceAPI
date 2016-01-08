@@ -3,18 +3,33 @@
 /// <reference path="../basic/Point.ts" />
 /// <reference path="../basic/IJSonEntity.ts" />
 
-namespace hiswill.faceAPI.face 
+namespace hiswill.faceapi.face 
 {
+    /**
+     * An abstract class having position and size data of rectangle representing a face in a picture.
+     *
+     * @author Jeongho Nam
+     */
     export class FaceRectangle
         extends basic.Point
         implements basic.IJSONEntity
     {
+        /**
+         * Horizontal length of the FaceRectangle.
+         */
         protected width: number;
+        
+        /**
+         * Vertical length of the FaceRectangle.
+         */
         protected height: number;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Default Constructor.
+         */
         public constructor()
         {
             super();
@@ -33,10 +48,17 @@ namespace hiswill.faceAPI.face
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get width.
+         */
         public getWidth(): number
         {
             return this.width;
         }
+
+        /**
+         * Get height.
+         */
         public getHeight(): number
         {
             return this.height;

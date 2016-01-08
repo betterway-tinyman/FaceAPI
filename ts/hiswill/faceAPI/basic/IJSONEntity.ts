@@ -1,14 +1,17 @@
-﻿namespace hiswill.faceAPI.basic
+﻿namespace hiswill.faceapi.basic
 {
     /**
-     * JSON을 통하여 멤버가 구성되는 엔티티를 위한 인터페이스.
+     * An interface for JSON을 통하여 멤버가 구성되는 엔티티를 위한 인터페이스.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export interface IJSONEntity 
+        extends IEntity
     {
         /**
-         * JSON 개체를 통해 멤버를 구성.
+         * Construct members from an JSON instance.
+         *
+         * @param val An JSON instance representing data of the entity.
          */
         constructByJSON(val: any): void;
     }

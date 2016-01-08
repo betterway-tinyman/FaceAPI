@@ -8,4 +8,4 @@ SET NPM_DIR=C:\Users\samch\AppData\Roaming\npm\
 SET TS_SRC_DIR=../ts/
 
 ::DOCUMENTATE
-"%NPM_DIR%typedoc" --target ES5 --out "%RELEASE_DIR%ts" "%TS_SRC_DIR%"
+"%NPM_DIR%typedoc" --target ES6 --out "%RELEASE_DIR%ts" "%TS_SRC_DIR%"

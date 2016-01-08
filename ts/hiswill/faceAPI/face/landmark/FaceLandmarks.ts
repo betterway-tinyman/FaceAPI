@@ -9,7 +9,7 @@
 
 /// <referench path='Face.ts' />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     /**
      * 얼굴의 주요 요소 엔티티.

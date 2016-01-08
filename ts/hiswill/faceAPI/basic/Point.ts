@@ -2,29 +2,29 @@
 
 /// <reference path="IJSonEntity.ts" />
 
-namespace hiswill.faceAPI.basic
+namespace hiswill.faceapi.basic
 {
     /**
-     * X-Y 좌표 엔티티.
+     * An entity representing coordinates X and Y.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class Point
         extends Entity
         implements IJSONEntity 
     {
         /**
-         * XML 태그명.
+         * A tag name for converting with XML.
          */
         protected tag: string;
 
         /**
-         * X 좌표.
+         * Coordinate X
          */
         protected x: number;
 
         /**
-         * Y 좌표.
+         * Coordinate Y
          */
         protected y: number;
 
@@ -32,7 +32,7 @@ namespace hiswill.faceAPI.basic
             CONSTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 with XML 태그명.
+         * Construct from a XML tag name.
          */
         public constructor(tag: string = "") 
         {
@@ -52,7 +52,7 @@ namespace hiswill.faceAPI.basic
             GETTERS
         -------------------------------------------------------- */
         /**
-         * Get X 좌표.
+         * Get coordinate X.
          */
         public getX(): number
         {
@@ -60,7 +60,7 @@ namespace hiswill.faceAPI.basic
         }
 
         /**
-         * Get Y 좌표.
+         * Get coordinate Y.
          */
         public getY(): number
         {

@@ -2,7 +2,7 @@
 
 /// <reference path="FaceList.ts" />
 
-namespace hiswill.faceAPI.faceList
+namespace hiswill.faceapi.facelist
 {
     export class FaceListArray
         extends EntityArray<FaceList>

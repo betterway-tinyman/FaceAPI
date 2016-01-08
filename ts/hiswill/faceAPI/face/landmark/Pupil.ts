@@ -4,7 +4,7 @@
 
 /// <reference path="Eye.ts" />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     /**
      * 눈동자.

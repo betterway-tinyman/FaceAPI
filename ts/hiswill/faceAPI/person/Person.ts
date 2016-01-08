@@ -4,7 +4,7 @@
 
 /// <reference path="PersonGroup.ts" />
 
-namespace hiswill.faceAPI.person 
+namespace hiswill.faceapi.person 
 {
     /**
      * 사람 엔티티.
@@ -77,7 +77,7 @@ namespace hiswill.faceAPI.person
             super.eraseFromServer();
         }
 
-        protected setNameInServer(name: string): void
+        protected notifySetName(name: string): void
         {
             FaceAPI.query
             (

@@ -2,7 +2,7 @@
 
 /// <reference path="../face/FacePairArray.ts" />
 
-namespace hiswill.faceAPI.faceList
+namespace hiswill.faceapi.facelist
 {
     export class FaceList
         extends face.FacePairArray
@@ -88,7 +88,7 @@ namespace hiswill.faceAPI.faceList
             super.eraseFromServer();
         }
 
-        protected setNameInServer(name: string): void
+        protected notifySetName(name: string): void
         {
             FaceAPI.query
             (

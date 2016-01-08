@@ -2,7 +2,7 @@
 
 /// <reference path='FaceAttribute.ts' />
 
-namespace hiswill.faceAPI.face.attribute 
+namespace hiswill.faceapi.face.attribute 
 {
     export class FacialHair
         extends FaceAttribute

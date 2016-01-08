@@ -6,7 +6,7 @@
 
 /// <reference path="Eyebrows.ts" />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     /**
      * 눈썹.

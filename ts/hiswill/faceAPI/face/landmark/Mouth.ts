@@ -5,7 +5,7 @@
 /// <reference path='Lip.ts' />
 /// <reference path='../../basic/Point.ts' />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     export class Mouth
         extends FaceLandmark

@@ -4,7 +4,7 @@
 
 /// <reference path="../../basic/Point.ts" />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     export class Nose
         extends FaceLandmark

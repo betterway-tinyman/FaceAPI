@@ -6,7 +6,7 @@
 
 /// <reference path='Mouth.ts' />
 
-namespace hiswill.faceAPI.face.landmark 
+namespace hiswill.faceapi.face.landmark 
 {
     export class Lip
         extends Entity

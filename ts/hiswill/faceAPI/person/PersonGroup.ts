@@ -3,40 +3,68 @@
 /// <reference path="Person.ts" />
 /// <reference path="../basic/IGroup.ts" />
 
+/// <reference path="../result/CandidatePersonArray.ts" />
+
 /// <reference path="PersonGroupArray.ts" />
 
-namespace hiswill.faceAPI.person 
+namespace hiswill.faceapi.person 
 {
     /**
-     * <p> Person의 집합. </p>
+     * <p> A group of Person instances. </p>
      *
-     * <p> Face가 누구(Person)의 얼굴인지 식별하고자 한다면 반드시 구성해야 할 집합이다. </p>
+     * <p> The PersonGroup class is required when you try to identify a Face is from whom (Person). </p>
      *
-     * <p> 참고자료
+     * <p> Reference </p>
      * <ul>
      *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
      *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
      * </ul>
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class PersonGroup
         extends EntityArray<Person>
         implements basic.IGroup<Person>
     {
+        /**
+         * An array and parent of the PersonGroup.
+         */
         protected groupArray: PersonGroupArray;
 
+        /**
+         * An identifier issued by the Face-API server.
+         */
         protected id: string;
+
+        /**
+         * A name representing the PersonGroup.
+         */
         protected name: string;
 
+        /**
+         * Whether the instance is registered on the Face-API server.
+         */
         protected registered: boolean;
+        
+        /**
+         * Whether the PersonGroup has trained.
+         */
         protected trained: boolean;
 
+        /**
+         * A group of pointers of event listener method.
+         */
         protected listeners: Map<string, Set<(ev: Event) => void>>;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a PersonGroupArray and name.
+         *
+         * @param groupArray An array and parent of the PersonGroup.
+         * @param name Allocated (or to be allocated) name of the PersonGroup.
+         */
         public constructor(groupArray: PersonGroupArray, name: string = "")
         {
             super();
@@ -47,6 +75,8 @@ namespace hiswill.faceAPI.person
 
             this.trained = false;
             this.registered = false;
+
+            this.listeners = new Map<string, Set<(ev: Event) => void>>();
         }
     
         protected createChild(xml: XML): Person
@@ -85,10 +115,15 @@ namespace hiswill.faceAPI.person
             INTERACTION WITH FACE API
         -------------------------------------------------------- */
         /**
-         * 학습을 수행함.
+         * <p> Start training; studying.  The method train() a pre-process essentially required 
+         * for identify(). </p>
+         * 
+         * <p> The training is processed in server side asynchronously. When you call the method train(),
+         * it dispatches an Event "activate". When the training is completed in server side, PersonGroup
+         * will dispatch the "complete" Event. </p>
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
          * </ul>
          */
         public train(): void
@@ -110,70 +145,78 @@ namespace hiswill.faceAPI.person
 
                 function (data)
                 {
-                    this_.trained = true;
+                    setTimeout(PersonGroup.checkTrainStatus, 50, this_);
                 }
             );
-
-            // 수행 작업 현황을 확인한다.
-            /*var prev: Date = new Date();
-
-            while (true)
-            {
-                var now: Date = new Date();
-                if (now.getTime() - prev.getTime() < 500)
-                    continue;
-                
-                var completed = false;
-
-                FaceAPI.query
-                (
-                    "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/training",
-                    "GET",
-
-                    null,
-                    null,
-
-                    function (data)
-                    {
-                        trace( "training process", data["status"], now.toString());
-
-                        if (data["status"] == "succeded")
-                            completed = true;
-                    }
-                );
-
-                if (completed == true)
-                    break;
-
-                prev = now;
-            }*/
-        }
-
-        protected checkTrainStatus(): void
-        {
-
         }
 
         /**
-         * 특정 얼굴의 주인이 누구일지 판별해 본다.
+         * Query about training status to Face-API server.
+         *
+         * @param this_ A PersonGroup object who executed the train() method.
+         */
+        private static checkTrainStatus(this_: PersonGroup): void
+        {
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this_.id + "/training",
+                "GET",
+
+                null,
+                null,
+
+                function (data)
+                {
+                    var status: string = data["status"];
+
+                    trace("on progress", status);
+
+                    if (status == "succeeded")
+                    {
+                        this_.trained = true;
+                        this_.dispatchEvent(new Event("complete"));
+                    }
+                    else if (status == "failed")
+                    {
+                        var errorEvent: ErrorEvent = new ErrorEvent();
+                        errorEvent.message = data["message"];
+
+                        this_.dispatchEvent(errorEvent);
+                    }
+                    else
+                    {
+                        // 50ms 후에 재 확인
+                        setTimeout(PersonGroup.checkTrainStatus, 50, this_);
+                    }
+                },
+                false // ASYNCHRONOUSLY
+            );
+        }
+
+        /**
+         * <p> Ideitify who is owner of the Face. </p>
+         *
+         * <p> You've to execute train() method, asynchronous method dispatching "complete" Event 
+         * when the training was completed, before running the identify() method. </p>
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
          * </ul>
          *
-         * @param face 대상 얼굴
-         * @param maxCandidates 최대 후보 수
+         * @param face Target face to identify
+         * @param maxCandidates Permitted number of candidates to return.
          *
-         * @return 후보 사람들 및 각각의 일치도
+         * @return Candidates of the owner with conformaility degrees.
          */
-        public identify(face: face.Face, maxCandidates: number = 1): Array<Pair<Person, number>>
+        public identify(face: face.Face, maxCandidates: number = 1): result.CandidatePersonArray
         {
-            // 학습이 먼저 수행되어야 한다.
+            // Have to be trained.
             if (this.isTrained() == false)
-                this.train();
+                throw new Error("Not trained.");
 
             var this_: PersonGroup = this;
-            var personArray: Array<Pair<Person, number>> = new Array<Pair<Person, number>>();
+            var candidatePersonArray: result.CandidatePersonArray 
+                = new result.CandidatePersonArray(this.groupArray.getAPI(), face, this);
 
             trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
 
@@ -189,35 +232,20 @@ namespace hiswill.faceAPI.person
                     "maxNumOfCandidatesReturned": maxCandidates
                 },
 
-                function (args) 
+                function (data) 
                 {
-                    trace("Succeded to identify");
-
-                    var data: Object = args[0];
-                    var faces: Array<Object> = data["candidates"];
-
-                    for (var i: number = 0; i < faces.length; i++)
-                    {
-                        var personID: string = faces[i]["personId"];
-                        var confidence: number = faces[i]["confidence"];
-
-                        if (this_.has(personID) == false)
-                            continue;
-
-                        var pair: Pair<Person, number> = new Pair<Person, number>(this_.get(personID), confidence);
-                        personArray.push(pair);
-                    }
+                    candidatePersonArray.constructByJSON(data);
                 }
             );
-        
-            return personArray;
+            
+            return candidatePersonArray;
         }
 
         /**
-         * 현재의 PersonGroup 을 Face API 서버에 등록.
+         * Insert the PersonGroup to Face-API server.
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
          * </ul>
          */
         public insertToServer(): void
@@ -247,10 +275,10 @@ namespace hiswill.faceAPI.person
         }
 
         /**
-         * 현재의 PersonGroup 을 Face API 서버에서 제거.
+         * Remove the PersonGroup from the Face-API server.
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
          * </ul>
          */
         public eraseFromServer(): void
@@ -273,6 +301,11 @@ namespace hiswill.faceAPI.person
         /* --------------------------------------------------------
             EVENT LISTENERS
         -------------------------------------------------------- */
+        public hasEventListener(type: string): boolean
+        {
+            return this.listeners.has(type);
+        }
+        
         public addEventListener(type: string, listener:(event:Event) => void): void
         {
             if (this.listeners.has(type) == false)
@@ -309,24 +342,38 @@ namespace hiswill.faceAPI.person
             return this.id;
         }
 
+        /**
+         * Get groupArray.
+         */
         public getGroupArray(): PersonGroupArray
         {
             return this.groupArray;
         }
 
+        /**
+         * Get ID.
+         */
         public getID(): string
         {
             return this.id;
         }
+
+        /**
+         * Get name.
+         */
         public getName(): string
         {
             return this.name;
         }
-
+        
         public isRegistered(): boolean
         {
             return this.registered;;
         }
+
+        /**
+         * Test whether the PersonGroup has trained.
+         */
         public isTrained(): boolean
         {
             return this.trained;

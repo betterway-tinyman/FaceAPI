@@ -1,3 +1,4 @@
+/// <reference path="IFaceAPI.ts" />
 /*function test()
 {
     var productArray: ProductArray = new ProductArray();
@@ -3369,122 +3370,36 @@ var PackerSlaveSystem = (function (_super) {
     return PackerSlaveSystem;
 })(SlaveSystem);
 /// <reference path="../FaceAPI.ts" />
-/// <reference path="IJSonEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var basic;
-        (function (basic) {
-            /**
-             * X-Y 좌표 엔티티.
-             *
-             * @author 남정호
-             */
-            var Point = (function (_super) {
-                __extends(Point, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * 생성자 with XML 태그명.
-                 */
-                function Point(tag) {
-                    if (tag === void 0) { tag = ""; }
-                    _super.call(this);
-                    this.tag = tag;
-                    this.x = 0;
-                    this.y = 0;
-                }
-                Point.prototype.constructByJSON = function (val) {
-                    faceAPI.Global.fetch(this, val);
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get X 좌표.
-                 */
-                Point.prototype.getX = function () {
-                    return this.x;
-                };
-                /**
-                 * Get Y 좌표.
-                 */
-                Point.prototype.getY = function () {
-                    return this.y;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Point.prototype.TAG = function () {
-                    return this.tag;
-                };
-                Point.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    xml.eraseProperty("tag");
-                    return xml;
-                };
-                return Point;
-            })(Entity);
-            basic.Point = Point;
-        })(basic = faceAPI.basic || (faceAPI.basic = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../basic/Point.ts" />
-/// <reference path="../basic/IJSonEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face) {
-            var FaceRectangle = (function (_super) {
-                __extends(FaceRectangle, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                function FaceRectangle() {
-                    _super.call(this);
-                    this.width = 0;
-                    this.height = 0;
-                }
-                FaceRectangle.prototype.constructByJSON = function (obj) {
-                    faceAPI.Global.fetch(this, obj);
-                    this.x = obj["left"];
-                    this.y = obj["top"];
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                FaceRectangle.prototype.getWidth = function () {
-                    return this.width;
-                };
-                FaceRectangle.prototype.getHeight = function () {
-                    return this.height;
-                };
-                return FaceRectangle;
-            })(faceAPI.basic.Point);
-            face.FaceRectangle = FaceRectangle;
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
 /// <reference path="../basic/IFaceAPI.ts" />
 /// <reference path="FacePairArray.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face_1) {
+            /**
+             * <p> An entity directing a Face and its basic data. </p>
+             *
+             * <p> Reference </p>
+             * <ul>
+             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+             * </ul>
+             *
+             * @author Jeongho Nam
+             */
             var FacePair = (function (_super) {
                 __extends(FacePair, _super);
                 /* --------------------------------------------------------
                     CONSTRUCTORS
                 -------------------------------------------------------- */
+                /**
+                 * Construct from a FacePairArray.
+                 *
+                 * @param pairArray An array and parent of the FacePair.
+                 */
                 function FacePair(pairArray) {
                     _super.call(this);
                     this.pairArray = pairArray;
@@ -3518,17 +3433,35 @@ var hiswill;
                 /* --------------------------------------------------------
                     SETTERS & GETTERS
                 -------------------------------------------------------- */
+                /**
+                 * Set (related) file.
+                 *
+                 * @param face A related file with the FacePair.
+                 */
                 FacePair.prototype.setFile = function (face) {
                     this.face = face;
                     this.pictureURL = face.getPicture().getURL();
                     this.setRectangle(face);
                 };
+                /**
+                 * <p> Set rectangle data.
+                 * Constructs members of FaceRectangle, basic class of the FacePair.
+                 *
+                 * @param rectangle A FaceRentangle instance to copy.
+                 */
                 FacePair.prototype.setRectangle = function (rectangle) {
+                    // POINT'S MEMBERS
                     this.x = rectangle.getX();
                     this.y = rectangle.getY();
+                    // FACE_RECTANGLE'S MEMBERS
                     this.width = rectangle.getWidth();
                     this.height = rectangle.getHeight();
                 };
+                /**
+                 * Set identifier.
+                 *
+                 * @param id An identifier gotten from Face-API server.
+                 */
                 FacePair.prototype.setID = function (id) {
                     this.id = id;
                     this.registered = (id != "");
@@ -3536,15 +3469,27 @@ var hiswill;
                 FacePair.prototype.key = function () {
                     return this.id;
                 };
+                /**
+                 * Get pairArray.
+                 */
                 FacePair.prototype.getPairArray = function () {
                     return this.pairArray;
                 };
+                /**
+                 * Get face.
+                 */
                 FacePair.prototype.getFace = function () {
                     return this.face;
                 };
+                /**
+                 * Get id.
+                 */
                 FacePair.prototype.getID = function () {
                     return this.id;
                 };
+                /**
+                 * Get pictureURL.
+                 */
                 FacePair.prototype.getPictureURL = function () {
                     return this.pictureURL;
                 };
@@ -3566,25 +3511,34 @@ var hiswill;
                 return FacePair;
             })(face_1.FaceRectangle);
             face_1.FacePair = FacePair;
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="IFaceAPI.ts" />
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
 ///     <reference path="FacePair.ts" />
 /// <reference path="../basic/IGroup.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face_2) {
+            /**
+             * An abstract class containing FacePair objects as an array and parent of them.
+             *
+             * @author Jeongho Nam
+             */
             var FacePairArray = (function (_super) {
                 __extends(FacePairArray, _super);
                 /* --------------------------------------------------------
                     CONTRUCTORS
                 -------------------------------------------------------- */
+                /**
+                 * Construct from name.
+                 *
+                 * @param name Name representing the FacePairArray.
+                 */
                 function FacePairArray(name) {
                     if (name === void 0) { name = ""; }
                     _super.call(this);
@@ -3625,10 +3579,10 @@ var hiswill;
                     for (var _i = 2; _i < arguments.length; _i++) {
                         items[_i - 2] = arguments[_i];
                     }
-                    // 각 원소들을 서버에서도 제거
+                    // Remove the elements from Face-API server.
                     for (var i = start; i < Math.min(start + end, this.length); i++)
                         this[i].eraseFromServer();
-                    // 리턴
+                    // To return
                     var output = _super.prototype.splice.call(this, start, end);
                     this.push.apply(this, items);
                     return output;
@@ -3644,12 +3598,27 @@ var hiswill;
                     // ...
                     this.registered = false;
                 };
-                FacePairArray.prototype.setNameInServer = function (name) {
+                /**
+                 * Notify the name is changed to Face-API server.
+                 *
+                 * @param name New name of the FacePairArray.
+                 */
+                FacePairArray.prototype.notifySetName = function (name) {
                     // SOMETHING TO BE OVERRIDEN
                 };
+                /**
+                 * An abstract method inserting the child FacePair instance to the Face-API server.
+                 *
+                 * @param face A newly inserted FacePair object.
+                 */
                 FacePairArray.prototype.insertFaceToServer = function (face) {
                     // TO BE OVERRIDEN
                 };
+                /**
+                 * An abstract method removing the child FacePair instance from the Face-API server.
+                 *
+                 * @param face A just removed FacePair object.
+                 */
                 FacePairArray.prototype.eraseFaceFromServer = function (face) {
                     // TO BE OVERRIDEN
                     // ...
@@ -3661,21 +3630,35 @@ var hiswill;
                 FacePairArray.prototype.key = function () {
                     return this.id;
                 };
+                /**
+                 * An abstract method getting FaceAPI instance.
+                 */
                 FacePairArray.prototype.getFaceAPI = function () {
                     // TO BE OVERRIDEN
                     return null;
                 };
+                /**
+                 * Get id.
+                 */
                 FacePairArray.prototype.getID = function () {
                     return this.id;
                 };
+                /**
+                 * Get name.
+                 */
                 FacePairArray.prototype.getName = function () {
                     return this.name;
                 };
                 FacePairArray.prototype.isRegistered = function () {
                     return this.registered;
                 };
+                /**
+                 * Set name
+                 *
+                 * @param name New name.
+                 */
                 FacePairArray.prototype.setName = function (name) {
-                    this.setNameInServer(name);
+                    this.notifySetName(name);
                     this.name = name;
                 };
                 /* --------------------------------------------------------
@@ -3687,16 +3670,16 @@ var hiswill;
                 return FacePairArray;
             })(EntityArray);
             face_2.FacePairArray = FacePairArray;
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="../face/FacePairArray.ts" />
 /// <reference path="PersonGroup.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var person;
         (function (person) {
             /**
@@ -3726,14 +3709,14 @@ var hiswill;
                         this.group.insertToServer();
                     var this_ = this;
                     trace("Person::insertToServer", this.name, this.group.getID());
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, //{"personGroupId": this.group.getID()},
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, //{"personGroupId": this.group.getID()},
                     { "name": this.name, "userData": "" }, function (data) {
                         this_.id = data["personId"];
                         this_.registered = true;
                     });
                 };
                 Person.prototype.eraseFromServer = function () {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "DELETE", {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "DELETE", {
                         "personGroupId": this.group.getID(),
                         "personId": this.id
                     }, null, null // NOTHING TO DO ESPECIALLY
@@ -3741,8 +3724,8 @@ var hiswill;
                     this.id = "";
                     _super.prototype.eraseFromServer.call(this);
                 };
-                Person.prototype.setNameInServer = function (name) {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "PATCH", {
+                Person.prototype.notifySetName = function (name) {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "PATCH", {
                         "personGroupId": this.group.getID(),
                         "personId": this.id
                     }, {
@@ -3751,7 +3734,7 @@ var hiswill;
                     }, null);
                 };
                 Person.prototype.insertFaceToServer = function (face) {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
                         "personGroupId": this.group.getID(),
                         "personId": this.id,
                         "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
@@ -3763,7 +3746,7 @@ var hiswill;
                     });
                 };
                 Person.prototype.eraseFaceFromServer = function (face) {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
                         "personGroupId": this.group.getID(),
                         "personId": this.id,
                         "persistedFaceId": face.getID()
@@ -3783,490 +3766,79 @@ var hiswill;
                     return "person";
                 };
                 return Person;
-            })(faceAPI.face.FacePairArray);
+            })(faceapi.face.FacePairArray);
             person.Person = Person;
-        })(person = faceAPI.person || (faceAPI.person = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(person = faceapi.person || (faceapi.person = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
-/// <reference path="Person.ts" />
-/// <reference path="../basic/IGroup.ts" />
-/// <reference path="PersonGroupArray.ts" />
+/// <reference path="../basic/IJSONEntity.ts" />
+/// <reference path="../person/Person.ts" />
+/// <reference path="CandidatePersonArray.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var person;
-        (function (person) {
-            /**
-             * <p> Person의 집합. </p>
-             *
-             * <p> Face가 누구(Person)의 얼굴인지 식별하고자 한다면 반드시 구성해야 할 집합이다. </p>
-             *
-             * <p> 참고자료
-             * <ul>
-             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
-             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
-             * </ul>
-             *
-             * @author 남정호
-             */
-            var PersonGroup = (function (_super) {
-                __extends(PersonGroup, _super);
+    var faceapi;
+    (function (faceapi) {
+        var result;
+        (function (result) {
+            var CandidatePerson = (function (_super) {
+                __extends(CandidatePerson, _super);
                 /* --------------------------------------------------------
                     CONTRUCTORS
                 -------------------------------------------------------- */
-                function PersonGroup(groupArray, name) {
-                    if (name === void 0) { name = ""; }
+                function CandidatePerson(personArray) {
                     _super.call(this);
-                    this.groupArray = groupArray;
-                    this.id = "";
-                    this.name = name;
-                    this.trained = false;
-                    this.registered = false;
+                    this.personArray = personArray;
                 }
-                PersonGroup.prototype.createChild = function (xml) {
-                    return new person.Person(this, xml.getProperty("name"));
-                };
-                /* --------------------------------------------------------
-                    OPERATORS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.push = function () {
-                    var items = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        items[_i - 0] = arguments[_i];
-                    }
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    for (var i = 0; i < items.length; i++)
-                        items[i].insertToServer();
-                    return _super.prototype.push.apply(this, items);
-                };
-                PersonGroup.prototype.splice = function (start, deleteCount) {
-                    var items = [];
-                    for (var _i = 2; _i < arguments.length; _i++) {
-                        items[_i - 2] = arguments[_i];
-                    }
-                    var i;
-                    for (i = start; i < Math.min(start + deleteCount, this.length); i++)
-                        items[i].eraseFromServer();
-                    for (i = 0; i < items.length; i++)
-                        items[i].insertToServer();
-                    return _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
-                };
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API
-                -------------------------------------------------------- */
-                /**
-                 * 학습을 수행함.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
-                 * </ul>
-                 */
-                PersonGroup.prototype.train = function () {
-                    // 등록을 먼저 수행
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    // 학습 수행
-                    var this_ = this;
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", null, //{"personGroupId": this.id},
-                    null, function (data) {
-                        this_.trained = true;
-                    });
-                    // 수행 작업 현황을 확인한다.
-                    /*var prev: Date = new Date();
-        
-                    while (true)
-                    {
-                        var now: Date = new Date();
-                        if (now.getTime() - prev.getTime() < 500)
-                            continue;
-                        
-                        var completed = false;
-        
-                        FaceAPI.query
-                        (
-                            "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/training",
-                            "GET",
-        
-                            null,
-                            null,
-        
-                            function (data)
-                            {
-                                trace( "training process", data["status"], now.toString());
-        
-                                if (data["status"] == "succeded")
-                                    completed = true;
-                            }
-                        );
-        
-                        if (completed == true)
-                            break;
-        
-                        prev = now;
-                    }*/
-                };
-                PersonGroup.prototype.checkTrainStatus = function () {
-                };
-                /**
-                 * 특정 얼굴의 주인이 누구일지 판별해 본다.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
-                 * </ul>
-                 *
-                 * @param face 대상 얼굴
-                 * @param maxCandidates 최대 후보 수
-                 *
-                 * @return 후보 사람들 및 각각의 일치도
-                 */
-                PersonGroup.prototype.identify = function (face, maxCandidates) {
-                    if (maxCandidates === void 0) { maxCandidates = 1; }
-                    // 학습이 먼저 수행되어야 한다.
-                    if (this.isTrained() == false)
-                        this.train();
-                    var this_ = this;
-                    var personArray = new Array();
-                    trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/identify", "POST", null, {
-                        "personGroupId": this.id,
-                        "faceIds": [face.getID()],
-                        "maxNumOfCandidatesReturned": maxCandidates
-                    }, function (args) {
-                        trace("Succeded to identify");
-                        var data = args[0];
-                        var faces = data["candidates"];
-                        for (var i = 0; i < faces.length; i++) {
-                            var personID = faces[i]["personId"];
-                            var confidence = faces[i]["confidence"];
-                            if (this_.has(personID) == false)
-                                continue;
-                            var pair = new Pair(this_.get(personID), confidence);
-                            personArray.push(pair);
-                        }
-                    });
-                    return personArray;
-                };
-                /**
-                 * 현재의 PersonGroup 을 Face API 서버에 등록.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
-                 * </ul>
-                 */
-                PersonGroup.prototype.insertToServer = function () {
-                    // 식별자 번호 발급
-                    if (this.id == "")
-                        this.id = faceAPI.FaceAPI.issueID("person_group");
-                    var this_ = this;
-                    trace("PersonGroup::insertToServer");
-                    // 서버에 등록
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", null, //{"personGroupId": this.id},
-                    { "name": this.name, "userData": "" }, function (data) {
-                        this_.registered = true;
-                    });
-                };
-                /**
-                 * 현재의 PersonGroup 을 Face API 서버에서 제거.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
-                 * </ul>
-                 */
-                PersonGroup.prototype.eraseFromServer = function () {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, null);
-                    this.trained = false;
-                    this.registered = false;
-                };
-                /* --------------------------------------------------------
-                    EVENT LISTENERS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.addEventListener = function (type, listener) {
-                    if (this.listeners.has(type) == false)
-                        this.listeners.set(type, new Set());
-                    var listenerSet = this.listeners.get(type);
-                    listenerSet.insert(listener);
-                };
-                PersonGroup.prototype.removeEventListener = function (type, listener) {
-                    if (this.listeners.has(type) == false)
+                CandidatePerson.prototype.construct = function (xml) {
+                    _super.prototype.construct.call(this, xml);
+                    this.person = null;
+                    if (xml.hasProperty("personID") == false)
                         return;
-                    var listenerSet = this.listeners.get(type);
-                    listenerSet.erase(listener);
+                    var personID = xml.getProperty("personID");
+                    var personGroup = this.personArray.getPersonGroup();
+                    if (personGroup != null && personGroup.has(personID) == true)
+                        this.person = personGroup.get(personID);
                 };
-                PersonGroup.prototype.dispatchEvent = function (event) {
-                    if (this.listeners.has(event.type) == false)
-                        return;
-                    var listenerSet = this.listeners.get(event.type);
-                    for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
-                        it.value(event);
+                CandidatePerson.prototype.constructByJSON = function (obj) {
+                    faceapi.Global.fetch(this, obj); // confidence
+                    // SET PERSON
+                    var personGroup = this.personArray.getPersonGroup();
+                    var personID = obj["personId"];
+                    if (personGroup != null && personGroup.has(personID) == true)
+                        this.person = personGroup.get(personID);
+                    else
+                        this.person = null;
                 };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.key = function () {
-                    return this.id;
-                };
-                PersonGroup.prototype.getGroupArray = function () {
-                    return this.groupArray;
-                };
-                PersonGroup.prototype.getID = function () {
-                    return this.id;
-                };
-                PersonGroup.prototype.getName = function () {
-                    return this.name;
-                };
-                PersonGroup.prototype.isRegistered = function () {
-                    return this.registered;
-                    ;
-                };
-                PersonGroup.prototype.isTrained = function () {
-                    return this.trained;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.TAG = function () {
-                    return "personGroup";
-                };
-                PersonGroup.prototype.CHILD_TAG = function () {
-                    return "person";
-                };
-                return PersonGroup;
-            })(EntityArray);
-            person.PersonGroup = PersonGroup;
-        })(person = faceAPI.person || (faceAPI.person = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="PersonGroup.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var person;
-        (function (person) {
-            /**
-             * 사람 그룹 리스트 엔티티.
-             *
-             * @author 남정호
-             */
-            var PersonGroupArray = (function (_super) {
-                __extends(PersonGroupArray, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * 생성자 from API.
-                 */
-                function PersonGroupArray(api) {
-                    _super.call(this);
-                    this.api = api;
-                }
-                PersonGroupArray.prototype.createChild = function (xml) {
-                    return new person.PersonGroup(this, xml.getProperty("name"));
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get API.
-                 */
-                PersonGroupArray.prototype.getAPI = function () {
-                    return this.api;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                PersonGroupArray.prototype.TAG = function () {
-                    return "personGroupArray";
-                };
-                PersonGroupArray.prototype.CHILD_TAG = function () {
-                    return "personGroup";
-                };
-                return PersonGroupArray;
-            })(EntityArray);
-            person.PersonGroupArray = PersonGroupArray;
-        })(person = faceAPI.person || (faceAPI.person = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../face/FacePairArray.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var faceList;
-        (function (faceList) {
-            var FaceList = (function (_super) {
-                __extends(FaceList, _super);
                 /* --------------------------------------------------------
                     CONTRUCTORS
                 -------------------------------------------------------- */
-                /**
-                 * 생성자 from API with 이름.
-                 */
-                function FaceList(listArray, name) {
-                    if (name === void 0) { name = ""; }
-                    _super.call(this, name);
-                    this.listArray = listArray;
-                    this.id = "";
-                    this.name = name;
-                    this.registered = false;
-                }
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API
-                -------------------------------------------------------- */
-                /**
-                 * 현재의 FaceList를 Face API 서버에 등록.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
-                 * </ul>
-                 */
-                FaceList.prototype.insertToServer = function () {
-                    // 식별자 번호 발급
-                    if (this.id == "")
-                        this.id = faceAPI.FaceAPI.issueID("face_list");
-                    var this_ = this;
-                    // 서버에 등록
-                    var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
-                    var method = "PUT";
-                    var params = { "faceListId": this.id };
-                    var data = {
-                        "name": this.name,
-                        "userData": ""
-                    };
-                    var success = function (data) {
-                        this_.registered = true;
-                    };
-                    // 전송
-                    faceAPI.FaceAPI.query(url, method, params, data, success);
+                CandidatePerson.prototype.getPersonArray = function () {
+                    return this.personArray;
                 };
-                /**
-                 * 현재의 FaceList를 서버에서 지운다.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
-                 * </ul>
-                 */
-                FaceList.prototype.eraseFromServer = function () {
-                    // 준비
-                    var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
-                    var method = "DELETE";
-                    var params = { "faceListId": this.id };
-                    // 전송
-                    faceAPI.FaceAPI.query(url, method, params, null, null);
-                    _super.prototype.eraseFromServer.call(this);
+                CandidatePerson.prototype.getPerson = function () {
+                    return this.person;
                 };
-                FaceList.prototype.setNameInServer = function (name) {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id, "PATCH", { "faceListId": this.id }, {
-                        "name": this.name,
-                        "userData": ""
-                    }, null);
-                };
-                /**
-                 * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
-                 * </ul>
-                 */
-                FaceList.prototype.insertFaceToServer = function (face) {
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
-                        //"faceListId": this.id,
-                        "userData": "",
-                        "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
-                    }, {
-                        "url": face.getPictureURL()
-                    }, function (data) {
-                        face.setID(data["persistedFaceId"]);
-                    });
-                };
-                /**
-                 * 특정 Face가 현재의 FaceList로부터 제거되었음을 Face API 서버에 알린다.
-                 *
-                 * <ul>
-                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
-                 * </ul>
-                 */
-                FaceList.prototype.eraseFaceFromServer = function (face) {
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
-                        "faceListId": this.id,
-                        "persistedFaceId": face.getID()
-                    }, null, null);
-                    _super.prototype.eraseFaceFromServer.call(this, face);
+                CandidatePerson.prototype.getConfidence = function () {
+                    return this.confidence;
                 };
                 /* --------------------------------------------------------
-                    GETTERS
+                    CONTRUCTORS
                 -------------------------------------------------------- */
-                FaceList.prototype.getAPI = function () {
-                    return this.listArray.getAPI();
+                CandidatePerson.prototype.TAG = function () {
+                    return "candidatePerson";
                 };
-                FaceList.prototype.getListArray = function () {
-                    return this.listArray;
+                CandidatePerson.prototype.toXML = function () {
+                    var xml = _super.prototype.toXML.call(this);
+                    if (this.person != null)
+                        xml.setProperty("personID", this.person.getID());
+                    return xml;
                 };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                FaceList.prototype.TAG = function () {
-                    return "faceList";
-                };
-                return FaceList;
-            })(faceAPI.face.FacePairArray);
-            faceList.FaceList = FaceList;
-        })(faceList = faceAPI.faceList || (faceAPI.faceList = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="FaceList.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var faceList;
-        (function (faceList) {
-            var FaceListArray = (function (_super) {
-                __extends(FaceListArray, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * 생성자 from API.
-                 */
-                function FaceListArray(api) {
-                    _super.call(this);
-                    this.api = api;
-                }
-                FaceListArray.prototype.createChild = function (xml) {
-                    return new faceList.FaceList(this, xml.getProperty("name"));
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get API.
-                 */
-                FaceListArray.prototype.getAPI = function () {
-                    return this.api;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                FaceListArray.prototype.TAG = function () {
-                    return "faceListArray";
-                };
-                FaceListArray.prototype.CHILD_TAG = function () {
-                    return "faceList";
-                };
-                return FaceListArray;
-            })(EntityArray);
-            faceList.FaceListArray = FaceListArray;
-        })(faceList = faceAPI.faceList || (faceAPI.faceList = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+                return CandidatePerson;
+            })(Entity);
+            result.CandidatePerson = CandidatePerson;
+        })(result = faceapi.result || (faceapi.result = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path='../../basic/IJSonEntity.ts' />
@@ -4277,8 +3849,8 @@ var hiswill;
 /// <referench path='Face.ts' />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face_3) {
             var landmark;
@@ -4340,16 +3912,16 @@ var hiswill;
                 })(Entity);
                 landmark.FaceLandmarks = FaceLandmarks;
             })(landmark = face_3.landmark || (face_3.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="../../basic/IJSonEntity.ts" />
 /// <reference path='FaceAttributes.ts' />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var attribute;
@@ -4361,21 +3933,21 @@ var hiswill;
                         this.attributes = attributes;
                     }
                     FaceAttribute.prototype.constructByJSON = function (val) {
-                        faceAPI.Global.fetch(this, val);
+                        faceapi.Global.fetch(this, val);
                     };
                     return FaceAttribute;
                 })(Entity);
                 attribute.FaceAttribute = FaceAttribute;
             })(attribute = face.attribute || (face.attribute = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path='FaceAttribute.ts' />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var attribute;
@@ -4413,15 +3985,15 @@ var hiswill;
                 })(attribute.FaceAttribute);
                 attribute.FacialHair = FacialHair;
             })(attribute = face.attribute || (face.attribute = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path='FaceAttribute.ts' />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var attribute;
@@ -4459,8 +4031,8 @@ var hiswill;
                 })(attribute.FaceAttribute);
                 attribute.HeadPose = HeadPose;
             })(attribute = face.attribute || (face.attribute = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path='../../basic/IJSonEntity.ts' />
@@ -4470,8 +4042,8 @@ var hiswill;
 /// <reference path="../Face.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face_4) {
             var attribute;
@@ -4491,7 +4063,7 @@ var hiswill;
                         this.headPose = new attribute.HeadPose(this);
                     }
                     FaceAttributes.prototype.constructByJSON = function (obj) {
-                        faceAPI.Global.fetch(this, obj);
+                        faceapi.Global.fetch(this, obj);
                     };
                     /* --------------------------------------------------------
                         GETTERS
@@ -4529,229 +4101,15 @@ var hiswill;
                 })(Entity);
                 attribute.FaceAttributes = FaceAttributes;
             })(attribute = face_4.attribute || (face_4.attribute = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="FaceRectangle.ts" />
-/// <reference path="../basic/IJSonEntity.ts" />
-/// <reference path="landmark/FaceLandmarks.ts" />
-/// <reference path="attribute/FaceAttributes.ts" />
-/// <reference path="../picture/Picture.ts" />
-/// <reference path="../person/Person.ts" />
-/// <reference path="../person/PersonGroup.ts" />
-/**
- * 얼굴 엔티티.
- */
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face_5) {
-            var Face = (function (_super) {
-                __extends(Face, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * 생성자 from Picture.
-                 */
-                function Face(picture) {
-                    _super.call(this);
-                    this.picture = picture;
-                    this.person = null;
-                    this.id = "";
-                    this.landmarks = new face_5.landmark.FaceLandmarks(this);
-                    this.attributes = new face_5.attribute.FaceAttributes(this);
-                }
-                Face.prototype.construct = function (xml) {
-                    _super.prototype.construct.call(this, xml);
-                    this.person = null;
-                    if (xml.has("person") == false)
-                        return;
-                    var person = xml.get("person")[0];
-                    var personName = person.getProperty("name");
-                    var personGroupID = person.getProperty("groupID");
-                };
-                Face.prototype.constructByJSON = function (obj) {
-                    this.id = obj["faceId"];
-                    _super.prototype.constructByJSON.call(this, obj["faceRectangle"]);
-                    this.landmarks.constructByJSON(obj["faceLandmarks"]);
-                    this.attributes.constructByJSON(obj["faceAttributes"]);
-                };
-                /* --------------------------------------------------------
-                    COMPARES
-                -------------------------------------------------------- */
-                /**
-                 * <p> 이 얼굴(Face)이 누구인지(Person in PersonGroup) 감지해냄. </p>
-                 *
-                 * <ul>
-                 *  <li> 참고자료:  </li>
-                 * </ul>
-                 */
-                Face.prototype.identify = function (personGroup, maxCandidates) {
-                    if (maxCandidates === void 0) { maxCandidates = 1; }
-                    return personGroup.identify(this, maxCandidates);
-                };
-                /**
-                 * 두 얼굴이 같은 사람인 지 검사한다.
-                 *
-                 * <ul>
-                 *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
-                 * </ul>
-                 *
-                 * @return 같은 사람인 지 (true, false) &amp; 유사도 (0.0 ~ 1.0)
-                 */
-                Face.prototype.equals = function (face) {
-                    if (this == face)
-                        return new Pair(true, 1.0);
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/verify", "POST", null, { "faceId1": this.id, "faceId2": face.id }, function (data) {
-                        var isIdentical = data["isIdentical"];
-                        var confidence = data["confidental"];
-                        return new Pair(isIdentical, confidence);
-                    });
-                    return new Pair(false, -1.0);
-                };
-                /* --------------------------------------------------------
-                    GETTERS & SETTERS
-                -------------------------------------------------------- */
-                Face.prototype.key = function () {
-                    return this.id;
-                };
-                Face.prototype.getID = function () {
-                    return this.id;
-                };
-                Face.prototype.getPicture = function () {
-                    return this.picture;
-                };
-                Face.prototype.getPerson = function () {
-                    return this.person;
-                };
-                Face.prototype.getLandmarks = function () {
-                    return this.landmarks;
-                };
-                Face.prototype.getAttributes = function () {
-                    return this.attributes;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Face.prototype.TAG = function () {
-                    return "face";
-                };
-                Face.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    xml.push(this.landmarks.toXML(), this.attributes.toXML());
-                    return xml;
-                };
-                return Face;
-            })(face_5.FaceRectangle);
-            face_5.Face = Face;
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../face/Face.ts" />
-/// <reference path="../basic/IJSONEntity.ts" />
-/// <reference path="PictureArray.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var picture;
-        (function (picture) {
-            /**
-             * <p> 사진 엔티티. </p>
-             *
-             * <ul>
-             *  <li> 한 장의 사진에 여럿의 얼굴이 들어있다. </li>
-             *  <li> 한 장의 사진은 여럿의 사람을 참조한다. </li>
-             * </ul>
-             *
-             * @author 남정호
-             */
-            var Picture = (function (_super) {
-                __extends(Picture, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * 기본 생성자.
-                 */
-                function Picture(pictureArray, url) {
-                    if (url === void 0) { url = ""; }
-                    _super.call(this);
-                    this.pictureArray = pictureArray;
-                    this.url = url;
-                }
-                Picture.prototype.constructByJSON = function (val) {
-                    var array = val;
-                    for (var i = 0; i < array.length; i++) {
-                        var face = new faceAPI.face.Face(this);
-                        face.constructByJSON(array[i]);
-                        this.push(face);
-                    }
-                };
-                Picture.prototype.createChild = function (xml) {
-                    return new faceAPI.face.Face(this);
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                Picture.prototype.key = function () {
-                    return this.url;
-                };
-                Picture.prototype.getPictureArray = function () {
-                    return this.pictureArray;
-                };
-                Picture.prototype.getURL = function () {
-                    return this.url;
-                };
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE-API
-                -------------------------------------------------------- */
-                /**
-                 * <p> 사진 속 얼굴들을 감지해낸다. </p>
-                 *
-                 * <ul>
-                 *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
-                 * </ul>
-                 */
-                Picture.prototype.detect = function () {
-                    // REMOVE ALL
-                    this.splice(0, this.length);
-                    var this_ = this;
-                    // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-                    faceAPI.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/detect", "POST", {
-                        "returnFaceId": "true",
-                        "returnFaceLandmarks": "true",
-                        "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
-                    }, { "url": this.url }, function (data) {
-                        this_.constructByJSON(data);
-                    });
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Picture.prototype.TAG = function () {
-                    return "person";
-                };
-                Picture.prototype.CHILD_TAG = function () {
-                    return "face";
-                };
-                return Picture;
-            })(EntityArray);
-            picture.Picture = Picture;
-        })(picture = faceAPI.picture || (faceAPI.picture = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../FaceAPI.ts" />
 /// <reference path="Picture.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var picture;
         (function (picture) {
             /**
@@ -4801,22 +4159,856 @@ var hiswill;
                 return PictureArray;
             })(EntityArray);
             picture.PictureArray = PictureArray;
-        })(picture = faceAPI.picture || (faceAPI.picture = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(picture = faceapi.picture || (faceapi.picture = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="../face/Face.ts" />
+/// <reference path="../basic/IJSONEntity.ts" />
+/// <reference path="PictureArray.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var picture;
+        (function (picture) {
+            /**
+             * <p> 사진 엔티티. </p>
+             *
+             * <ul>
+             *  <li> 한 장의 사진에 여럿의 얼굴이 들어있다. </li>
+             *  <li> 한 장의 사진은 여럿의 사람을 참조한다. </li>
+             * </ul>
+             *
+             * @author 남정호
+             */
+            var Picture = (function (_super) {
+                __extends(Picture, _super);
+                /* --------------------------------------------------------
+                    CONTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * 기본 생성자.
+                 */
+                function Picture(pictureArray, url) {
+                    if (url === void 0) { url = ""; }
+                    _super.call(this);
+                    this.pictureArray = pictureArray;
+                    this.url = url;
+                }
+                Picture.prototype.constructByJSON = function (val) {
+                    this.splice(0, this.length); // CLEAR
+                    var array = val;
+                    for (var i = 0; i < array.length; i++) {
+                        var face = new faceapi.face.Face(this);
+                        face.constructByJSON(array[i]);
+                        this.push(face);
+                    }
+                };
+                Picture.prototype.createChild = function (xml) {
+                    return new faceapi.face.Face(this);
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                Picture.prototype.key = function () {
+                    return this.url;
+                };
+                Picture.prototype.getPictureArray = function () {
+                    return this.pictureArray;
+                };
+                Picture.prototype.getURL = function () {
+                    return this.url;
+                };
+                /* --------------------------------------------------------
+                    INTERACTION WITH FACE-API
+                -------------------------------------------------------- */
+                /**
+                 * <p> 사진 속 얼굴들을 감지해낸다. </p>
+                 *
+                 * <ul>
+                 *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
+                 * </ul>
+                 */
+                Picture.prototype.detect = function () {
+                    // REMOVE ALL
+                    this.splice(0, this.length);
+                    var this_ = this;
+                    // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/detect", "POST", {
+                        "returnFaceId": "true",
+                        "returnFaceLandmarks": "true",
+                        "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
+                    }, { "url": this.url }, function (data) {
+                        this_.constructByJSON(data);
+                    });
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                Picture.prototype.TAG = function () {
+                    return "person";
+                };
+                Picture.prototype.CHILD_TAG = function () {
+                    return "face";
+                };
+                return Picture;
+            })(EntityArray);
+            picture.Picture = Picture;
+        })(picture = faceapi.picture || (faceapi.picture = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceRectangle.ts" />
+/// <reference path="../basic/IJSonEntity.ts" />
+/// <reference path="landmark/FaceLandmarks.ts" />
+/// <reference path="attribute/FaceAttributes.ts" />
+/// <reference path="../person/Person.ts" />
+/// <reference path="../person/PersonGroup.ts" />
+/// <reference path="../result/CandidatePersonArray.ts" />
+/// <reference path="../picture/Picture.ts" />
+/**
+ * A face.
+ *
+ * @author Jeongho Nam
+ */
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var face;
+        (function (face_5) {
+            var Face = (function (_super) {
+                __extends(Face, _super);
+                /* --------------------------------------------------------
+                    CONTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * Constructor from Picture.
+                 *
+                 * @param picture A picture that containing the Face.
+                 */
+                function Face(picture) {
+                    _super.call(this);
+                    this.picture = picture;
+                    this.person = null;
+                    this.id = "";
+                    this.landmarks = new face_5.landmark.FaceLandmarks(this);
+                    this.attributes = new face_5.attribute.FaceAttributes(this);
+                }
+                Face.prototype.construct = function (xml) {
+                    _super.prototype.construct.call(this, xml);
+                    this.person = null;
+                    if (xml.has("person") == false)
+                        return;
+                    var person = xml.get("person")[0];
+                    var personName = person.getProperty("name");
+                    var personGroupID = person.getProperty("groupID");
+                };
+                Face.prototype.constructByJSON = function (obj) {
+                    this.id = obj["faceId"];
+                    _super.prototype.constructByJSON.call(this, obj["faceRectangle"]);
+                    this.landmarks.constructByJSON(obj["faceLandmarks"]);
+                    this.attributes.constructByJSON(obj["faceAttributes"]);
+                };
+                /* --------------------------------------------------------
+                    COMPARES
+                -------------------------------------------------------- */
+                /**
+                 * <p> Identify the Face is whom (Person, from a PersonGroup). </p>
+                 *
+                 * <p> You've to execute PersonGroup.train() method, asynchronous method dispatching
+                 * "complete" Event when the training was completed, before running the identify() method. </p>
+                 *
+                 * <ul>
+                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+                 * </ul>
+                 *
+                 * @param personGroup A PersonGroup, candidates of the owner.
+                 * @param maxCandidates Permitted number of candidates to return.
+                 *
+                 * @return Candidates of the owner with conformaility degrees.
+                 */
+                Face.prototype.identify = function (personGroup, maxCandidates) {
+                    if (maxCandidates === void 0) { maxCandidates = 1; }
+                    return personGroup.identify(this, maxCandidates);
+                };
+                /**
+                 * Test whether two Faces are owned by a same Person.
+                 *
+                 * <ul>
+                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
+                 * </ul>
+                 *
+                 * @param face Target Face to compare with.
+                 * @return A pair of flag (whether two Faces are from a same person) and confidence (conformality degree).
+                 */
+                Face.prototype.equals = function (face) {
+                    if (this == face)
+                        return new Pair(true, 1.0);
+                    var pair = new Pair(false, -1.0);
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/verify", "POST", null, { "faceId1": this.id, "faceId2": face.id }, function (data) {
+                        var isIdentical = data["isIdentical"];
+                        var confidence = data["confidence"];
+                        pair = new Pair(isIdentical, confidence);
+                    });
+                    return pair;
+                };
+                /* --------------------------------------------------------
+                    GETTERS & SETTERS
+                -------------------------------------------------------- */
+                Face.prototype.key = function () {
+                    return this.id;
+                };
+                /**
+                 * Get id.
+                 */
+                Face.prototype.getID = function () {
+                    return this.id;
+                };
+                /**
+                 * Get picture.
+                 */
+                Face.prototype.getPicture = function () {
+                    return this.picture;
+                };
+                /**
+                 * Get person.
+                 */
+                Face.prototype.getPerson = function () {
+                    return this.person;
+                };
+                /**
+                 * Get landmarks.
+                 */
+                Face.prototype.getLandmarks = function () {
+                    return this.landmarks;
+                };
+                /**
+                 * Get attributes.
+                 */
+                Face.prototype.getAttributes = function () {
+                    return this.attributes;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                Face.prototype.TAG = function () {
+                    return "face";
+                };
+                Face.prototype.toXML = function () {
+                    var xml = _super.prototype.toXML.call(this);
+                    xml.push(this.landmarks.toXML(), this.attributes.toXML());
+                    return xml;
+                };
+                return Face;
+            })(face_5.FaceRectangle);
+            face_5.Face = Face;
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="CandidatePerson.ts" />
+/// <referench path="../basic/IJSONEntity.ts" />
+/// <reference path="../face/Face.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var result;
+        (function (result) {
+            var CandidatePersonArray = (function (_super) {
+                __extends(CandidatePersonArray, _super);
+                /* --------------------------------------------------------
+                    CONTRUCTORS
+                -------------------------------------------------------- */
+                function CandidatePersonArray(api, face, personGroup) {
+                    if (face === void 0) { face = null; }
+                    if (personGroup === void 0) { personGroup = null; }
+                    _super.call(this);
+                    this.api = api;
+                    this.face = face;
+                    this.personGroup = personGroup;
+                }
+                CandidatePersonArray.prototype.construct = function (xml) {
+                    this.face = null;
+                    this.personGroup = null;
+                    // SET FACE
+                    if (xml.hasProperty("faceID") == true) {
+                        var faceID = xml.getProperty("faceID");
+                        var pictureArray = this.api.getPictureArray();
+                        for (var i = 0; i < pictureArray.length; i++) {
+                            var picture = pictureArray[i];
+                            if (picture.has(faceID) == true) {
+                                this.face = picture.get(faceID);
+                                break;
+                            }
+                        }
+                    }
+                    // SET PERSON_GROUP
+                    if (xml.hasProperty("personGroupID") == true) {
+                        var personGroupID = xml.getProperty("personGroupID");
+                        var personGroupArray = this.api.getPersonGroupArray();
+                        if (personGroupArray.has(personGroupID) == true)
+                            this.personGroup = personGroupArray.get(personGroupID);
+                    }
+                    // SET CHILDREN
+                    _super.prototype.construct.call(this, xml);
+                };
+                CandidatePersonArray.prototype.constructByJSON = function (data) {
+                    this.splice(0, this.length); // CLEAR
+                    var array = data["candidates"];
+                    for (var i = 0; i < array.length; i++) {
+                        var candidatePerson = new result.CandidatePerson(this);
+                        candidatePerson.constructByJSON(array[i]);
+                        this.push(candidatePerson);
+                    }
+                };
+                CandidatePersonArray.prototype.createChild = function (xml) {
+                    if (xml.hasProperty("personID") == true)
+                        return new result.CandidatePerson(this);
+                    else
+                        return null;
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                CandidatePersonArray.prototype.getAPI = function () {
+                    return this.api;
+                };
+                CandidatePersonArray.prototype.getFace = function () {
+                    return this.face;
+                };
+                CandidatePersonArray.prototype.getPersonGroup = function () {
+                    return this.personGroup;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                CandidatePersonArray.prototype.TAG = function () {
+                    return "candidatePersonArray";
+                };
+                CandidatePersonArray.prototype.CHILD_TAG = function () {
+                    return "candidatePerson";
+                };
+                CandidatePersonArray.prototype.toXML = function () {
+                    var xml = _super.prototype.toXML.call(this);
+                    if (this.face != null)
+                        xml.setProperty("faceID", this.face.getID());
+                    if (this.personGroup != null)
+                        xml.setProperty("personGroupID", this.personGroup.getID());
+                    return xml;
+                };
+                return CandidatePersonArray;
+            })(EntityArray);
+            result.CandidatePersonArray = CandidatePersonArray;
+        })(result = faceapi.result || (faceapi.result = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="Person.ts" />
+/// <reference path="../basic/IGroup.ts" />
+/// <reference path="../result/CandidatePersonArray.ts" />
+/// <reference path="PersonGroupArray.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var person;
+        (function (person) {
+            /**
+             * <p> A group of Person instances. </p>
+             *
+             * <p> The PersonGroup class is required when you try to identify a Face is from whom (Person). </p>
+             *
+             * <p> Reference </p>
+             * <ul>
+             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+             * </ul>
+             *
+             * @author Jeongho Nam
+             */
+            var PersonGroup = (function (_super) {
+                __extends(PersonGroup, _super);
+                /* --------------------------------------------------------
+                    CONTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * Construct from a PersonGroupArray and name.
+                 *
+                 * @param groupArray An array and parent of the PersonGroup.
+                 * @param name Allocated (or to be allocated) name of the PersonGroup.
+                 */
+                function PersonGroup(groupArray, name) {
+                    if (name === void 0) { name = ""; }
+                    _super.call(this);
+                    this.groupArray = groupArray;
+                    this.id = "";
+                    this.name = name;
+                    this.trained = false;
+                    this.registered = false;
+                    this.listeners = new Map();
+                }
+                PersonGroup.prototype.createChild = function (xml) {
+                    return new person.Person(this, xml.getProperty("name"));
+                };
+                /* --------------------------------------------------------
+                    OPERATORS
+                -------------------------------------------------------- */
+                PersonGroup.prototype.push = function () {
+                    var items = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        items[_i - 0] = arguments[_i];
+                    }
+                    if (this.isRegistered() == false)
+                        this.insertToServer();
+                    for (var i = 0; i < items.length; i++)
+                        items[i].insertToServer();
+                    return _super.prototype.push.apply(this, items);
+                };
+                PersonGroup.prototype.splice = function (start, deleteCount) {
+                    var items = [];
+                    for (var _i = 2; _i < arguments.length; _i++) {
+                        items[_i - 2] = arguments[_i];
+                    }
+                    var i;
+                    for (i = start; i < Math.min(start + deleteCount, this.length); i++)
+                        items[i].eraseFromServer();
+                    for (i = 0; i < items.length; i++)
+                        items[i].insertToServer();
+                    return _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
+                };
+                /* --------------------------------------------------------
+                    INTERACTION WITH FACE API
+                -------------------------------------------------------- */
+                /**
+                 * <p> Start training; studying.  The method train() a pre-process essentially required
+                 * for identify(). </p>
+                 *
+                 * <p> The training is processed in server side asynchronously. When you call the method train(),
+                 * it dispatches an Event "activate". When the training is completed in server side, PersonGroup
+                 * will dispatch the "complete" Event. </p>
+                 *
+                 * <ul>
+                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+                 * </ul>
+                 */
+                PersonGroup.prototype.train = function () {
+                    // 등록을 먼저 수행
+                    if (this.isRegistered() == false)
+                        this.insertToServer();
+                    // 학습 수행
+                    var this_ = this;
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", null, //{"personGroupId": this.id},
+                    null, function (data) {
+                        setTimeout(PersonGroup.checkTrainStatus, 50, this_);
+                    });
+                };
+                /**
+                 * Query about training status to Face-API server.
+                 *
+                 * @param this_ A PersonGroup object who executed the train() method.
+                 */
+                PersonGroup.checkTrainStatus = function (this_) {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this_.id + "/training", "GET", null, null, function (data) {
+                        var status = data["status"];
+                        trace("on progress", status);
+                        if (status == "succeeded") {
+                            this_.trained = true;
+                            this_.dispatchEvent(new Event("complete"));
+                        }
+                        else if (status == "failed") {
+                            var errorEvent = new ErrorEvent();
+                            errorEvent.message = data["message"];
+                            this_.dispatchEvent(errorEvent);
+                        }
+                        else {
+                            // 50ms 후에 재 확인
+                            setTimeout(PersonGroup.checkTrainStatus, 50, this_);
+                        }
+                    }, false // ASYNCHRONOUSLY
+                    );
+                };
+                /**
+                 * <p> Ideitify who is owner of the Face. </p>
+                 *
+                 * <p> You've to execute train() method, asynchronous method dispatching "complete" Event
+                 * when the training was completed, before running the identify() method. </p>
+                 *
+                 * <ul>
+                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+                 * </ul>
+                 *
+                 * @param face Target face to identify
+                 * @param maxCandidates Permitted number of candidates to return.
+                 *
+                 * @return Candidates of the owner with conformaility degrees.
+                 */
+                PersonGroup.prototype.identify = function (face, maxCandidates) {
+                    if (maxCandidates === void 0) { maxCandidates = 1; }
+                    // Have to be trained.
+                    if (this.isTrained() == false)
+                        throw new Error("Not trained.");
+                    var this_ = this;
+                    var candidatePersonArray = new faceapi.result.CandidatePersonArray(this.groupArray.getAPI(), face, this);
+                    trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/identify", "POST", null, {
+                        "personGroupId": this.id,
+                        "faceIds": [face.getID()],
+                        "maxNumOfCandidatesReturned": maxCandidates
+                    }, function (data) {
+                        candidatePersonArray.constructByJSON(data);
+                    });
+                    return candidatePersonArray;
+                };
+                /**
+                 * Insert the PersonGroup to Face-API server.
+                 *
+                 * <ul>
+                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+                 * </ul>
+                 */
+                PersonGroup.prototype.insertToServer = function () {
+                    // 식별자 번호 발급
+                    if (this.id == "")
+                        this.id = faceapi.FaceAPI.issueID("person_group");
+                    var this_ = this;
+                    trace("PersonGroup::insertToServer");
+                    // 서버에 등록
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", null, //{"personGroupId": this.id},
+                    { "name": this.name, "userData": "" }, function (data) {
+                        this_.registered = true;
+                    });
+                };
+                /**
+                 * Remove the PersonGroup from the Face-API server.
+                 *
+                 * <ul>
+                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
+                 * </ul>
+                 */
+                PersonGroup.prototype.eraseFromServer = function () {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, null);
+                    this.trained = false;
+                    this.registered = false;
+                };
+                /* --------------------------------------------------------
+                    EVENT LISTENERS
+                -------------------------------------------------------- */
+                PersonGroup.prototype.hasEventListener = function (type) {
+                    return this.listeners.has(type);
+                };
+                PersonGroup.prototype.addEventListener = function (type, listener) {
+                    if (this.listeners.has(type) == false)
+                        this.listeners.set(type, new Set());
+                    var listenerSet = this.listeners.get(type);
+                    listenerSet.insert(listener);
+                };
+                PersonGroup.prototype.removeEventListener = function (type, listener) {
+                    if (this.listeners.has(type) == false)
+                        return;
+                    var listenerSet = this.listeners.get(type);
+                    listenerSet.erase(listener);
+                };
+                PersonGroup.prototype.dispatchEvent = function (event) {
+                    if (this.listeners.has(event.type) == false)
+                        return;
+                    var listenerSet = this.listeners.get(event.type);
+                    for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
+                        it.value(event);
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                PersonGroup.prototype.key = function () {
+                    return this.id;
+                };
+                /**
+                 * Get groupArray.
+                 */
+                PersonGroup.prototype.getGroupArray = function () {
+                    return this.groupArray;
+                };
+                /**
+                 * Get ID.
+                 */
+                PersonGroup.prototype.getID = function () {
+                    return this.id;
+                };
+                /**
+                 * Get name.
+                 */
+                PersonGroup.prototype.getName = function () {
+                    return this.name;
+                };
+                PersonGroup.prototype.isRegistered = function () {
+                    return this.registered;
+                    ;
+                };
+                /**
+                 * Test whether the PersonGroup has trained.
+                 */
+                PersonGroup.prototype.isTrained = function () {
+                    return this.trained;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                PersonGroup.prototype.TAG = function () {
+                    return "personGroup";
+                };
+                PersonGroup.prototype.CHILD_TAG = function () {
+                    return "person";
+                };
+                return PersonGroup;
+            })(EntityArray);
+            person.PersonGroup = PersonGroup;
+        })(person = faceapi.person || (faceapi.person = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="PersonGroup.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var person;
+        (function (person) {
+            /**
+             * 사람 그룹 리스트 엔티티.
+             *
+             * @author 남정호
+             */
+            var PersonGroupArray = (function (_super) {
+                __extends(PersonGroupArray, _super);
+                /* --------------------------------------------------------
+                    CONSTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * 생성자 from API.
+                 */
+                function PersonGroupArray(api) {
+                    _super.call(this);
+                    this.api = api;
+                }
+                PersonGroupArray.prototype.createChild = function (xml) {
+                    return new person.PersonGroup(this, xml.getProperty("name"));
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                /**
+                 * Get API.
+                 */
+                PersonGroupArray.prototype.getAPI = function () {
+                    return this.api;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                PersonGroupArray.prototype.TAG = function () {
+                    return "personGroupArray";
+                };
+                PersonGroupArray.prototype.CHILD_TAG = function () {
+                    return "personGroup";
+                };
+                return PersonGroupArray;
+            })(EntityArray);
+            person.PersonGroupArray = PersonGroupArray;
+        })(person = faceapi.person || (faceapi.person = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="../face/FacePairArray.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var facelist;
+        (function (facelist) {
+            var FaceList = (function (_super) {
+                __extends(FaceList, _super);
+                /* --------------------------------------------------------
+                    CONTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * 생성자 from API with 이름.
+                 */
+                function FaceList(listArray, name) {
+                    if (name === void 0) { name = ""; }
+                    _super.call(this, name);
+                    this.listArray = listArray;
+                    this.id = "";
+                    this.name = name;
+                    this.registered = false;
+                }
+                /* --------------------------------------------------------
+                    INTERACTION WITH FACE API
+                -------------------------------------------------------- */
+                /**
+                 * 현재의 FaceList를 Face API 서버에 등록.
+                 *
+                 * <ul>
+                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+                 * </ul>
+                 */
+                FaceList.prototype.insertToServer = function () {
+                    // 식별자 번호 발급
+                    if (this.id == "")
+                        this.id = faceapi.FaceAPI.issueID("face_list");
+                    var this_ = this;
+                    // 서버에 등록
+                    var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+                    var method = "PUT";
+                    var params = { "faceListId": this.id };
+                    var data = {
+                        "name": this.name,
+                        "userData": ""
+                    };
+                    var success = function (data) {
+                        this_.registered = true;
+                    };
+                    // 전송
+                    faceapi.FaceAPI.query(url, method, params, data, success);
+                };
+                /**
+                 * 현재의 FaceList를 서버에서 지운다.
+                 *
+                 * <ul>
+                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+                 * </ul>
+                 */
+                FaceList.prototype.eraseFromServer = function () {
+                    // 준비
+                    var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+                    var method = "DELETE";
+                    var params = { "faceListId": this.id };
+                    // 전송
+                    faceapi.FaceAPI.query(url, method, params, null, null);
+                    _super.prototype.eraseFromServer.call(this);
+                };
+                FaceList.prototype.notifySetName = function (name) {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id, "PATCH", { "faceListId": this.id }, {
+                        "name": this.name,
+                        "userData": ""
+                    }, null);
+                };
+                /**
+                 * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.
+                 *
+                 * <ul>
+                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+                 * </ul>
+                 */
+                FaceList.prototype.insertFaceToServer = function (face) {
+                    if (this.isRegistered() == false)
+                        this.insertToServer();
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
+                        //"faceListId": this.id,
+                        "userData": "",
+                        "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
+                    }, {
+                        "url": face.getPictureURL()
+                    }, function (data) {
+                        face.setID(data["persistedFaceId"]);
+                    });
+                };
+                /**
+                 * 특정 Face가 현재의 FaceList로부터 제거되었음을 Face API 서버에 알린다.
+                 *
+                 * <ul>
+                 *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
+                 * </ul>
+                 */
+                FaceList.prototype.eraseFaceFromServer = function (face) {
+                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
+                        "faceListId": this.id,
+                        "persistedFaceId": face.getID()
+                    }, null, null);
+                    _super.prototype.eraseFaceFromServer.call(this, face);
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                FaceList.prototype.getAPI = function () {
+                    return this.listArray.getAPI();
+                };
+                FaceList.prototype.getListArray = function () {
+                    return this.listArray;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                FaceList.prototype.TAG = function () {
+                    return "faceList";
+                };
+                return FaceList;
+            })(faceapi.face.FacePairArray);
+            facelist.FaceList = FaceList;
+        })(facelist = faceapi.facelist || (faceapi.facelist = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceList.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var facelist;
+        (function (facelist) {
+            var FaceListArray = (function (_super) {
+                __extends(FaceListArray, _super);
+                /* --------------------------------------------------------
+                    CONSTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * 생성자 from API.
+                 */
+                function FaceListArray(api) {
+                    _super.call(this);
+                    this.api = api;
+                }
+                FaceListArray.prototype.createChild = function (xml) {
+                    return new facelist.FaceList(this, xml.getProperty("name"));
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                /**
+                 * Get API.
+                 */
+                FaceListArray.prototype.getAPI = function () {
+                    return this.api;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                FaceListArray.prototype.TAG = function () {
+                    return "faceListArray";
+                };
+                FaceListArray.prototype.CHILD_TAG = function () {
+                    return "faceList";
+                };
+                return FaceListArray;
+            })(EntityArray);
+            facelist.FaceListArray = FaceListArray;
+        })(facelist = faceapi.facelist || (faceapi.facelist = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../SamchonFramework.ts" />
 /// <reference path="../../jquery.d.ts" />
 /// <reference path="person/PersonGroupArray.ts" />
-/// <reference path="faceList/FaceListArray.ts" />
+/// <reference path="facelist/FaceListArray.ts" />
 /// <reference path="picture/PictureArray.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         /**
-         * Face API의 Facade controller 및 Factory 클래스.
+         * A facade controller and factory class for Face-API.
          *
-         * @author 남정호
+         * @author Jeongho Nam
          */
         var FaceAPI = (function (_super) {
             __extends(FaceAPI, _super);
@@ -4824,35 +5016,41 @@ var hiswill;
                 CONTRUCTORS
             -------------------------------------------------------- */
             /**
-             * 기본 생성자.
+             * Default Constructor.
              */
             function FaceAPI() {
                 _super.call(this);
-                this.personGroupArray = new faceAPI.person.PersonGroupArray(this);
-                this.faceListArray = new faceAPI.faceList.FaceListArray(this);
-                this.pictureArray = new faceAPI.picture.PictureArray(this);
+                this.personGroupArray = new faceapi.person.PersonGroupArray(this);
+                this.faceListArray = new faceapi.facelist.FaceListArray(this);
+                this.pictureArray = new faceapi.picture.PictureArray(this);
             }
             /**
-             * Factory method of 사람 그룹.
+             * Factory method of PersonGroup.
+             *
+             * @param name Name of a new PersonGroup
              */
             FaceAPI.prototype.createPersonGroup = function (name) {
-                var personGroup = new faceAPI.person.PersonGroup(this.personGroupArray, name);
+                var personGroup = new faceapi.person.PersonGroup(this.personGroupArray, name);
                 this.personGroupArray.push(personGroup);
                 return personGroup;
             };
             /**
-             * Factory method of 얼굴 리스트.
+             * Factory method of FaceList.
+             *
+             * @apram name Name of a new FaceList.
              */
             FaceAPI.prototype.createFaceList = function (name) {
-                var faceList = new faceAPI.faceList.FaceList(this.faceListArray, name);
+                var faceList = new faceapi.facelist.FaceList(this.faceListArray, name);
                 this.faceListArray.push(faceList);
                 return faceList;
             };
             /**
-             * Factory method of 사진.
+             * Factory method of Picture.
+             *
+             * @apram url URL-address of a new Picture.
              */
             FaceAPI.prototype.createPicture = function (url) {
-                var picture = new faceAPI.picture.Picture(this.pictureArray, url);
+                var picture = new faceapi.picture.Picture(this.pictureArray, url);
                 this.pictureArray.push(picture);
                 return picture;
             };
@@ -4860,19 +5058,19 @@ var hiswill;
                 GETTERS
             -------------------------------------------------------- */
             /**
-             * Get 사람 그룹 리스트.
+             * Get personGroupArray.
              */
             FaceAPI.prototype.getPersonGroupArray = function () {
                 return this.personGroupArray;
             };
             /**
-             * Get 얼굴 리스트의 리스트.
+             * Get faceListArray.
              */
             FaceAPI.prototype.getFaceListArray = function () {
                 return this.faceListArray;
             };
             /**
-             * Get 사진 리스트.
+             * Get pictureArray.
              */
             FaceAPI.prototype.getPictureArray = function () {
                 return this.pictureArray;
@@ -4893,7 +5091,7 @@ var hiswill;
                     STATIC MEMBERS
                 -------------------------------------------------------- */
                 /**
-                 * Face API 의 인증키.
+                 * Certification key for Face-API server.
                  */
                 get: function () {
                     return "b072c71311d144388ac2527a5f06ffca";
@@ -4902,15 +5100,16 @@ var hiswill;
                 configurable: true
             });
             /**
-             * Face API 서버에 질의문을 전송함.
+             * Query a formed-statement to Face-API server.
              *
-             * @param url 질의문을 보낼 HTTPS 주소
-             * @param method GET, POST 등
-             * @param params 선행으로 보낼 파라미터
-             * @param data 후행으로 보낼 데이터
-             * @param success 질의 성공시, reply 데이터에 대하여 수행할 함수
+             * @param url https address to query
+             * @param method One of them (GET, POST, UPDATE, DELETE, PATCH)
+             * @param params A pre-parameter
+             * @param data A post-parameter (body)
+             * @param success A method to be processed after the sending query is succeded.
              */
-            FaceAPI.query = function (url, method, params, data, success) {
+            FaceAPI.query = function (url, method, params, data, success, async) {
+                if (async === void 0) { async = false; }
                 $.ajax({
                     url: url + (params == null ? "" : "?" + $.param(params)),
                     beforeSend: function (xhrObj) {
@@ -4919,7 +5118,7 @@ var hiswill;
                         xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", FaceAPI.CERTIFICATION_KEY);
                     },
                     type: method,
-                    async: false,
+                    async: async,
                     data: (data == null) ? "" : JSON.stringify(data),
                     success: function (data, textStatus, xhr) {
                         if (success != null)
@@ -4930,53 +5129,146 @@ var hiswill;
                     }
                 });
             };
+            /**
+             * Issue an unique identifier code.
+             *
+             * @param prefix A word inserted in front of the automatically generated code.
+             */
             FaceAPI.issueID = function (prefix) {
                 return prefix + "_hiswill_" + new Date().getTime() + "_" + (++FaceAPI.sequence);
             };
+            /**
+             * A automatically increasing sequence number used on issuing unique identifier code. </p>?
+             */
             FaceAPI.sequence = 0;
             return FaceAPI;
         })(Entity);
-        faceAPI.FaceAPI = FaceAPI;
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        faceapi.FaceAPI = FaceAPI;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="hiswill/faceAPI/FaceAPI.ts" />
-var api = hiswill.faceAPI;
-function main() {
-    var faceAPI = new api.FaceAPI();
-    var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
-    picture.detect();
-    trace("Detected");
-    //var faceList = faceAPI.createFaceList("other_group");
-    var personGroup = faceAPI.createPersonGroup("others");
-    for (var i = 0; i < 4; i++) {
-        var face = picture[i];
-        //faceList.push(face);
-        var person = new api.person.Person(personGroup, "my_name_" + (i + 1));
-        personGroup.push(person);
-        person.push(face);
-    }
-    trace("Registered");
-    face = picture[2];
-    var http;
-    personGroup.train();
-    window.setTimeout(identify, 500, personGroup, face);
-}
-function identify(personGroup, face) {
-    var candidates = personGroup.identify(face, 2);
-    for (var i = 0; i < candidates.length; i++) {
-        var person = candidates[i].first;
-        var degree = candidates[i].second;
-        trace(face.key(), person.key(), degree);
-    }
-    trace("Identified");
-}
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var basic;
+        (function (basic) {
+            /**
+             * An entity representing coordinates X and Y.
+             *
+             * @author Jeongho Nam
+             */
+            var Point = (function (_super) {
+                __extends(Point, _super);
+                /* --------------------------------------------------------
+                    CONSTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * Construct from a XML tag name.
+                 */
+                function Point(tag) {
+                    if (tag === void 0) { tag = ""; }
+                    _super.call(this);
+                    this.tag = tag;
+                    this.x = 0;
+                    this.y = 0;
+                }
+                Point.prototype.constructByJSON = function (val) {
+                    faceapi.Global.fetch(this, val);
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                /**
+                 * Get coordinate X.
+                 */
+                Point.prototype.getX = function () {
+                    return this.x;
+                };
+                /**
+                 * Get coordinate Y.
+                 */
+                Point.prototype.getY = function () {
+                    return this.y;
+                };
+                /* --------------------------------------------------------
+                    EXPORTERS
+                -------------------------------------------------------- */
+                Point.prototype.TAG = function () {
+                    return this.tag;
+                };
+                Point.prototype.toXML = function () {
+                    var xml = _super.prototype.toXML.call(this);
+                    xml.eraseProperty("tag");
+                    return xml;
+                };
+                return Point;
+            })(Entity);
+            basic.Point = Point;
+        })(basic = faceapi.basic || (faceapi.basic = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../FaceAPI.ts" />
+/// <reference path="../basic/Point.ts" />
+/// <reference path="../basic/IJSonEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var face;
+        (function (face) {
+            /**
+             * An abstract class having position and size data of rectangle representing a face in a picture.
+             *
+             * @author Jeongho Nam
+             */
+            var FaceRectangle = (function (_super) {
+                __extends(FaceRectangle, _super);
+                /* --------------------------------------------------------
+                    CONTRUCTORS
+                -------------------------------------------------------- */
+                /**
+                 * Default Constructor.
+                 */
+                function FaceRectangle() {
+                    _super.call(this);
+                    this.width = 0;
+                    this.height = 0;
+                }
+                FaceRectangle.prototype.constructByJSON = function (obj) {
+                    faceapi.Global.fetch(this, obj);
+                    this.x = obj["left"];
+                    this.y = obj["top"];
+                };
+                /* --------------------------------------------------------
+                    GETTERS
+                -------------------------------------------------------- */
+                /**
+                 * Get width.
+                 */
+                FaceRectangle.prototype.getWidth = function () {
+                    return this.width;
+                };
+                /**
+                 * Get height.
+                 */
+                FaceRectangle.prototype.getHeight = function () {
+                    return this.height;
+                };
+                return FaceRectangle;
+            })(faceapi.basic.Point);
+            face.FaceRectangle = FaceRectangle;
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="../../basic/IJSonEntity.ts" />
 /// <reference path="FaceLandmarks.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
@@ -4987,7 +5279,7 @@ var hiswill;
                         _super.call(this);
                     }
                     FaceLandmark.prototype.constructByJSON = function (val) {
-                        faceAPI.Global.fetch(this, val);
+                        faceapi.Global.fetch(this, val);
                     };
                     FaceLandmark.prototype.getLandmarks = function () {
                         return this.landmarks;
@@ -4996,16 +5288,108 @@ var hiswill;
                 })(Entity);
                 landmark.FaceLandmark = FaceLandmark;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../../FaceAPI.ts" />
+/// <reference path="../../basic/IJSonEntity.ts" />
+/// <reference path="../../basic/Point.ts" />
+/// <reference path="Eyes.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var face;
+        (function (face) {
+            var landmark;
+            (function (landmark) {
+                var Eye = (function (_super) {
+                    __extends(Eye, _super);
+                    /* --------------------------------------------------------
+                        CONSTRUCTORS
+                    -------------------------------------------------------- */
+                    function Eye(eyes, direction) {
+                        _super.call(this);
+                        this.eyes = eyes;
+                        this.direction = direction;
+                        this.top = new faceapi.basic.Point("top");
+                        this.bottom = new faceapi.basic.Point("bottom");
+                        this.inner = new faceapi.basic.Point("inner");
+                        this.outer = new faceapi.basic.Point("outer");
+                        this.pupil = new landmark.Pupil(this);
+                    }
+                    Eye.prototype.constructByJSON = function (obj) {
+                        if (this.direction == faceapi.Direction.LEFT) {
+                            this.top.constructByJSON(obj["eyeLeftTop"]);
+                            this.bottom.constructByJSON(obj["eyeLeftBottom"]);
+                            this.inner.constructByJSON(obj["eyeLeftInner"]);
+                            this.outer.constructByJSON(obj["eyeLeftOuter"]);
+                            this.pupil.constructByJSON(obj["pupilLeft"]);
+                        }
+                        else {
+                            this.top.constructByJSON(obj["eyeRightTop"]);
+                            this.bottom.constructByJSON(obj["eyeRightBottom"]);
+                            this.inner.constructByJSON(obj["eyeRightInner"]);
+                            this.outer.constructByJSON(obj["eyeRightOuter"]);
+                            this.pupil.constructByJSON(obj["pupilRight"]);
+                        }
+                    };
+                    /* --------------------------------------------------------
+                        GETTERS
+                    -------------------------------------------------------- */
+                    Eye.prototype.getEyes = function () {
+                        return this.eyes;
+                    };
+                    Eye.prototype.getOpposite = function () {
+                        if (this.direction == faceapi.Direction.LEFT)
+                            return this.eyes.getRight();
+                        else
+                            return this.eyes.getLeft();
+                    };
+                    Eye.prototype.getTop = function () {
+                        return this.top;
+                    };
+                    Eye.prototype.getBottom = function () {
+                        return this.bottom;
+                    };
+                    Eye.prototype.getInner = function () {
+                        return this.inner;
+                    };
+                    Eye.prototype.getOuter = function () {
+                        return this.outer;
+                    };
+                    Eye.prototype.getPupil = function () {
+                        return this.pupil;
+                    };
+                    /* --------------------------------------------------------
+                        EXPORTERS
+                    -------------------------------------------------------- */
+                    Eye.prototype.TAG = function () {
+                        if (this.direction == faceapi.Direction.LEFT)
+                            return "left";
+                        else
+                            return "right";
+                    };
+                    Eye.prototype.toXML = function () {
+                        var xml = _super.prototype.toXML.call(this);
+                        xml.eraseProperty("direction");
+                        xml.push(this.top.toXML(), this.bottom.toXML(), this.inner.toXML(), this.outer.toXML(), this.pupil.toXML());
+                        return xml;
+                    };
+                    return Eye;
+                })(Entity);
+                landmark.Eye = Eye;
+            })(landmark = face.landmark || (face.landmark = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
 /// <reference path="Eye.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
@@ -5017,8 +5401,8 @@ var hiswill;
                     -------------------------------------------------------- */
                     function Eyes(landmarks) {
                         _super.call(this, landmarks);
-                        this.left = new landmark.Eye(this, faceAPI.Direction.LEFT);
-                        this.right = new landmark.Eye(this, faceAPI.Direction.RIGHT);
+                        this.left = new landmark.Eye(this, faceapi.Direction.LEFT);
+                        this.right = new landmark.Eye(this, faceapi.Direction.RIGHT);
                     }
                     Eyes.prototype.constructByJSON = function (obj) {
                         this.left.constructByJSON(obj);
@@ -5048,108 +5432,95 @@ var hiswill;
                 })(landmark.FaceLandmark);
                 landmark.Eyes = Eyes;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="../../basic/IJSonEntity.ts" />
 /// <reference path="../../basic/Point.ts" />
-/// <reference path="Eyes.ts" />
+/// <reference path="Eyebrows.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
             (function (landmark) {
-                var Eye = (function (_super) {
-                    __extends(Eye, _super);
+                /**
+                 * 눈썹.
+                 *
+                 * @author 남정호
+                 */
+                var Eyebrow = (function (_super) {
+                    __extends(Eyebrow, _super);
                     /* --------------------------------------------------------
                         CONSTRUCTORS
                     -------------------------------------------------------- */
-                    function Eye(eyes, direction) {
+                    function Eyebrow(eyeBrows, direction) {
                         _super.call(this);
-                        this.eyes = eyes;
+                        this.eyeBrows = eyeBrows;
                         this.direction = direction;
-                        this.top = new faceAPI.basic.Point("top");
-                        this.bottom = new faceAPI.basic.Point("bottom");
-                        this.inner = new faceAPI.basic.Point("inner");
-                        this.outer = new faceAPI.basic.Point("outer");
-                        this.pupil = new landmark.Pupil(this);
+                        this.inner = new faceapi.basic.Point("inner");
+                        this.outer = new faceapi.basic.Point("outer");
                     }
-                    Eye.prototype.constructByJSON = function (obj) {
-                        if (this.direction == faceAPI.Direction.LEFT) {
-                            this.top.constructByJSON(obj["eyeLeftTop"]);
-                            this.bottom.constructByJSON(obj["eyeLeftBottom"]);
-                            this.inner.constructByJSON(obj["eyeLeftInner"]);
-                            this.outer.constructByJSON(obj["eyeLeftOuter"]);
-                            this.pupil.constructByJSON(obj["pupilLeft"]);
+                    Eyebrow.prototype.constructByJSON = function (obj) {
+                        if (this.direction == faceapi.Direction.LEFT) {
+                            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
+                            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
                         }
                         else {
-                            this.top.constructByJSON(obj["eyeRightTop"]);
-                            this.bottom.constructByJSON(obj["eyeRightBottom"]);
-                            this.inner.constructByJSON(obj["eyeRightInner"]);
-                            this.outer.constructByJSON(obj["eyeRightOuter"]);
-                            this.pupil.constructByJSON(obj["pupilRight"]);
+                            this.inner.constructByJSON(obj["eyebrowRightInner"]);
+                            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
                         }
                     };
                     /* --------------------------------------------------------
                         GETTERS
                     -------------------------------------------------------- */
-                    Eye.prototype.getEyes = function () {
-                        return this.eyes;
+                    Eyebrow.prototype.getEyeBrows = function () {
+                        return this.eyeBrows;
                     };
-                    Eye.prototype.getOpposite = function () {
-                        if (this.direction == faceAPI.Direction.LEFT)
-                            return this.eyes.getRight();
+                    Eyebrow.prototype.getOpposite = function () {
+                        if (this.direction == faceapi.Direction.LEFT)
+                            return this.eyeBrows.getRight();
                         else
-                            return this.eyes.getLeft();
+                            return this.eyeBrows.getLeft();
                     };
-                    Eye.prototype.getTop = function () {
-                        return this.top;
-                    };
-                    Eye.prototype.getBottom = function () {
-                        return this.bottom;
-                    };
-                    Eye.prototype.getInner = function () {
+                    Eyebrow.prototype.getInner = function () {
                         return this.inner;
                     };
-                    Eye.prototype.getOuter = function () {
+                    Eyebrow.prototype.getOuter = function () {
                         return this.outer;
-                    };
-                    Eye.prototype.getPupil = function () {
-                        return this.pupil;
                     };
                     /* --------------------------------------------------------
                         EXPORTERS
                     -------------------------------------------------------- */
-                    Eye.prototype.TAG = function () {
-                        if (this.direction == faceAPI.Direction.LEFT)
+                    Eyebrow.prototype.TAG = function () {
+                        if (this.direction == faceapi.Direction.LEFT)
                             return "left";
                         else
                             return "right";
                     };
-                    Eye.prototype.toXML = function () {
+                    Eyebrow.prototype.toXML = function () {
                         var xml = _super.prototype.toXML.call(this);
                         xml.eraseProperty("direction");
-                        xml.push(this.top.toXML(), this.bottom.toXML(), this.inner.toXML(), this.outer.toXML(), this.pupil.toXML());
+                        xml.push(this.inner.toXML(), this.outer.toXML());
                         return xml;
                     };
-                    return Eye;
+                    return Eyebrow;
                 })(Entity);
-                landmark.Eye = Eye;
+                landmark.Eyebrow = Eyebrow;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
 /// <reference path="Eyebrow.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
@@ -5164,8 +5535,8 @@ var hiswill;
                     -------------------------------------------------------- */
                     function Eyebrows(landmarks) {
                         _super.call(this, landmarks);
-                        this.left = new landmark.Eyebrow(this, faceAPI.Direction.LEFT);
-                        this.right = new landmark.Eyebrow(this, faceAPI.Direction.RIGHT);
+                        this.left = new landmark.Eyebrow(this, faceapi.Direction.LEFT);
+                        this.right = new landmark.Eyebrow(this, faceapi.Direction.RIGHT);
                     }
                     Eyebrows.prototype.constructByJSON = function (obj) {
                         this.left.constructByJSON(obj);
@@ -5195,197 +5566,8 @@ var hiswill;
                 })(landmark.FaceLandmark);
                 landmark.Eyebrows = Eyebrows;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../basic/IJSonEntity.ts" />
-/// <reference path="../../basic/Point.ts" />
-/// <reference path="Eyebrows.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * 눈썹.
-                 *
-                 * @author 남정호
-                 */
-                var Eyebrow = (function (_super) {
-                    __extends(Eyebrow, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    function Eyebrow(eyeBrows, direction) {
-                        _super.call(this);
-                        this.eyeBrows = eyeBrows;
-                        this.direction = direction;
-                        this.inner = new faceAPI.basic.Point("inner");
-                        this.outer = new faceAPI.basic.Point("outer");
-                    }
-                    Eyebrow.prototype.constructByJSON = function (obj) {
-                        if (this.direction == faceAPI.Direction.LEFT) {
-                            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
-                            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
-                        }
-                        else {
-                            this.inner.constructByJSON(obj["eyebrowRightInner"]);
-                            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
-                        }
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    Eyebrow.prototype.getEyeBrows = function () {
-                        return this.eyeBrows;
-                    };
-                    Eyebrow.prototype.getOpposite = function () {
-                        if (this.direction == faceAPI.Direction.LEFT)
-                            return this.eyeBrows.getRight();
-                        else
-                            return this.eyeBrows.getLeft();
-                    };
-                    Eyebrow.prototype.getInner = function () {
-                        return this.inner;
-                    };
-                    Eyebrow.prototype.getOuter = function () {
-                        return this.outer;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eyebrow.prototype.TAG = function () {
-                        if (this.direction == faceAPI.Direction.LEFT)
-                            return "left";
-                        else
-                            return "right";
-                    };
-                    Eyebrow.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.eraseProperty("direction");
-                        xml.push(this.inner.toXML(), this.outer.toXML());
-                        return xml;
-                    };
-                    return Eyebrow;
-                })(Entity);
-                landmark.Eyebrow = Eyebrow;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="FaceAPI.ts" />
-/// <reference path="basic/IJSONEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        /**
-         * 전역 클래스.
-         *
-         * @author 남정호
-         */
-        var Global = (function () {
-            function Global() {
-            }
-            /**
-             * 엔티티의 멤버를 JSON 객체로부터 구성한다.
-             */
-            Global.fetch = function (entity, json) {
-                for (var key in json) {
-                    if (typeof key != "string" || entity.hasOwnProperty(key) == false)
-                        continue;
-                    if (typeof entity[key] == "number" || typeof entity[key] == "string")
-                        entity[key] = json[key];
-                    else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray) {
-                        var json_entity = entity[key];
-                        json_entity.constructByJSON(json[key]);
-                    }
-                }
-            };
-            return Global;
-        })();
-        faceAPI.Global = Global;
-        var Direction = (function () {
-            function Direction() {
-            }
-            Object.defineProperty(Direction, "LEFT", {
-                get: function () { return 1; },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            Object.defineProperty(Direction, "RIGHT", {
-                get: function () { return 2; },
-                enumerable: true,
-                configurable: true
-            });
-            ;
-            return Direction;
-        })();
-        faceAPI.Direction = Direction;
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path='FaceLandmark.ts' />
-/// <reference path='Lip.ts' />
-/// <reference path='../../basic/Point.ts' />
-var hiswill;
-(function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                var Mouth = (function (_super) {
-                    __extends(Mouth, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    function Mouth(landmarks) {
-                        _super.call(this, landmarks);
-                        this.lip = new landmark.Lip(this);
-                        this.left = new faceAPI.basic.Point("left");
-                        this.right = new faceAPI.basic.Point("right");
-                    }
-                    Mouth.prototype.constructByJSON = function (obj) {
-                        this.lip.constructByJSON(obj);
-                        this.left.constructByJSON(obj["mouthLeft"]);
-                        this.right.constructByJSON(obj["mouthRight"]);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    Mouth.prototype.getLip = function () {
-                        return this.lip;
-                    };
-                    Mouth.prototype.getLeft = function () {
-                        return this.left;
-                    };
-                    Mouth.prototype.getRight = function () {
-                        return this.right;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Mouth.prototype.TAG = function () {
-                        return "mouth";
-                    };
-                    Mouth.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
-                        return xml;
-                    };
-                    return Mouth;
-                })(landmark.FaceLandmark);
-                landmark.Mouth = Mouth;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path='../../basic/IJSonEntity.ts' />
@@ -5393,8 +5575,8 @@ var hiswill;
 /// <reference path='Mouth.ts' />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
@@ -5407,10 +5589,10 @@ var hiswill;
                     function Lip(mouth) {
                         _super.call(this);
                         this.mouth = mouth;
-                        this.upperTop = new faceAPI.basic.Point("upperTop");
-                        this.upperBottom = new faceAPI.basic.Point("upperBottom");
-                        this.underTop = new faceAPI.basic.Point("underTop");
-                        this.underBottom = new faceAPI.basic.Point("underBottom");
+                        this.upperTop = new faceapi.basic.Point("upperTop");
+                        this.upperBottom = new faceapi.basic.Point("upperBottom");
+                        this.underTop = new faceapi.basic.Point("underTop");
+                        this.underBottom = new faceapi.basic.Point("underBottom");
                     }
                     Lip.prototype.constructByJSON = function (obj) {
                         this.upperTop.constructByJSON(obj["upperLipTop"]);
@@ -5451,16 +5633,74 @@ var hiswill;
                 })(Entity);
                 landmark.Lip = Lip;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="../../FaceAPI.ts" />
+/// <reference path='FaceLandmark.ts' />
+/// <reference path='Lip.ts' />
+/// <reference path='../../basic/Point.ts' />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var face;
+        (function (face) {
+            var landmark;
+            (function (landmark) {
+                var Mouth = (function (_super) {
+                    __extends(Mouth, _super);
+                    /* --------------------------------------------------------
+                        CONTRUCTORS
+                    -------------------------------------------------------- */
+                    function Mouth(landmarks) {
+                        _super.call(this, landmarks);
+                        this.lip = new landmark.Lip(this);
+                        this.left = new faceapi.basic.Point("left");
+                        this.right = new faceapi.basic.Point("right");
+                    }
+                    Mouth.prototype.constructByJSON = function (obj) {
+                        this.lip.constructByJSON(obj);
+                        this.left.constructByJSON(obj["mouthLeft"]);
+                        this.right.constructByJSON(obj["mouthRight"]);
+                    };
+                    /* --------------------------------------------------------
+                        GETTERS
+                    -------------------------------------------------------- */
+                    Mouth.prototype.getLip = function () {
+                        return this.lip;
+                    };
+                    Mouth.prototype.getLeft = function () {
+                        return this.left;
+                    };
+                    Mouth.prototype.getRight = function () {
+                        return this.right;
+                    };
+                    /* --------------------------------------------------------
+                        EXPORTERS
+                    -------------------------------------------------------- */
+                    Mouth.prototype.TAG = function () {
+                        return "mouth";
+                    };
+                    Mouth.prototype.toXML = function () {
+                        var xml = _super.prototype.toXML.call(this);
+                        xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
+                        return xml;
+                    };
+                    return Mouth;
+                })(landmark.FaceLandmark);
+                landmark.Mouth = Mouth;
+            })(landmark = face.landmark || (face.landmark = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
 /// <reference path="../../basic/Point.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
@@ -5472,13 +5712,13 @@ var hiswill;
                     -------------------------------------------------------- */
                     function Nose(landmarks) {
                         _super.call(this, landmarks);
-                        this.tip = new faceAPI.basic.Point("tip");
-                        this.leftRoot = new faceAPI.basic.Point("leftRoot");
-                        this.rightRoot = new faceAPI.basic.Point("rightRoot");
-                        this.leftAlarTop = new faceAPI.basic.Point("leftAlarTop");
-                        this.rightAlarTop = new faceAPI.basic.Point("rightAlarTop");
-                        this.leftAlarOutTip = new faceAPI.basic.Point("leftAlarOutTip");
-                        this.rightAlarOutTip = new faceAPI.basic.Point("rightAlarOutTip");
+                        this.tip = new faceapi.basic.Point("tip");
+                        this.leftRoot = new faceapi.basic.Point("leftRoot");
+                        this.rightRoot = new faceapi.basic.Point("rightRoot");
+                        this.leftAlarTop = new faceapi.basic.Point("leftAlarTop");
+                        this.rightAlarTop = new faceapi.basic.Point("rightAlarTop");
+                        this.leftAlarOutTip = new faceapi.basic.Point("leftAlarOutTip");
+                        this.rightAlarOutTip = new faceapi.basic.Point("rightAlarOutTip");
                     }
                     Nose.prototype.constructByJSON = function (obj) {
                         this.tip.constructByJSON(obj["noseTip"]);
@@ -5528,16 +5768,16 @@ var hiswill;
                 })(landmark.FaceLandmark);
                 landmark.Nose = Nose;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../FaceAPI.ts" />
 /// <reference path="../../basic/Point.ts" />
 /// <reference path="Eye.ts" />
 var hiswill;
 (function (hiswill) {
-    var faceAPI;
-    (function (faceAPI) {
+    var faceapi;
+    (function (faceapi) {
         var face;
         (function (face) {
             var landmark;
@@ -5569,10 +5809,87 @@ var hiswill;
                         return _super.prototype.TAG.call(this);
                     };
                     return Pupil;
-                })(faceAPI.basic.Point);
+                })(faceapi.basic.Point);
                 landmark.Pupil = Pupil;
             })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceAPI.face || (faceAPI.face = {}));
-    })(faceAPI = hiswill.faceAPI || (hiswill.faceAPI = {}));
+        })(face = faceapi.face || (faceapi.face = {}));
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="basic/IJSONEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * 전역 클래스.
+         *
+         * @author 남정호
+         */
+        var Global = (function () {
+            function Global() {
+            }
+            /**
+             * 엔티티의 멤버를 JSON 객체로부터 구성한다.
+             */
+            Global.fetch = function (entity, json) {
+                for (var key in json) {
+                    if (typeof key != "string" || entity.hasOwnProperty(key) == false)
+                        continue;
+                    if (typeof entity[key] == "number" || typeof entity[key] == "string")
+                        entity[key] = json[key];
+                    else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray) {
+                        var json_entity = entity[key];
+                        json_entity.constructByJSON(json[key]);
+                    }
+                }
+            };
+            return Global;
+        })();
+        faceapi.Global = Global;
+        var Direction = (function () {
+            function Direction() {
+            }
+            Object.defineProperty(Direction, "LEFT", {
+                get: function () { return 1; },
+                enumerable: true,
+                configurable: true
+            });
+            ;
+            Object.defineProperty(Direction, "RIGHT", {
+                get: function () { return 2; },
+                enumerable: true,
+                configurable: true
+            });
+            ;
+            return Direction;
+        })();
+        faceapi.Direction = Direction;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="hiswill/faceapi/FaceAPI.ts" />
+var api = hiswill.faceapi;
+function main() {
+    var faceAPI = new api.FaceAPI();
+    var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
+    picture.detect();
+    trace("Detected");
+    //var faceList = faceAPI.createFaceList("other_group");
+    var personGroup = faceAPI.createPersonGroup("others");
+    for (var i = 0; i < 3; i++) {
+        var face = picture[i];
+        //faceList.push(face);
+        var person = new api.person.Person(personGroup, "my_name_" + (i + 1));
+        personGroup.push(person);
+        person.push(face);
+    }
+    trace("Registered");
+    personGroup.addEventListener("complete", function (ev) {
+        trace("Trained");
+        var face = picture[0];
+        var candidates = personGroup.identify(face, 2);
+        trace("Identified", candidates.toXML());
+    });
+    personGroup.train();
+}
 //# sourceMappingURL=FaceAPI.js.map

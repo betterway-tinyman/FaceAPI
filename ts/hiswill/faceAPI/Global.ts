@@ -2,7 +2,7 @@
 
 /// <reference path="basic/IJSONEntity.ts" />
 
-namespace hiswill.faceAPI
+namespace hiswill.faceapi
 {
     /**
      * 전역 클래스.

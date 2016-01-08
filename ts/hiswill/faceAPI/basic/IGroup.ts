@@ -1,10 +1,16 @@
 ﻿/// <reference path="IFaceAPI.ts" />
 
-namespace hiswill.faceAPI.basic
+namespace hiswill.faceapi.basic
 {
+    /**
+     * An interface for classes who are interacting with Face-API server and whose children
+     * also interact with the Face-API server, when they are inserted or removed, too.
+     *
+     * @author Jeongho Nam
+     */
     export interface IGroup<_Ty>
         extends IFaceAPI, 
-                Array<_Ty>
+                Array<_Ty>, IEntity
     {
         push(...items: _Ty[]): number;
         //{

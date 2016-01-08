@@ -2,31 +2,31 @@
 /// <reference path="../../jquery.d.ts" />
 
 /// <reference path="person/PersonGroupArray.ts" />
-/// <reference path="faceList/FaceListArray.ts" />
+/// <reference path="facelist/FaceListArray.ts" />
 /// <reference path="picture/PictureArray.ts" />
 
-namespace hiswill.faceAPI
+namespace hiswill.faceapi
 {
     /**
-     * Face API의 Facade controller 및 Factory 클래스.
+     * A facade controller and factory class for Face-API.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class FaceAPI
         extends Entity 
     {
         /**
-         * 사람 그룹 리스트.
+         * An array of PersonGroup.
          */
         protected personGroupArray: person.PersonGroupArray;
 
         /**
-         * 얼굴 리스트의 리스트.
+         * An array of FaceList.
          */
-        protected faceListArray: faceList.FaceListArray;
+        protected faceListArray: facelist.FaceListArray;
 
         /**
-         * 사진 리스트.
+         * An array of Picture.
          */
         protected pictureArray: picture.PictureArray;
 
@@ -34,19 +34,21 @@ namespace hiswill.faceAPI
             CONTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 기본 생성자.
+         * Default Constructor.
          */
         public constructor() 
         {
             super();
 
             this.personGroupArray = new person.PersonGroupArray(this);
-            this.faceListArray = new faceList.FaceListArray(this);
+            this.faceListArray = new facelist.FaceListArray(this);
             this.pictureArray = new picture.PictureArray(this);
         }
 
         /**
-         * Factory method of 사람 그룹.
+         * Factory method of PersonGroup.
+         *
+         * @param name Name of a new PersonGroup
          */
         public createPersonGroup(name: string): person.PersonGroup 
         {
@@ -57,22 +59,26 @@ namespace hiswill.faceAPI
         }
 
         /**
-         * Factory method of 얼굴 리스트.
+         * Factory method of FaceList.
+         *
+         * @apram name Name of a new FaceList.
          */
-        public createFaceList(name: string): faceList.FaceList 
+        public createFaceList(name: string): facelist.FaceList 
         {
-            var faceList: faceList.FaceList = new faceAPI.faceList.FaceList(this.faceListArray, name);
+            var faceList: facelist.FaceList = new faceapi.facelist.FaceList(this.faceListArray, name);
             this.faceListArray.push(faceList);
 
             return faceList;
         }
 
         /**
-         * Factory method of 사진.
+         * Factory method of Picture.
+         *
+         * @apram url URL-address of a new Picture.
          */
         public createPicture(url: string): picture.Picture 
         {
-            var picture: picture.Picture = new faceAPI.picture.Picture(this.pictureArray, url);
+            var picture: picture.Picture = new faceapi.picture.Picture(this.pictureArray, url);
             this.pictureArray.push(picture);
 
             return picture;
@@ -82,7 +88,7 @@ namespace hiswill.faceAPI
             GETTERS
         -------------------------------------------------------- */
         /**
-         * Get 사람 그룹 리스트.
+         * Get personGroupArray.
          */
         public getPersonGroupArray(): person.PersonGroupArray
         {
@@ -90,15 +96,15 @@ namespace hiswill.faceAPI
         }
 
         /**
-         * Get 얼굴 리스트의 리스트.
+         * Get faceListArray.
          */
-        public getFaceListArray(): faceList.FaceListArray
+        public getFaceListArray(): facelist.FaceListArray
         {
             return this.faceListArray;
         }
     
         /**
-         * Get 사진 리스트.
+         * Get pictureArray.
          */
         public getPictureArray(): picture.PictureArray 
         {
@@ -112,6 +118,7 @@ namespace hiswill.faceAPI
         {
             return "faceAPI";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();
@@ -128,7 +135,7 @@ namespace hiswill.faceAPI
             STATIC MEMBERS
         -------------------------------------------------------- */
         /**
-         * Face API 의 인증키.
+         * Certification key for Face-API server.
          */
         private static get CERTIFICATION_KEY(): string 
         {
@@ -136,15 +143,15 @@ namespace hiswill.faceAPI
         }
 
         /**
-         * Face API 서버에 질의문을 전송함.
+         * Query a formed-statement to Face-API server.
          *
-         * @param url 질의문을 보낼 HTTPS 주소
-         * @param method GET, POST 등
-         * @param params 선행으로 보낼 파라미터
-         * @param data 후행으로 보낼 데이터
-         * @param success 질의 성공시, reply 데이터에 대하여 수행할 함수
+         * @param url https address to query
+         * @param method One of them (GET, POST, UPDATE, DELETE, PATCH)
+         * @param params A pre-parameter
+         * @param data A post-parameter (body)
+         * @param success A method to be processed after the sending query is succeded.
          */
-        public static query(url: string, method:string, params: Object, data: Object, success:Function): void
+        public static query(url: string, method:string, params: Object, data: Object, success:Function, async: boolean = false): void
         {
             $.ajax
             ({
@@ -156,7 +163,7 @@ namespace hiswill.faceAPI
                     xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", FaceAPI.CERTIFICATION_KEY);
                 },
                 type: method,
-                async: false,
+                async: async,
 
                 data: (data == null) ? "" : JSON.stringify(data),
                 success: function (data, textStatus, xhr)
@@ -171,8 +178,16 @@ namespace hiswill.faceAPI
             });
         }
 
+        /**
+         * A automatically increasing sequence number used on issuing unique identifier code. </p>?
+         */
         private static sequence: number = 0;
 
+        /**
+         * Issue an unique identifier code. 
+         *
+         * @param prefix A word inserted in front of the automatically generated code.
+         */
         public static issueID(prefix: string): string
         {
             return prefix + "_hiswill_" + new Date().getTime() + "_" + (++FaceAPI.sequence);
