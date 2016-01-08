@@ -4,11 +4,22 @@
 
 namespace hiswill.faceapi.facelist
 {
+    /**
+     * <p> A FacePairArray for representing a face list. </p>
+     *
+     * <p> References </p>
+     * <ul>
+     *  <li> Creating a FaceList: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+     *  <li> Find Similar: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395237 </li>
+     * </ul>
+     *
+     * @inheritDoc
+     */
     export class FaceList
         extends face.FacePairArray
     {
         /**
-         * 상위 API 클래스.
+         * An array and parent of the FaceList.
          */
         protected listArray: FaceListArray;
 
@@ -16,7 +27,10 @@ namespace hiswill.faceapi.facelist
             CONTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 from API with 이름.
+         * Construct from a FaceListArray and name. 
+         *
+         * @param listArray An array and parent of the FaceList.
+         * @param name Name representing the FaceList.
          */ 
         public constructor(listArray: FaceListArray, name: string = "")
         {
@@ -34,21 +48,21 @@ namespace hiswill.faceapi.facelist
             INTERACTION WITH FACE API
         -------------------------------------------------------- */
         /**
-         * 현재의 FaceList를 Face API 서버에 등록.
+         * Insert the FaceList to the Face-API server.
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
          * </ul>
          */
         public insertToServer(): void
         {
-            // 식별자 번호 발급
+            // ISSUE ID
             if (this.id == "")
                 this.id = FaceAPI.issueID("face_list");
 
             var this_: FaceList = this;
 
-            // 서버에 등록
+            // REGISTER TO THE SERVER
             var url: string = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
             var method: string = "PUT";
         
@@ -64,52 +78,35 @@ namespace hiswill.faceapi.facelist
                 this_.registered = true;
             }
 
-            // 전송
+            // SEND
             FaceAPI.query(url, method, params, data, success);
         }
 
         /**
-         * 현재의 FaceList를 서버에서 지운다.
+         * Remove the FaceList from the Face-API server.
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
          * </ul>
          */
         public eraseFromServer(): void
         {
-            // 준비
+            // READY
             var url: string = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
             var method: string = "DELETE";
             var params: Object = { "faceListId": this.id };
         
-            // 전송
+            // SEND
             FaceAPI.query(url, method, params, null, null);
 
             super.eraseFromServer();
         }
 
-        protected notifySetName(name: string): void
-        {
-            FaceAPI.query
-            (
-                "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id,
-                "PATCH",
-
-                { "faceListId": this.id },
-                {
-                    "name": this.name,
-                    "userData": ""
-                },
-
-                null
-            );
-        }
-
         /**
-         * 새 Face가 현재 FaceList에 추가되었음을 Face API 서버에 알린다.
+         * Insert a child FacePair instance to the Face-API server
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
          * </ul>
          */
         public insertFaceToServer(face: face.FacePair): void
@@ -139,10 +136,10 @@ namespace hiswill.faceapi.facelist
         }
 
         /**
-         * 특정 Face가 현재의 FaceList로부터 제거되었음을 Face API 서버에 알린다.
+         * Remove a child FacePair instance from the Face-API server.
          *
          * <ul>
-         *  <li> 참고 자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
          * </ul>
          */
         public eraseFaceFromServer(face: face.FacePair): void
@@ -165,15 +162,53 @@ namespace hiswill.faceapi.facelist
         }
         
         /* --------------------------------------------------------
-            GETTERS
+            GETTERS & SETTERS
         -------------------------------------------------------- */
+        /**
+         * Get api in listArray.
+         */
         public getAPI(): FaceAPI
         {
             return this.listArray.getAPI();
         }
+
+        /**
+         * Get listArray.
+         */
         public getListArray(): FaceListArray
         {
             return this.listArray;
+        }
+
+        /**
+         * Set name and notify it to the Face-API server. 
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524e </li>
+         * </ul>
+         *
+         * @param name New name of the FacePairArray.
+         */
+        public setName(name: string): void
+        {
+            var this_ = this;
+
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id,
+                "PATCH",
+
+                { "faceListId": this.id },
+                {
+                    "name": this.name,
+                    "userData": ""
+                },
+
+                function (data)
+                {
+                    this_.name = name;
+                }
+            );
         }
 
         /* --------------------------------------------------------

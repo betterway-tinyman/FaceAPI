@@ -7,18 +7,26 @@
 namespace hiswill.faceapi.face.landmark 
 {
     /**
-     * 눈동자.
+     * An entity representing a pupil in an Eye.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class Pupil
         extends basic.Point
     {
+        /**
+         * An Eye the Pupil is belonged to.
+         */
         protected eye: Eye;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from an Eye. 
+         *
+         * @param eye An eye the Pupil is belonged to.
+         */
         public constructor(eye: Eye)
         {
             super("pupil");
@@ -29,6 +37,9 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get eye.
+         */
         public getEye(): Eye
         {
             return this.eye;

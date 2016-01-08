@@ -5,14 +5,17 @@
 namespace hiswill.faceapi
 {
     /**
-     * 전역 클래스.
+     * A static, utiltiy class.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class Global
     {
         /**
-         * 엔티티의 멤버를 JSON 객체로부터 구성한다.
+         * Construct member of an entity from a JSON object.
+         * 
+         * @param entity A target entity to construct member data.
+         * @param json JSON object containing member data.
          */
         public static fetch(entity: IEntity, json: Object): void
         {
@@ -32,9 +35,21 @@ namespace hiswill.faceapi
         }
     }
 
+    /**
+     * A static class for expressing direction.
+     *
+     * @author Jeongho Nam
+     */
     export class Direction 
     {
+        /**
+         * left, code 1.
+         */
         public static get LEFT(): number { return 1 };
+
+        /**
+         * right, code 2.
+         */
         public static get RIGHT(): number { return 2 };
     }
 }

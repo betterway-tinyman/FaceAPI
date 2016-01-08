@@ -7,20 +7,32 @@
 namespace hiswill.faceapi.person 
 {
     /**
-     * 사람 엔티티.
+     * <p> A FacePairArray for representing a person. </p>
      *
-     * @author 남정호
+     * <p> References </p>
+     * <ul>
+     *  <li> Creating a Person: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
+     *  <li> Identify: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+     * </ul>
+     *
+     * @inheritDoc
      */
     export class Person
         extends face.FacePairArray
     {
+        /**
+         * A group of Person instances.
+         */
         protected group: PersonGroup;
     
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 from PersonGroup with 이름
+         * Construct from a PersonGroup and name.
+         *
+         * @param group A group of Person instances.
+         * @param name A name representing the Person.
          */
         public constructor(group: PersonGroup, name: string = "")
         {
@@ -33,6 +45,13 @@ namespace hiswill.faceapi.person
         /* --------------------------------------------------------
             INTERACTION WITH FACE API
         -------------------------------------------------------- */
+        /**
+         * Insert the FaceList to the Face-API server.
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
+         * </ul>
+         */
         public insertToServer(): void
         {
             if (this.group.isRegistered() == false)
@@ -57,6 +76,14 @@ namespace hiswill.faceapi.person
                 }
             );
         }
+
+        /**
+         * Remove the FaceList from the Face-API server.
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523d </li>
+         * </ul>
+         */
         public eraseFromServer(): void
         {
             FaceAPI.query
@@ -76,27 +103,14 @@ namespace hiswill.faceapi.person
             this.id = "";
             super.eraseFromServer();
         }
-
-        protected notifySetName(name: string): void
-        {
-            FaceAPI.query
-            (
-                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id,
-                "PATCH",
-
-                { 
-                    "personGroupId": this.group.getID(),
-                    "personId": this.id
-                },
-                {
-                    "name": this.name,
-                    "userData": ""
-                },
-
-                null
-            );
-        }
-
+        
+        /**
+         * Insert a child FacePair instance to the Face-API server
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+         * </ul>
+         */
         public insertFaceToServer(face: face.FacePair): void
         {
             FaceAPI.query
@@ -120,6 +134,14 @@ namespace hiswill.faceapi.person
                 }
             );
         }
+
+        /**
+         * Remove a child FacePair instance from the Face-API server.
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523e </li>
+         * </ul>
+         */
         public eraseFaceFromServer(face: face.FacePair): void
         {
             FaceAPI.query
@@ -141,11 +163,48 @@ namespace hiswill.faceapi.person
         }
 
         /* --------------------------------------------------------
-            GETTERS
+            GETTERS & SETTERS
         -------------------------------------------------------- */
+        /**
+         * Get group.
+         */
         public getGroup(): PersonGroup
         {
             return this.group;
+        }
+
+        /**
+         * Set name and notify it to the Face-API server. 
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395242 </li>
+         * </ul>
+         *
+         * @param name New name.
+         */
+        public setName(name: string): void
+        {
+            var this_ = this;
+
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id,
+                "PATCH",
+
+                { 
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id
+                },
+                {
+                    "name": this.name,
+                    "userData": ""
+                },
+
+                function (data)
+                {
+                    this_.name = name;
+                }
+            );
         }
 
         /* --------------------------------------------------------

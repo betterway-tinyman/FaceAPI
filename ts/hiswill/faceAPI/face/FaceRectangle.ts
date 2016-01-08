@@ -6,7 +6,7 @@
 namespace hiswill.faceapi.face 
 {
     /**
-     * An abstract class having position and size data of rectangle representing a face in a picture.
+     * An abstract class having position and size data of rectangle which are representing a face in a picture.
      *
      * @author Jeongho Nam
      */

@@ -13,7 +13,7 @@
 /// <reference path="../picture/Picture.ts" />
 
 /**
- * A face.
+ * A face entity.
  *
  * @author Jeongho Nam
  */

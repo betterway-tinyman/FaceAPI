@@ -7,17 +7,40 @@
 
 namespace hiswill.faceapi.result
 {
+    /**
+     * An array and parent of CandidatePerson.
+     *
+     * @author Jeongho Nam
+     */
     export class CandidatePersonArray
         extends EntityArray<CandidatePerson>
         implements basic.IJSONEntity
     {
+        /**
+         * A facade controller and factory class for Face-API.
+         */
         protected api: FaceAPI;
+        
+        /**
+         * A face who wanted to find its owner.
+         */
         protected face: face.Face;
+        
+        /**
+         * A group of Person, candidates of owner.
+         */
         protected personGroup: person.PersonGroup;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a FaceAPI, Face and PersonGroup. 
+         *
+         * @param api A facade controller and factory class for Face-API.
+         * @param face A face who wanted to find its owner.
+         * @param personGroup A group of Person, candidates of owner.
+         */
         public constructor(api: FaceAPI, face: face.Face = null, personGroup: person.PersonGroup = null)
         {
             super();
@@ -91,14 +114,25 @@ namespace hiswill.faceapi.result
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get api.
+         */
         public getAPI(): FaceAPI
         {
             return this.api;
         }
+
+        /**
+         * Get face.
+         */
         public getFace(): face.Face
         {
             return this.face;
         }
+        
+        /**
+         * Get personGroup.
+         */
         public getPersonGroup(): person.PersonGroup
         {
             return this.personGroup;

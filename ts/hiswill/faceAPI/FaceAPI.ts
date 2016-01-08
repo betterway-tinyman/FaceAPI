@@ -150,6 +150,7 @@ namespace hiswill.faceapi
          * @param params A pre-parameter
          * @param data A post-parameter (body)
          * @param success A method to be processed after the sending query is succeded.
+         * @param async Whether to send query asynchronously. Default is false (synchronous query).
          */
         public static query(url: string, method:string, params: Object, data: Object, success:Function, async: boolean = false): void
         {

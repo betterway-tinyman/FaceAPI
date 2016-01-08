@@ -6,12 +6,28 @@
 
 namespace hiswill.faceapi.face.attribute 
 {
+    /**
+     * An abstract entity representing an attribute data belongs to a face.
+     *
+     * @author Jeongho Nam
+     */
     export class FaceAttribute
         extends Entity
         implements basic.IJSONEntity
     {
+        /**
+         * A group and parent of the FaceAttribute.
+         */
         protected attributes: FaceAttributes;
 
+        /* --------------------------------------------------------
+            CONSTRUCTORS
+        -------------------------------------------------------- */
+        /**
+         * Contruct from a FaceAttributes 
+         *
+         * @param attributes A group and parent of the FaceAttribute.
+         */
         public constructor(attributes: FaceAttributes)
         {
             super();
@@ -22,6 +38,17 @@ namespace hiswill.faceapi.face.attribute
         public constructByJSON(val: any): void 
         {
             Global.fetch(this, val);
+        }
+
+        /* --------------------------------------------------------
+            GETTERS
+        -------------------------------------------------------- */
+        /**
+         * Get attributes.
+         */
+        public getAttributes(): FaceAttributes
+        {
+            return this.attributes;
         }
     }
 }

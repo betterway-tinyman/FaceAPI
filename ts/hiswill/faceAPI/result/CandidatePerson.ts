@@ -12,14 +12,29 @@ namespace hiswill.faceapi.result
         extends Entity
         implements basic.IJSONEntity
     {
+        /**
+         * An array and parent of CandidatePerson.
+         */
         protected personArray: CandidatePersonArray;
 
+        /**
+         * A candidate person.
+         */
         protected person: person.Person;
+        
+        /**
+         * Degree of conformality, 0 ~ 1.
+         */
         protected confidence: number;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a CandidatePersonArray 
+         *
+         * @param personArray An array and parent of CandidatePerson.
+         */
         public constructor(personArray: CandidatePersonArray)
         {
             super();
@@ -59,15 +74,25 @@ namespace hiswill.faceapi.result
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Get personArray.
+         */
         public getPersonArray(): CandidatePersonArray
         {
             return this.personArray;
         }
 
+        /**
+         * Get person.
+         */
         public getPerson(): person.Person
         {
             return this.person;
         }
+
+        /**
+         * Get confidence.
+         */
         public getConfidence(): number
         {
             return this.confidence;

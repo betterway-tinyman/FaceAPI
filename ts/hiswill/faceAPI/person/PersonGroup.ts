@@ -242,7 +242,7 @@ namespace hiswill.faceapi.person
         }
 
         /**
-         * Insert the PersonGroup to Face-API server.
+         * Insert the PersonGroup to the Face-API server.
          *
          * <ul>
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
@@ -335,7 +335,7 @@ namespace hiswill.faceapi.person
         }
 
         /* --------------------------------------------------------
-            GETTERS
+            GETTERS & SETTERS
         -------------------------------------------------------- */
         public key(): any
         {
@@ -351,7 +351,7 @@ namespace hiswill.faceapi.person
         }
 
         /**
-         * Get ID.
+         * Get id.
          */
         public getID(): string
         {
@@ -377,6 +377,31 @@ namespace hiswill.faceapi.person
         public isTrained(): boolean
         {
             return this.trained;
+        }
+
+        /**
+         * Set name not only in PersonGroup but also in the Face-API server.
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524a </li>
+         * </ul>
+         *
+         * @param name New name
+         */
+        public setName(name: string): void
+        {
+            FaceAPI.query
+            (
+                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
+                "PATCH",
+
+                null,
+                {"name": name, "userData": ""},
+
+                null
+            );
+
+            this.name = name;
         }
 
         /* --------------------------------------------------------

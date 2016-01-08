@@ -10,22 +10,55 @@
 
 namespace hiswill.faceapi.face.attribute 
 {
+    /**
+     * <p> An entity representing attributes of a Face. </p>
+     *
+     * <p> FaceAttributes also takes a role of group and parent of FaceAttribute entities. </p>
+     *
+     * @author Jeongho Nam
+     */
     export class FaceAttributes
         extends Entity
         implements basic.IJSONEntity 
     {
+        /**
+         * A Face that the FaceAttributes is belonged to.
+         */
         protected face: Face;
 
+        /**
+         * Estimated age.
+         */
         protected age: number;
+
+        /**
+         * Estimated gender.
+         */
         protected gender: string;
+
+        /**
+         * Estimated degree of smile; 0 ~ 1.
+         */
         protected smile: number;
 
+        /**
+         * An entity representing density of facial hairs.
+         */
         protected facialHair: FacialHair;
+
+        /**
+         * An entity representing rotation of head.
+         */
         protected headPose: HeadPose;
 
         /* --------------------------------------------------------
             CONSTRUCTOR
         -------------------------------------------------------- */
+        /**
+         * Construct from a Face. 
+         *
+         * @param face A Face that the FaceAttributes are belonged to.
+         */
         public constructor(face: Face) 
         {
             super();
@@ -47,28 +80,49 @@ namespace hiswill.faceapi.face.attribute
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get face.
+         */
         public getFace(): Face
         {
             return this.face;
         }
 
+        /**
+         * Get age.
+         */
         public getAge(): number
         {
             return this.age;
         }
+
+        /**
+         * Get gender.
+         */
         public getGender(): string
         {
             return this.gender;
         }
+
+        /**
+         * Get smile.
+         */
         public getSmile(): number
         {
             return this.smile;
         }
 
+        /**
+         * Get facialHair.
+         */
         public getFacialHair(): FacialHair
         {
             return this.facialHair;
         }
+
+        /**
+         * Get headPose.
+         */
         public getHeadPose(): HeadPose
         {
             return this.headPose;
@@ -81,6 +135,7 @@ namespace hiswill.faceapi.face.attribute
         {
             return "attributes";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

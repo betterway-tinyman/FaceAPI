@@ -6,17 +6,32 @@
 
 namespace hiswill.faceapi.face.landmark 
 {
+    /**
+     * A FaceLandmark representing eyes.
+     *
+     * @author Jeongho Nam
+     */
     export class Eyes
         extends FaceLandmark
     {
-        protected landmarks: FaceLandmarks;
-
+        /**
+         * An eye on left.
+         */
         protected left: Eye;
+
+        /**
+         * An eye on right.
+         */
         protected right: Eye;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a FaceLandmarks. 
+         *
+         * @param landmarks A group and parent of the FaceLandmark.
+         */
         public constructor(landmarks: FaceLandmarks)
         {
             super(landmarks);
@@ -34,10 +49,17 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get left.
+         */
         public getLeft(): Eye
         {
             return this.left;
         }
+
+        /**
+         * Get right.
+         */
         public getRight(): Eye
         {
             return this.right;
@@ -50,6 +72,7 @@ namespace hiswill.faceapi.face.landmark
         {
             return "eyes";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

@@ -4,11 +4,16 @@
 
 namespace hiswill.faceapi.facelist
 {
+    /**
+     * An array and parent of FaceList entities.
+     *
+     * @author Jeongho Nam
+     */
     export class FaceListArray
         extends EntityArray<FaceList>
     {
         /**
-         * 상위 API 클래스.
+         * A facade controller and factory class for Face-API.
          */
         protected api: FaceAPI;
 
@@ -16,7 +21,9 @@ namespace hiswill.faceapi.facelist
             CONSTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 from API.
+         * Construct from a FaceAPI.
+         *
+         * @param api A facade controller and factory class for Face-API.
          */
         constructor(api: FaceAPI)
         {
@@ -34,7 +41,7 @@ namespace hiswill.faceapi.facelist
             GETTERS
         -------------------------------------------------------- */
         /**
-         * Get API.
+         * Get api.
          */
         public getAPI(): FaceAPI
         {

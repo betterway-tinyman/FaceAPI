@@ -5,15 +5,15 @@
 namespace hiswill.faceapi.person 
 {
     /**
-     * 사람 그룹 리스트 엔티티.
+     * An array and parent of PersonGroup entities.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class PersonGroupArray
         extends EntityArray<PersonGroup>
     {
         /**
-         * 상위 API 클래스.
+         * A facade controller and factory class for Face-API.
          */
         protected api: FaceAPI;
 
@@ -21,7 +21,9 @@ namespace hiswill.faceapi.person
             CONSTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 from API.
+         * Construct from a FaceAPI.
+         *
+         * @param api A facade controller and factory class for Face-API.
          */
         constructor(api: FaceAPI)
         {
@@ -39,7 +41,7 @@ namespace hiswill.faceapi.person
             GETTERS
         -------------------------------------------------------- */
         /**
-         * Get API.
+         * Get api.
          */
         public getAPI(): FaceAPI
         {

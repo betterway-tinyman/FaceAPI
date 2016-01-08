@@ -7,16 +7,35 @@
 
 namespace hiswill.faceapi.face.landmark 
 {
+    /**
+     * A FaceLandmark representing a mouth.
+     */
     export class Mouth
         extends FaceLandmark
     {
+        /**
+         * A lip that the Mouth is contaning in.
+         */
         protected lip: Lip;
+
+        /**
+         * Left position.
+         */
         protected left: basic.Point;
+
+        /**
+         * Right position.
+         */
         protected right: basic.Point;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a FaceLandmarks. 
+         *
+         * @param landmarks A group and parent of the FaceLandmark.
+         */
         public constructor(landmarks: FaceLandmarks)
         {
             super(landmarks);
@@ -37,14 +56,25 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get lip.
+         */
         public getLip(): Lip
         {
             return this.lip;
         }
+
+        /**
+         * Get left.
+         */
         public getLeft(): basic.Point
         {
             return this.left;
         }
+        
+        /**
+         * Get right.
+         */
         public getRight(): basic.Point
         {
             return this.right;
@@ -57,6 +87,7 @@ namespace hiswill.faceapi.face.landmark
         {
             return "mouth";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

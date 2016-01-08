@@ -5,20 +5,25 @@
 namespace hiswill.faceapi.picture 
 {
     /**
-     * 사진 목록.
-     * 
-     * @author 남정호
+     * An array and parent of Picture entities.
+     *
+     * @author Jeongho Nam
      */
     export class PictureArray
         extends EntityArray<Picture>
     {
+        /**
+         * A facade controller and factory class for Face-API.
+         */
         protected api: FaceAPI;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 생성자 from API.
+         * Construct from a FaceAPI.
+         *
+         * @param api A facade controller and factory class for Face-API.
          */
         public constructor(api: FaceAPI) 
         {
@@ -35,6 +40,19 @@ namespace hiswill.faceapi.picture
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get api.
+         */
+        public getAPI(): FaceAPI
+        {
+            return this.api;
+        }
+
+        /**
+         * Test whether the PictureArray has a Picture having an url.
+         *
+         * @param url URL-address used as a key in the test.
+         */
         public hasURL(url: string): boolean 
         {
             for (var i: number = 0; i < this.length; i++)
@@ -44,6 +62,12 @@ namespace hiswill.faceapi.picture
             return false;
         }
 
+        /**
+         * Get a Picture instance having the target url.
+         *
+         * @param url URL-address used as a key in the retrieve.
+         * @return A Picture has the url.
+         */
         public getByURL(url: string): Picture 
         {
             for (var i: number = 0; i < this.length; i++)

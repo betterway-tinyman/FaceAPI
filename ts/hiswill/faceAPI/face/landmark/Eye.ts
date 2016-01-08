@@ -8,23 +8,59 @@
 
 namespace hiswill.faceapi.face.landmark 
 {
+    /**
+     * An entity representing an eye.
+     *
+     * @author Jeongho Nam
+     */
     export class Eye 
         extends Entity
         implements basic.IJSONEntity
     {
+        /**
+         * A parent entity containing two Eye(s).
+         */
         protected eyes: Eyes;
+
+        /**
+         * Direction of placed in.
+         */
         protected direction: number;
 
+        /**
+         * Position of top.
+         */
         protected top: basic.Point;
+        
+        /**
+         * Position of top.
+         */
         protected bottom: basic.Point;
+        
+        /**
+         * Position of top.
+         */
         protected inner: basic.Point;
+        
+        /**
+         * Position of top.
+         */
         protected outer: basic.Point;
 
+        /**
+         * An entity representing a pupil belongs to the Eye.
+         */
         protected pupil: Pupil;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from an Eyes and direction. 
+         *
+         * @param eyes A parent entity containing two Eye(s).
+         * @param direction Direction of placed in.
+         */
         public constructor(eyes: Eyes, direction: number)
         {
             super();
@@ -65,10 +101,17 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get eyes.
+         */
         public getEyes(): Eyes
         {
             return this.eyes;
         }
+
+        /**
+         * Get opposite side's Eye.
+         */
         public getOpposite(): Eye
         {
             if (this.direction == Direction.LEFT)
@@ -77,23 +120,41 @@ namespace hiswill.faceapi.face.landmark
                 return this.eyes.getLeft();
         }
 
+        /**
+         * Get top.
+         */
         public getTop(): basic.Point
         {
             return this.top;
         }
+
+        /**
+         * Get bottom.
+         */
         public getBottom(): basic.Point 
         {
             return this.bottom;
         }
+
+        /**
+         * Get inner.
+         */
         public getInner(): basic.Point 
         {
             return this.inner;
         }
+
+        /**
+         * Get outer.
+         */
         public getOuter(): basic.Point 
         {
             return this.outer;
         }
 
+        /**
+         * Get pupil.
+         */
         public getPupil(): Pupil
         {
             return this.pupil;
@@ -109,6 +170,7 @@ namespace hiswill.faceapi.face.landmark
             else
                 return "right";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

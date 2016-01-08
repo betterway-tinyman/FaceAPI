@@ -7,7 +7,13 @@
 namespace hiswill.faceapi.face
 {
     /**
-     * An abstract class containing FacePair objects as an array and parent of them.
+     * <p> An abstract class containing FacePair objects as an array and parent of them. </p>
+     *
+     * <p> Reference </p>
+     * <ul>
+     *  <li> Add a Face into a FaceList: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+     *  <li> Add a Face into a Person: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+     * </ul>
      *
      * @author Jeongho Nam
      */
@@ -98,27 +104,23 @@ namespace hiswill.faceapi.face
         /* --------------------------------------------------------
             INTERACTION WITH FACE API SERVER
         -------------------------------------------------------- */
+        /**
+         * An abstract method to inserting the FacePairArray to the Face-API server.
+         */
         public insertToServer(): void
         {
             // TO BE OVERRIDEN
         }
 
+        /**
+         * An abstract method to removing the FacePairArray from the Face-API server.
+         */
         public eraseFromServer(): void
         {
             // TO BE OVERRIDEN
             // ...
 
             this.registered = false;
-        }
-
-        /**
-         * Notify the name is changed to Face-API server.
-         *
-         * @param name New name of the FacePairArray.
-         */
-        protected notifySetName(name: string): void 
-        {
-            // SOMETHING TO BE OVERRIDEN
         }
 
         /**
@@ -183,14 +185,12 @@ namespace hiswill.faceapi.face
         }
 
         /**
-         * Set name 
+         * Set name and notify it to the Face-API server.
          *
          * @param name New name.
          */
         public setName(name: string): void
         {
-            this.notifySetName(name);
-
             this.name = name;
         }
 

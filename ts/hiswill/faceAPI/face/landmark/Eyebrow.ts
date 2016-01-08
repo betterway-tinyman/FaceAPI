@@ -9,23 +9,43 @@
 namespace hiswill.faceapi.face.landmark 
 {
     /**
-     * 눈썹.
+     * An entity representing an eyebrow.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class Eyebrow 
         extends Entity
         implements basic.IJSONEntity
     {
+        /**
+         * A parent entity containing two Eyebrow(s).
+         */
         protected eyeBrows: Eyebrows;
+
+        /**
+         * Direction of placed in.
+         */
         protected direction: number;
 
+        /**
+         * Position of inner.
+         */
         protected inner: basic.Point;
+
+        /**
+         * Position of outer.
+         */
         protected outer: basic.Point;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from an Eyebrows and direction. 
+         *
+         * @param eyeBrows A parent entity containing two Eyebrow(s).
+         * @param direction Direction of placed in.
+         */
         public constructor(eyeBrows: Eyebrows, direction: number)
         {
             super();
@@ -54,10 +74,17 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get eyeBrows.
+         */
         public getEyeBrows(): Eyebrows
         {
             return this.eyeBrows;
         }
+
+        /**
+         * Get opposite side's Eyebrow.
+         */
         public getOpposite(): Eyebrow
         {
             if (this.direction == Direction.LEFT)
@@ -66,10 +93,17 @@ namespace hiswill.faceapi.face.landmark
                 return this.eyeBrows.getLeft();
         }
 
+        /**
+         * Get inner.
+         */
         public getInner(): basic.Point
         {
             return this.inner;
         }
+
+        /**
+         * Get outer.
+         */
         public getOuter(): basic.Point
         {
             return this.outer;
@@ -85,6 +119,7 @@ namespace hiswill.faceapi.face.landmark
             else
                 return "right";
         }
+
         public toXML(): XML 
         {
             var xml: XML = super.toXML();

@@ -6,23 +6,57 @@
 
 namespace hiswill.faceapi.face.landmark 
 {
+    /**
+     * A FaceLandmark representing a nose.
+     *
+     * @author Jeongho Nam
+     */
     export class Nose
         extends FaceLandmark
     {
+        /**
+         * Position of nose tip.
+         */
         protected tip: basic.Point;
     
+        /**
+         * Position of left root.
+         */
         protected leftRoot: basic.Point;
+
+        /**
+         * Position of right root.
+         */
         protected rightRoot: basic.Point;
     
+        /**
+         * Position of left alar top.
+         */
         protected leftAlarTop: basic.Point;
+
+        /**
+         * Poistion of right alar top.
+         */
         protected rightAlarTop: basic.Point;
     
+        /**
+         * Position of left alar out tip.
+         */
         protected leftAlarOutTip: basic.Point;
+
+        /**
+         * Position of right alar out tip.
+         */
         protected rightAlarOutTip: basic.Point;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a FaceLandmarks. 
+         *
+         * @param landmarks A group and parent of the FaceLandmark.
+         */
         public constructor(landmarks: FaceLandmarks)
         {
             super(landmarks);
@@ -56,33 +90,57 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get tip.
+         */
         public getTip(): basic.Point
         {
             return this.tip;
         }
 
+        /**
+         * Get leftRoot.
+         */
         public getLeftRoot(): basic.Point
         {
             return this.leftRoot;
         }
+
+        /**
+         * Get rightRoot.
+         */
         public getRightRoot(): basic.Point
         {
             return this.rightRoot;
         }
 
+        /**
+         * Get leftAlarTop.
+         */
         public getLeftAlarTop(): basic.Point
         {
             return this.leftAlarTop;
         }
+
+        /**
+         * Get rightAlarTop.
+         */
         public getRightAlarTop(): basic.Point
         {
             return this.rightAlarTop;
         }
 
+        /**
+         * Get letAlarOutTip.
+         */
         public getLeftAlarOutTip(): basic.Point
         {
             return this.leftAlarOutTip;
         }
+
+        /**
+         * Get rightAlarOutTip.
+         */
         public getRightAlarOutTip(): basic.Point
         {
             return this.rightAlarOutTip;
@@ -95,6 +153,7 @@ namespace hiswill.faceapi.face.landmark
         {
             return "nose";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

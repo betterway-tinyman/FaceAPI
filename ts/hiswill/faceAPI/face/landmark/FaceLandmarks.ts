@@ -12,24 +12,47 @@
 namespace hiswill.faceapi.face.landmark 
 {
     /**
-     * 얼굴의 주요 요소 엔티티.
+     * A group and parent of FaceLandmark entities.
      *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class FaceLandmarks 
         extends Entity
         implements basic.IJSONEntity
     {
+        /**
+         * A Face that the FaceLandmarks is belonged to.
+         */
         protected face: Face;
 
+        /**
+         * A FaceLandmark representing eyebrows.
+         */
         protected eyeBrows: Eyebrows;
+
+        /**
+         * A FaceLandmark representing eyes.
+         */
         protected eyes: Eyes;
+
+        /**
+         * A FaceLandmark representing a nose.
+         */
         protected nose: Nose;
+
+        /**
+         * A FaceLandmark representing a mouth.
+         */
         protected mouth: Mouth;
 
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a Face. 
+         *
+         * @param face A Face that the FaceLandmarks is belonged to.
+         */
         public constructor(face: Face)
         {
             super();
@@ -52,23 +75,41 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get face.
+         */
         public getFace(): Face
         {
             return this.face;
         }
     
+        /**
+         * Get eyeBrowss.
+         */
         public getEyeBrows(): Eyebrows
         {
             return this.eyeBrows;
         }
+
+        /**
+         * Get eyes.
+         */
         public getEyes(): Eyes
         {
             return this.eyes;
         }
+
+        /**
+         * Get nose.
+         */
         public getNose(): Nose
         {
             return this.nose;
         }
+
+        /**
+         * Get mouth.
+         */
         public getMouth(): Mouth
         {
             return this.mouth;
@@ -81,6 +122,7 @@ namespace hiswill.faceapi.face.landmark
         {
             return "landmarks";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

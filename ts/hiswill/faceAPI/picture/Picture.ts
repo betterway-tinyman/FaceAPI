@@ -8,23 +8,21 @@
 namespace hiswill.faceapi.picture
 {
     /**
-     * <p> 사진 엔티티. </p>
+     * <p> A picture entity who containing Face entities. </p>
      *
-     * <ul>
-     *  <li> 한 장의 사진에 여럿의 얼굴이 들어있다. </li>
-     *  <li> 한 장의 사진은 여럿의 사람을 참조한다. </li>
-     * </ul>
-     *
-     * @author 남정호
+     * @author Jeongho Nam
      */
     export class Picture 
         extends EntityArray<face.Face>
         implements basic.IJSONEntity
     {
+        /**
+         * An array and parent of Picture entities.
+         */
         protected pictureArray: PictureArray;
 
         /**
-         * 그림이 저장된 URL.
+         * An url-address the (physical) picture is placed in.
          */
         protected url: string;
 
@@ -32,7 +30,10 @@ namespace hiswill.faceapi.picture
             CONTRUCTORS
         -------------------------------------------------------- */
         /**
-         * 기본 생성자.
+         * Construct from an PictureArray and url. 
+         *
+         * @param pictureArray An array and parent of Picture entities.
+         * @param url An url-address the (physical) picture is placed in.
          */
         public constructor(pictureArray: PictureArray, url: string = "") 
         {
@@ -70,10 +71,17 @@ namespace hiswill.faceapi.picture
             return this.url;
         }
     
+        /**
+         * Get pictureArray.
+         */
         public getPictureArray(): PictureArray
         {
             return this.pictureArray;
         }
+
+        /**
+         * Get url.
+         */
         public getURL(): string
         {
             return this.url;
@@ -83,10 +91,10 @@ namespace hiswill.faceapi.picture
             INTERACTION WITH FACE-API
         -------------------------------------------------------- */
         /**
-         * <p> 사진 속 얼굴들을 감지해낸다. </p>
+         * <p> Detect Face(s) in the Picture. </p>
          *
          * <ul>
-         *  <li> 참고자료: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
          * </ul>
          */
         public detect(): void 

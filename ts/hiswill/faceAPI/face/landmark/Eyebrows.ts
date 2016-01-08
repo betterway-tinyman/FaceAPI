@@ -7,17 +7,31 @@
 namespace hiswill.faceapi.face.landmark 
 {
     /**
-     * 눈썹 둘.
+     * A FaceLandmark representing eyebrows.
+     *
+     * @author Jeongho Nam
      */
     export class Eyebrows
         extends FaceLandmark
     {
+        /**
+         * An Eyebrow on left.
+         */
         protected left: Eyebrow;
+
+        /**
+         * An Eyebrow on right.
+         */
         protected right: Eyebrow;
 
         /* --------------------------------------------------------
             CONSTRUCTORS
         -------------------------------------------------------- */
+        /**
+         * Construct from a FaceLandmarks. 
+         *
+         * @param landmarks A group and parent of the FaceLandmark.
+         */
         public constructor(landmarks: FaceLandmarks)
         {
             super(landmarks);
@@ -35,11 +49,17 @@ namespace hiswill.faceapi.face.landmark
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * Get left.
+         */
         public getLeft(): Eyebrow
         {
             return this.left;
         }
 
+        /**
+         * Get right.
+         */
         public getRight(): Eyebrow
         {
             return this.right;
@@ -52,6 +72,7 @@ namespace hiswill.faceapi.face.landmark
         {
             return "eyeBrows";
         }
+
         public toXML(): XML
         {
             var xml: XML = super.toXML();

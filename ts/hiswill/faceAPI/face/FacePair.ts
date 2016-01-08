@@ -8,7 +8,7 @@
 namespace hiswill.faceapi.face 
 {
     /**
-     * <p> An entity directing a Face and its basic data. </p>
+     * <p> A FaceRectangle directing a Face. </p>
      *
      * <p> Reference </p>
      * <ul>
