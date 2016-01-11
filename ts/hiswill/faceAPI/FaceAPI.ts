@@ -1,5 +1,4 @@
 ﻿/// <reference path="../../SamchonFramework.ts" />
-/// <reference path="../../jquery.d.ts" />
 
 /// <reference path="PersonGroupArray.ts" />
 /// <reference path="FaceListArray.ts" />

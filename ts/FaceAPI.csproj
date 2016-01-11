@@ -53,7 +53,6 @@
     <TypeScriptCompile Include="hiswill\faceapi\IFaceAPI.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\IGroup.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\IJSONEntity.ts" />
-    <TypeScriptCompile Include="jquery.d.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Lip.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Mouth.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Nose.ts" />
@@ -65,6 +64,8 @@
     <TypeScriptCompile Include="hiswill\faceapi\Point.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Pupil.ts" />
     <TypeScriptCompile Include="SamchonFramework.ts" />
+    <TypeScriptCompile Include="Scripts\typings\fabricjs\fabricjs.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
@@ -73,6 +74,7 @@
     <Content Include="web.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="packages.config" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
     </None>
