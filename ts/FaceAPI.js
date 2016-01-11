@@ -1,4 +1,3 @@
-/// <reference path="IFaceAPI.ts" />
 /*function test()
 {
     var productArray: ProductArray = new ProductArray();
@@ -3369,548 +3368,567 @@ var PackerSlaveSystem = (function (_super) {
     };
     return PackerSlaveSystem;
 })(SlaveSystem);
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * An entity representing coordinates X and Y.
+         *
+         * @author Jeongho Nam
+         */
+        var Point = (function (_super) {
+            __extends(Point, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a XML tag name.
+             */
+            function Point(tag) {
+                if (tag === void 0) { tag = ""; }
+                _super.call(this);
+                this.tag = tag;
+                this.x = 0;
+                this.y = 0;
+            }
+            Point.prototype.constructByJSON = function (val) {
+                faceapi.Global.fetch(this, val);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get coordinate X.
+             */
+            Point.prototype.getX = function () {
+                return this.x;
+            };
+            /**
+             * Get coordinate Y.
+             */
+            Point.prototype.getY = function () {
+                return this.y;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Point.prototype.TAG = function () {
+                return this.tag;
+            };
+            Point.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.eraseProperty("tag");
+                return xml;
+            };
+            return Point;
+        })(Entity);
+        faceapi.Point = Point;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="Point.ts" />
+/// <reference path="IJSonEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * An abstract class having position and size data of rectangle which are representing a face in a picture.
+         *
+         * @author Jeongho Nam
+         */
+        var FaceRectangle = (function (_super) {
+            __extends(FaceRectangle, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Default Constructor.
+             */
+            function FaceRectangle() {
+                _super.call(this);
+                this.width = 0;
+                this.height = 0;
+            }
+            FaceRectangle.prototype.constructByJSON = function (obj) {
+                faceapi.Global.fetch(this, obj);
+                this.x = obj["left"];
+                this.y = obj["top"];
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get width.
+             */
+            FaceRectangle.prototype.getWidth = function () {
+                return this.width;
+            };
+            /**
+             * Get height.
+             */
+            FaceRectangle.prototype.getHeight = function () {
+                return this.height;
+            };
+            return FaceRectangle;
+        })(faceapi.Point);
+        faceapi.FaceRectangle = FaceRectangle;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="../basic/IFaceAPI.ts" />
+/// <reference path="IFaceAPI.ts" />
 /// <reference path="FacePairArray.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face_1) {
+        /**
+         * <p> A FaceRectangle directing a Face. </p>
+         *
+         * <p> Reference </p>
+         * <ul>
+         *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+         *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+         * </ul>
+         *
+         * @author Jeongho Nam
+         */
+        var FacePair = (function (_super) {
+            __extends(FacePair, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * <p> A FaceRectangle directing a Face. </p>
+             * Construct from a FacePairArray.
              *
-             * <p> Reference </p>
-             * <ul>
-             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
-             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
-             * </ul>
-             *
-             * @author Jeongho Nam
+             * @param pairArray An array and parent of the FacePair.
              */
-            var FacePair = (function (_super) {
-                __extends(FacePair, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a FacePairArray.
-                 *
-                 * @param pairArray An array and parent of the FacePair.
-                 */
-                function FacePair(pairArray) {
-                    _super.call(this);
-                    this.pairArray = pairArray;
-                    this.id = "";
-                    this.pictureURL = "";
-                    this.registered = false;
-                    this.face = null;
+            function FacePair(pairArray) {
+                _super.call(this);
+                this.pairArray = pairArray;
+                this.id = "";
+                this.pictureURL = "";
+                this.registered = false;
+                this.face = null;
+            }
+            FacePair.prototype.construct = function (xml) {
+                _super.prototype.construct.call(this, xml);
+                if (xml.hasProperty("faceID") == true) {
+                    var pictureURL = xml.getProperty("pictureURL");
+                    var faceID = xml.getProperty("faceID");
+                    var pictureArray = this.pairArray.getFaceAPI().getPictureArray();
+                    if (pictureArray.hasURL(pictureURL) == true && pictureArray.getByURL(pictureURL).has(faceID) == true)
+                        this.face = pictureArray.getByURL(pictureURL).get(faceID);
                 }
-                FacePair.prototype.construct = function (xml) {
-                    _super.prototype.construct.call(this, xml);
-                    if (xml.hasProperty("faceID") == true) {
-                        var pictureURL = xml.getProperty("pictureURL");
-                        var faceID = xml.getProperty("faceID");
-                        var pictureArray = this.pairArray.getFaceAPI().getPictureArray();
-                        if (pictureArray.hasURL(pictureURL) == true && pictureArray.getByURL(pictureURL).has(faceID) == true)
-                            this.face = pictureArray.getByURL(pictureURL).get(faceID);
-                    }
-                    else
-                        this.face = null;
-                };
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API SERVER
-                -------------------------------------------------------- */
-                FacePair.prototype.insertToServer = function () {
-                    this.pairArray.insertFaceToServer(this);
-                };
-                FacePair.prototype.eraseFromServer = function () {
-                    this.pairArray.eraseFaceFromServer(this);
-                    this.registered = false;
-                };
-                /* --------------------------------------------------------
-                    SETTERS & GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Set (related) file.
-                 *
-                 * @param face A related file with the FacePair.
-                 */
-                FacePair.prototype.setFile = function (face) {
-                    this.face = face;
-                    this.pictureURL = face.getPicture().getURL();
-                    this.setRectangle(face);
-                };
-                /**
-                 * <p> Set rectangle data.
-                 * Constructs members of FaceRectangle, basic class of the FacePair.
-                 *
-                 * @param rectangle A FaceRentangle instance to copy.
-                 */
-                FacePair.prototype.setRectangle = function (rectangle) {
-                    // POINT'S MEMBERS
-                    this.x = rectangle.getX();
-                    this.y = rectangle.getY();
-                    // FACE_RECTANGLE'S MEMBERS
-                    this.width = rectangle.getWidth();
-                    this.height = rectangle.getHeight();
-                };
-                /**
-                 * Set identifier.
-                 *
-                 * @param id An identifier gotten from Face-API server.
-                 */
-                FacePair.prototype.setID = function (id) {
-                    this.id = id;
-                    this.registered = (id != "");
-                };
-                FacePair.prototype.key = function () {
-                    return this.id;
-                };
-                /**
-                 * Get pairArray.
-                 */
-                FacePair.prototype.getPairArray = function () {
-                    return this.pairArray;
-                };
-                /**
-                 * Get face.
-                 */
-                FacePair.prototype.getFace = function () {
-                    return this.face;
-                };
-                /**
-                 * Get id.
-                 */
-                FacePair.prototype.getID = function () {
-                    return this.id;
-                };
-                /**
-                 * Get pictureURL.
-                 */
-                FacePair.prototype.getPictureURL = function () {
-                    return this.pictureURL;
-                };
-                FacePair.prototype.isRegistered = function () {
-                    return this.registered;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                FacePair.prototype.TAG = function () {
-                    return "facePair";
-                };
-                FacePair.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    if (this.face != null)
-                        xml.setProperty("faceID", this.face.getID());
-                    return xml;
-                };
-                return FacePair;
-            })(face_1.FaceRectangle);
-            face_1.FacePair = FacePair;
-        })(face = faceapi.face || (faceapi.face = {}));
+                else
+                    this.face = null;
+            };
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE API SERVER
+            -------------------------------------------------------- */
+            FacePair.prototype.insertToServer = function () {
+                this.pairArray.insertFaceToServer(this);
+            };
+            FacePair.prototype.eraseFromServer = function () {
+                this.pairArray.eraseFaceFromServer(this);
+                this.registered = false;
+            };
+            /* --------------------------------------------------------
+                SETTERS & GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Set (related) file.
+             *
+             * @param face A related file with the FacePair.
+             */
+            FacePair.prototype.setFile = function (face) {
+                this.face = face;
+                this.pictureURL = face.getPicture().getURL();
+                this.setRectangle(face);
+            };
+            /**
+             * <p> Set rectangle data.
+             * Constructs members of FaceRectangle, basic class of the FacePair.
+             *
+             * @param rectangle A FaceRentangle instance to copy.
+             */
+            FacePair.prototype.setRectangle = function (rectangle) {
+                // POINT'S MEMBERS
+                this.x = rectangle.getX();
+                this.y = rectangle.getY();
+                // FACE_RECTANGLE'S MEMBERS
+                this.width = rectangle.getWidth();
+                this.height = rectangle.getHeight();
+            };
+            /**
+             * Set identifier.
+             *
+             * @param id An identifier gotten from Face-API server.
+             */
+            FacePair.prototype.setID = function (id) {
+                this.id = id;
+                this.registered = (id != "");
+            };
+            FacePair.prototype.key = function () {
+                return this.id;
+            };
+            /**
+             * Get pairArray.
+             */
+            FacePair.prototype.getPairArray = function () {
+                return this.pairArray;
+            };
+            /**
+             * Get face.
+             */
+            FacePair.prototype.getFace = function () {
+                return this.face;
+            };
+            /**
+             * Get id.
+             */
+            FacePair.prototype.getID = function () {
+                return this.id;
+            };
+            /**
+             * Get pictureURL.
+             */
+            FacePair.prototype.getPictureURL = function () {
+                return this.pictureURL;
+            };
+            FacePair.prototype.isRegistered = function () {
+                return this.registered;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FacePair.prototype.TAG = function () {
+                return "facePair";
+            };
+            FacePair.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                if (this.face != null)
+                    xml.setProperty("faceID", this.face.getID());
+                return xml;
+            };
+            return FacePair;
+        })(faceapi.FaceRectangle);
+        faceapi.FacePair = FacePair;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="IFaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
 ///     <reference path="FacePair.ts" />
-/// <reference path="../basic/IGroup.ts" />
+/// <reference path="IGroup.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face_2) {
+        /**
+         * <p> An abstract class containing FacePair objects as an array and parent of them. </p>
+         *
+         * <p> Reference </p>
+         * <ul>
+         *  <li> Add a Face into a FaceList: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+         *  <li> Add a Face into a Person: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+         * </ul>
+         *
+         * @author Jeongho Nam
+         */
+        var FacePairArray = (function (_super) {
+            __extends(FacePairArray, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * <p> An abstract class containing FacePair objects as an array and parent of them. </p>
+             * Construct from name.
              *
-             * <p> Reference </p>
-             * <ul>
-             *  <li> Add a Face into a FaceList: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
-             *  <li> Add a Face into a Person: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
-             * </ul>
-             *
-             * @author Jeongho Nam
+             * @param name Name representing the FacePairArray.
              */
-            var FacePairArray = (function (_super) {
-                __extends(FacePairArray, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from name.
-                 *
-                 * @param name Name representing the FacePairArray.
-                 */
-                function FacePairArray(name) {
-                    if (name === void 0) { name = ""; }
-                    _super.call(this);
-                    this.id = "";
-                    this.name = name;
-                    this.registered = false;
+            function FacePairArray(name) {
+                if (name === void 0) { name = ""; }
+                _super.call(this);
+                this.id = "";
+                this.name = name;
+                this.registered = false;
+            }
+            FacePairArray.prototype.createChild = function (xml) {
+                return new faceapi.FacePair(this);
+            };
+            /* --------------------------------------------------------
+                OPERATORS
+            -------------------------------------------------------- */
+            FacePairArray.prototype.push = function () {
+                var items = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    items[_i - 0] = arguments[_i];
                 }
-                FacePairArray.prototype.createChild = function (xml) {
-                    return new face_2.FacePair(this);
-                };
-                /* --------------------------------------------------------
-                    OPERATORS
-                -------------------------------------------------------- */
-                FacePairArray.prototype.push = function () {
-                    var items = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        items[_i - 0] = arguments[_i];
+                if (this.isRegistered() == false)
+                    this.insertToServer();
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i] instanceof faceapi.FacePair == false) {
+                        var pair = new faceapi.FacePair(this);
+                        if (items[i] instanceof faceapi.Face)
+                            pair.setFile(items[i]);
+                        else
+                            pair.setRectangle(items[i]);
+                        // 서버에 등록
+                        pair.insertToServer();
+                        // 대치
+                        items[i] = pair;
                     }
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    for (var i = 0; i < items.length; i++) {
-                        if (items[i] instanceof face_2.FacePair == false) {
-                            var pair = new face_2.FacePair(this);
-                            if (items[i] instanceof face_2.Face)
-                                pair.setFile(items[i]);
-                            else
-                                pair.setRectangle(items[i]);
-                            // 서버에 등록
-                            pair.insertToServer();
-                            // 대치
-                            items[i] = pair;
-                        }
-                    }
-                    return _super.prototype.push.apply(this, items);
-                };
-                FacePairArray.prototype.splice = function (start, end) {
-                    var items = [];
-                    for (var _i = 2; _i < arguments.length; _i++) {
-                        items[_i - 2] = arguments[_i];
-                    }
-                    // Remove the elements from Face-API server.
-                    for (var i = start; i < Math.min(start + end, this.length); i++)
-                        this[i].eraseFromServer();
-                    // To return
-                    var output = _super.prototype.splice.call(this, start, end);
-                    this.push.apply(this, items);
-                    return output;
-                };
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API SERVER
-                -------------------------------------------------------- */
-                /**
-                 * An abstract method to inserting the FacePairArray to the Face-API server.
-                 */
-                FacePairArray.prototype.insertToServer = function () {
-                    // TO BE OVERRIDEN
-                };
-                /**
-                 * An abstract method to removing the FacePairArray from the Face-API server.
-                 */
-                FacePairArray.prototype.eraseFromServer = function () {
-                    // TO BE OVERRIDEN
-                    // ...
-                    this.registered = false;
-                };
-                /**
-                 * An abstract method inserting the child FacePair instance to the Face-API server.
-                 *
-                 * @param face A newly inserted FacePair object.
-                 */
-                FacePairArray.prototype.insertFaceToServer = function (face) {
-                    // TO BE OVERRIDEN
-                };
-                /**
-                 * An abstract method removing the child FacePair instance from the Face-API server.
-                 *
-                 * @param face A just removed FacePair object.
-                 */
-                FacePairArray.prototype.eraseFaceFromServer = function (face) {
-                    // TO BE OVERRIDEN
-                    // ...
-                    face.setID("");
-                };
-                /* --------------------------------------------------------
-                    GETTERS & SETTERS
-                -------------------------------------------------------- */
-                FacePairArray.prototype.key = function () {
-                    return this.id;
-                };
-                /**
-                 * An abstract method getting FaceAPI instance.
-                 */
-                FacePairArray.prototype.getFaceAPI = function () {
-                    // TO BE OVERRIDEN
-                    return null;
-                };
-                /**
-                 * Get id.
-                 */
-                FacePairArray.prototype.getID = function () {
-                    return this.id;
-                };
-                /**
-                 * Get name.
-                 */
-                FacePairArray.prototype.getName = function () {
-                    return this.name;
-                };
-                FacePairArray.prototype.isRegistered = function () {
-                    return this.registered;
-                };
-                /**
-                 * Set name and notify it to the Face-API server.
-                 *
-                 * @param name New name.
-                 */
-                FacePairArray.prototype.setName = function (name) {
-                    this.name = name;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                FacePairArray.prototype.CHILD_TAG = function () {
-                    return "facePair";
-                };
-                return FacePairArray;
-            })(EntityArray);
-            face_2.FacePairArray = FacePairArray;
-        })(face = faceapi.face || (faceapi.face = {}));
+                }
+                return _super.prototype.push.apply(this, items);
+            };
+            FacePairArray.prototype.splice = function (start, end) {
+                var items = [];
+                for (var _i = 2; _i < arguments.length; _i++) {
+                    items[_i - 2] = arguments[_i];
+                }
+                // Remove the elements from Face-API server.
+                for (var i = start; i < Math.min(start + end, this.length); i++)
+                    this[i].eraseFromServer();
+                // To return
+                var output = _super.prototype.splice.call(this, start, end);
+                this.push.apply(this, items);
+                return output;
+            };
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE API SERVER
+            -------------------------------------------------------- */
+            /**
+             * An abstract method to inserting the FacePairArray to the Face-API server.
+             */
+            FacePairArray.prototype.insertToServer = function () {
+                // TO BE OVERRIDEN
+            };
+            /**
+             * An abstract method to removing the FacePairArray from the Face-API server.
+             */
+            FacePairArray.prototype.eraseFromServer = function () {
+                // TO BE OVERRIDEN
+                // ...
+                this.registered = false;
+            };
+            /**
+             * An abstract method inserting the child FacePair instance to the Face-API server.
+             *
+             * @param face A newly inserted FacePair object.
+             */
+            FacePairArray.prototype.insertFaceToServer = function (face) {
+                // TO BE OVERRIDEN
+            };
+            /**
+             * An abstract method removing the child FacePair instance from the Face-API server.
+             *
+             * @param face A just removed FacePair object.
+             */
+            FacePairArray.prototype.eraseFaceFromServer = function (face) {
+                // TO BE OVERRIDEN
+                // ...
+                face.setID("");
+            };
+            /* --------------------------------------------------------
+                GETTERS & SETTERS
+            -------------------------------------------------------- */
+            FacePairArray.prototype.key = function () {
+                return this.id;
+            };
+            /**
+             * An abstract method getting FaceAPI instance.
+             */
+            FacePairArray.prototype.getFaceAPI = function () {
+                // TO BE OVERRIDEN
+                return null;
+            };
+            /**
+             * Get id.
+             */
+            FacePairArray.prototype.getID = function () {
+                return this.id;
+            };
+            /**
+             * Get name.
+             */
+            FacePairArray.prototype.getName = function () {
+                return this.name;
+            };
+            FacePairArray.prototype.isRegistered = function () {
+                return this.registered;
+            };
+            /**
+             * Set name and notify it to the Face-API server.
+             *
+             * @param name New name.
+             */
+            FacePairArray.prototype.setName = function (name) {
+                this.name = name;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FacePairArray.prototype.CHILD_TAG = function () {
+                return "facePair";
+            };
+            return FacePairArray;
+        })(EntityArray);
+        faceapi.FacePairArray = FacePairArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../face/FacePairArray.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FacePairArray.ts" />
 /// <reference path="PersonGroup.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var person;
-        (function (person) {
+        /**
+         * <p> A FacePairArray for representing a person. </p>
+         *
+         * <p> References </p>
+         * <ul>
+         *  <li> Creating a Person: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
+         *  <li> Identify: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+         * </ul>
+         *
+         * @inheritDoc
+         */
+        var Person = (function (_super) {
+            __extends(Person, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * <p> A FacePairArray for representing a person. </p>
+             * Construct from a PersonGroup and name.
              *
-             * <p> References </p>
+             * @param group A group of Person instances.
+             * @param name A name representing the Person.
+             */
+            function Person(group, name) {
+                if (name === void 0) { name = ""; }
+                _super.call(this);
+                this.group = group;
+                this.name = name;
+            }
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE API
+            -------------------------------------------------------- */
+            /**
+             * Insert the FaceList to the Face-API server.
+             *
              * <ul>
-             *  <li> Creating a Person: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
-             *  <li> Identify: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
+             * </ul>
+             */
+            Person.prototype.insertToServer = function () {
+                if (this.group.isRegistered() == false)
+                    this.group.insertToServer();
+                var this_ = this;
+                trace("Person::insertToServer", this.name, this.group.getID());
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, //{"personGroupId": this.group.getID()},
+                { "name": this.name, "userData": "" }, function (data) {
+                    this_.id = data["personId"];
+                    this_.registered = true;
+                });
+            };
+            /**
+             * Remove the FaceList from the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523d </li>
+             * </ul>
+             */
+            Person.prototype.eraseFromServer = function () {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "DELETE", {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id
+                }, null, null // NOTHING TO DO ESPECIALLY
+                );
+                this.id = "";
+                _super.prototype.eraseFromServer.call(this);
+            };
+            /**
+             * Insert a child FacePair instance to the Face-API server
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
+             * </ul>
+             */
+            Person.prototype.insertFaceToServer = function (face) {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id,
+                    "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
+                    "userData": ""
+                }, {
+                    "url": face.getPictureURL()
+                }, function (data) {
+                    face.setID(data["persistedFaceId"]);
+                });
+            };
+            /**
+             * Remove a child FacePair instance from the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523e </li>
+             * </ul>
+             */
+            Person.prototype.eraseFaceFromServer = function (face) {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id,
+                    "persistedFaceId": face.getID()
+                }, null, null);
+                _super.prototype.eraseFaceFromServer.call(this, face);
+            };
+            /* --------------------------------------------------------
+                GETTERS & SETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get group.
+             */
+            Person.prototype.getGroup = function () {
+                return this.group;
+            };
+            /**
+             * Set name and notify it to the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395242 </li>
              * </ul>
              *
-             * @inheritDoc
+             * @param name New name.
              */
-            var Person = (function (_super) {
-                __extends(Person, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a PersonGroup and name.
-                 *
-                 * @param group A group of Person instances.
-                 * @param name A name representing the Person.
-                 */
-                function Person(group, name) {
-                    if (name === void 0) { name = ""; }
-                    _super.call(this);
-                    this.group = group;
-                    this.name = name;
-                }
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API
-                -------------------------------------------------------- */
-                /**
-                 * Insert the FaceList to the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
-                 * </ul>
-                 */
-                Person.prototype.insertToServer = function () {
-                    if (this.group.isRegistered() == false)
-                        this.group.insertToServer();
-                    var this_ = this;
-                    trace("Person::insertToServer", this.name, this.group.getID());
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, //{"personGroupId": this.group.getID()},
-                    { "name": this.name, "userData": "" }, function (data) {
-                        this_.id = data["personId"];
-                        this_.registered = true;
-                    });
-                };
-                /**
-                 * Remove the FaceList from the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523d </li>
-                 * </ul>
-                 */
-                Person.prototype.eraseFromServer = function () {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "DELETE", {
-                        "personGroupId": this.group.getID(),
-                        "personId": this.id
-                    }, null, null // NOTHING TO DO ESPECIALLY
-                    );
-                    this.id = "";
-                    _super.prototype.eraseFromServer.call(this);
-                };
-                /**
-                 * Insert a child FacePair instance to the Face-API server
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
-                 * </ul>
-                 */
-                Person.prototype.insertFaceToServer = function (face) {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
-                        "personGroupId": this.group.getID(),
-                        "personId": this.id,
-                        "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight(),
-                        "userData": ""
-                    }, {
-                        "url": face.getPictureURL()
-                    }, function (data) {
-                        face.setID(data["persistedFaceId"]);
-                    });
-                };
-                /**
-                 * Remove a child FacePair instance from the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523e </li>
-                 * </ul>
-                 */
-                Person.prototype.eraseFaceFromServer = function (face) {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
-                        "personGroupId": this.group.getID(),
-                        "personId": this.id,
-                        "persistedFaceId": face.getID()
-                    }, null, null);
-                    _super.prototype.eraseFaceFromServer.call(this, face);
-                };
-                /* --------------------------------------------------------
-                    GETTERS & SETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get group.
-                 */
-                Person.prototype.getGroup = function () {
-                    return this.group;
-                };
-                /**
-                 * Set name and notify it to the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395242 </li>
-                 * </ul>
-                 *
-                 * @param name New name.
-                 */
-                Person.prototype.setName = function (name) {
-                    var this_ = this;
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "PATCH", {
-                        "personGroupId": this.group.getID(),
-                        "personId": this.id
-                    }, {
-                        "name": this.name,
-                        "userData": ""
-                    }, function (data) {
-                        this_.name = name;
-                    });
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Person.prototype.TAG = function () {
-                    return "person";
-                };
-                return Person;
-            })(faceapi.face.FacePairArray);
-            person.Person = Person;
-        })(person = faceapi.person || (faceapi.person = {}));
+            Person.prototype.setName = function (name) {
+                var this_ = this;
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "PATCH", {
+                    "personGroupId": this.group.getID(),
+                    "personId": this.id
+                }, {
+                    "name": this.name,
+                    "userData": ""
+                }, function (data) {
+                    this_.name = name;
+                });
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Person.prototype.TAG = function () {
+                return "person";
+            };
+            return Person;
+        })(faceapi.FacePairArray);
+        faceapi.Person = Person;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../basic/IJSONEntity.ts" />
-/// <reference path="../person/Person.ts" />
-/// <reference path="CandidatePersonArray.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var result;
-        (function (result) {
-            var CandidatePerson = (function (_super) {
-                __extends(CandidatePerson, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a CandidatePersonArray
-                 *
-                 * @param personArray An array and parent of CandidatePerson.
-                 */
-                function CandidatePerson(personArray) {
-                    _super.call(this);
-                    this.personArray = personArray;
-                }
-                CandidatePerson.prototype.construct = function (xml) {
-                    _super.prototype.construct.call(this, xml);
-                    this.person = null;
-                    if (xml.hasProperty("personID") == false)
-                        return;
-                    var personID = xml.getProperty("personID");
-                    var personGroup = this.personArray.getPersonGroup();
-                    if (personGroup != null && personGroup.has(personID) == true)
-                        this.person = personGroup.get(personID);
-                };
-                CandidatePerson.prototype.constructByJSON = function (obj) {
-                    faceapi.Global.fetch(this, obj); // confidence
-                    // SET PERSON
-                    var personGroup = this.personArray.getPersonGroup();
-                    var personID = obj["personId"];
-                    if (personGroup != null && personGroup.has(personID) == true)
-                        this.person = personGroup.get(personID);
-                    else
-                        this.person = null;
-                };
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Get personArray.
-                 */
-                CandidatePerson.prototype.getPersonArray = function () {
-                    return this.personArray;
-                };
-                /**
-                 * Get person.
-                 */
-                CandidatePerson.prototype.getPerson = function () {
-                    return this.person;
-                };
-                /**
-                 * Get confidence.
-                 */
-                CandidatePerson.prototype.getConfidence = function () {
-                    return this.confidence;
-                };
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                CandidatePerson.prototype.TAG = function () {
-                    return "candidatePerson";
-                };
-                CandidatePerson.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    if (this.person != null)
-                        xml.setProperty("personID", this.person.getID());
-                    return xml;
-                };
-                return CandidatePerson;
-            })(Entity);
-            result.CandidatePerson = CandidatePerson;
-        })(result = faceapi.result || (faceapi.result = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path='../../basic/IJSonEntity.ts' />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
 /// <referench path='FaceLandmark.ts' />
 /// <referench path='Eyebrows.ts' />
 /// <referench path='Nose.ts' />
@@ -3920,545 +3938,1129 @@ var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face_3) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * A group and parent of FaceLandmark entities.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var FaceLandmarks = (function (_super) {
-                    __extends(FaceLandmarks, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a Face.
-                     *
-                     * @param face A Face that the FaceLandmarks is belonged to.
-                     */
-                    function FaceLandmarks(face) {
-                        _super.call(this);
-                        this.face = face;
-                        this.eyeBrows = new landmark.Eyebrows(this);
-                        this.eyes = new landmark.Eyes(this);
-                        this.nose = new landmark.Nose(this);
-                        this.mouth = new landmark.Mouth(this);
-                    }
-                    FaceLandmarks.prototype.constructByJSON = function (obj) {
-                        this.eyeBrows.constructByJSON(obj);
-                        this.eyes.constructByJSON(obj);
-                        this.nose.constructByJSON(obj);
-                        this.mouth.constructByJSON(obj);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get face.
-                     */
-                    FaceLandmarks.prototype.getFace = function () {
-                        return this.face;
-                    };
-                    /**
-                     * Get eyeBrowss.
-                     */
-                    FaceLandmarks.prototype.getEyeBrows = function () {
-                        return this.eyeBrows;
-                    };
-                    /**
-                     * Get eyes.
-                     */
-                    FaceLandmarks.prototype.getEyes = function () {
-                        return this.eyes;
-                    };
-                    /**
-                     * Get nose.
-                     */
-                    FaceLandmarks.prototype.getNose = function () {
-                        return this.nose;
-                    };
-                    /**
-                     * Get mouth.
-                     */
-                    FaceLandmarks.prototype.getMouth = function () {
-                        return this.mouth;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    FaceLandmarks.prototype.TAG = function () {
-                        return "landmarks";
-                    };
-                    FaceLandmarks.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.eyeBrows.toXML(), this.eyes.toXML(), this.nose.toXML(), this.mouth.toXML());
-                        return xml;
-                    };
-                    return FaceLandmarks;
-                })(Entity);
-                landmark.FaceLandmarks = FaceLandmarks;
-            })(landmark = face_3.landmark || (face_3.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * A group and parent of FaceLandmark entities.
+         *
+         * @author Jeongho Nam
+         */
+        var FaceLandmarks = (function (_super) {
+            __extends(FaceLandmarks, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a Face.
+             *
+             * @param face A Face that the FaceLandmarks is belonged to.
+             */
+            function FaceLandmarks(face) {
+                _super.call(this);
+                this.face = face;
+                this.eyeBrows = new faceapi.Eyebrows(this);
+                this.eyes = new faceapi.Eyes(this);
+                this.nose = new faceapi.Nose(this);
+                this.mouth = new faceapi.Mouth(this);
+            }
+            FaceLandmarks.prototype.constructByJSON = function (obj) {
+                this.eyeBrows.constructByJSON(obj);
+                this.eyes.constructByJSON(obj);
+                this.nose.constructByJSON(obj);
+                this.mouth.constructByJSON(obj);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get face.
+             */
+            FaceLandmarks.prototype.getFace = function () {
+                return this.face;
+            };
+            /**
+             * Get eyeBrowss.
+             */
+            FaceLandmarks.prototype.getEyeBrows = function () {
+                return this.eyeBrows;
+            };
+            /**
+             * Get eyes.
+             */
+            FaceLandmarks.prototype.getEyes = function () {
+                return this.eyes;
+            };
+            /**
+             * Get nose.
+             */
+            FaceLandmarks.prototype.getNose = function () {
+                return this.nose;
+            };
+            /**
+             * Get mouth.
+             */
+            FaceLandmarks.prototype.getMouth = function () {
+                return this.mouth;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FaceLandmarks.prototype.TAG = function () {
+                return "landmarks";
+            };
+            FaceLandmarks.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.eyeBrows.toXML(), this.eyes.toXML(), this.nose.toXML(), this.mouth.toXML());
+                return xml;
+            };
+            return FaceLandmarks;
+        })(Entity);
+        faceapi.FaceLandmarks = FaceLandmarks;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../basic/IJSonEntity.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
 /// <reference path='FaceAttributes.ts' />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var attribute;
-            (function (attribute) {
-                /**
-                 * An abstract entity representing an attribute data belongs to a face.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var FaceAttribute = (function (_super) {
-                    __extends(FaceAttribute, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Contruct from a FaceAttributes
-                     *
-                     * @param attributes A group and parent of the FaceAttribute.
-                     */
-                    function FaceAttribute(attributes) {
-                        _super.call(this);
-                        this.attributes = attributes;
-                    }
-                    FaceAttribute.prototype.constructByJSON = function (val) {
-                        faceapi.Global.fetch(this, val);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get attributes.
-                     */
-                    FaceAttribute.prototype.getAttributes = function () {
-                        return this.attributes;
-                    };
-                    return FaceAttribute;
-                })(Entity);
-                attribute.FaceAttribute = FaceAttribute;
-            })(attribute = face.attribute || (face.attribute = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * An abstract entity representing an attribute data belongs to a face.
+         *
+         * @author Jeongho Nam
+         */
+        var FaceAttribute = (function (_super) {
+            __extends(FaceAttribute, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Contruct from a FaceAttributes
+             *
+             * @param attributes A group and parent of the FaceAttribute.
+             */
+            function FaceAttribute(attributes) {
+                _super.call(this);
+                this.attributes = attributes;
+            }
+            FaceAttribute.prototype.constructByJSON = function (val) {
+                faceapi.Global.fetch(this, val);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get attributes.
+             */
+            FaceAttribute.prototype.getAttributes = function () {
+                return this.attributes;
+            };
+            return FaceAttribute;
+        })(Entity);
+        faceapi.FaceAttribute = FaceAttribute;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path='FaceAttribute.ts' />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var attribute;
-            (function (attribute) {
-                var FacialHair = (function (_super) {
-                    __extends(FacialHair, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Contruct from a FaceAttributes
-                     *
-                     * @param attributes A group and parent of the FaceAttribute.
-                     */
-                    function FacialHair(attributes) {
-                        _super.call(this, attributes);
-                        this.mustache = 0;
-                        this.beard = 0;
-                        this.sideburns = 0;
-                    }
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get mustache.
-                     */
-                    FacialHair.prototype.getMustache = function () {
-                        return this.mustache;
-                    };
-                    /**
-                     * Get beard.
-                     */
-                    FacialHair.prototype.getBeard = function () {
-                        return this.beard;
-                    };
-                    /**
-                     * Get sideburns.
-                     */
-                    FacialHair.prototype.getSideburns = function () {
-                        return this.sideburns;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    FacialHair.prototype.TAG = function () {
-                        return "facialHair";
-                    };
-                    return FacialHair;
-                })(attribute.FaceAttribute);
-                attribute.FacialHair = FacialHair;
-            })(attribute = face.attribute || (face.attribute = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        var FacialHair = (function (_super) {
+            __extends(FacialHair, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Contruct from a FaceAttributes
+             *
+             * @param attributes A group and parent of the FaceAttribute.
+             */
+            function FacialHair(attributes) {
+                _super.call(this, attributes);
+                this.mustache = 0;
+                this.beard = 0;
+                this.sideburns = 0;
+            }
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get mustache.
+             */
+            FacialHair.prototype.getMustache = function () {
+                return this.mustache;
+            };
+            /**
+             * Get beard.
+             */
+            FacialHair.prototype.getBeard = function () {
+                return this.beard;
+            };
+            /**
+             * Get sideburns.
+             */
+            FacialHair.prototype.getSideburns = function () {
+                return this.sideburns;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FacialHair.prototype.TAG = function () {
+                return "facialHair";
+            };
+            return FacialHair;
+        })(faceapi.FaceAttribute);
+        faceapi.FacialHair = FacialHair;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path='FaceAttribute.ts' />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var attribute;
-            (function (attribute) {
-                var HeadPose = (function (_super) {
-                    __extends(HeadPose, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Contruct from a FaceAttributes
-                     *
-                     * @param attributes A group and parent of the FaceAttribute.
-                     */
-                    function HeadPose(attributes) {
-                        _super.call(this, attributes);
-                        this.roll = 0;
-                        this.yaw = 0;
-                        this.pitch = 0;
-                    }
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get roll.
-                     */
-                    HeadPose.prototype.getRoll = function () {
-                        return this.roll;
-                    };
-                    /**
-                     * Get pitch.
-                     */
-                    HeadPose.prototype.getPitch = function () {
-                        return this.pitch;
-                    };
-                    /**
-                     * Get yaw.
-                     */
-                    HeadPose.prototype.getYaw = function () {
-                        return this.yaw;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    HeadPose.prototype.TAG = function () {
-                        return "headPose";
-                    };
-                    return HeadPose;
-                })(attribute.FaceAttribute);
-                attribute.HeadPose = HeadPose;
-            })(attribute = face.attribute || (face.attribute = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        var HeadPose = (function (_super) {
+            __extends(HeadPose, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Contruct from a FaceAttributes
+             *
+             * @param attributes A group and parent of the FaceAttribute.
+             */
+            function HeadPose(attributes) {
+                _super.call(this, attributes);
+                this.roll = 0;
+                this.yaw = 0;
+                this.pitch = 0;
+            }
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get roll.
+             */
+            HeadPose.prototype.getRoll = function () {
+                return this.roll;
+            };
+            /**
+             * Get pitch.
+             */
+            HeadPose.prototype.getPitch = function () {
+                return this.pitch;
+            };
+            /**
+             * Get yaw.
+             */
+            HeadPose.prototype.getYaw = function () {
+                return this.yaw;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            HeadPose.prototype.TAG = function () {
+                return "headPose";
+            };
+            return HeadPose;
+        })(faceapi.FaceAttribute);
+        faceapi.HeadPose = HeadPose;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path='../../basic/IJSonEntity.ts' />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
 /// <reference path="FaceAttribute.ts" />
 /// <reference path="FacialHair.ts" />
 /// <reference path="HeadPose.ts" />
-/// <reference path="../Face.ts" />
+/// <reference path="Face.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face_4) {
-            var attribute;
-            (function (attribute) {
-                /**
-                 * <p> An entity representing attributes of a Face. </p>
-                 *
-                 * <p> FaceAttributes also takes a role of group and parent of FaceAttribute entities. </p>
-                 *
-                 * @author Jeongho Nam
-                 */
-                var FaceAttributes = (function (_super) {
-                    __extends(FaceAttributes, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTOR
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a Face.
-                     *
-                     * @param face A Face that the FaceAttributes are belonged to.
-                     */
-                    function FaceAttributes(face) {
-                        _super.call(this);
-                        this.face = face;
-                        this.age = 0;
-                        this.gender = "";
-                        this.smile = 0;
-                        this.facialHair = new attribute.FacialHair(this);
-                        this.headPose = new attribute.HeadPose(this);
-                    }
-                    FaceAttributes.prototype.constructByJSON = function (obj) {
-                        faceapi.Global.fetch(this, obj);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get face.
-                     */
-                    FaceAttributes.prototype.getFace = function () {
-                        return this.face;
-                    };
-                    /**
-                     * Get age.
-                     */
-                    FaceAttributes.prototype.getAge = function () {
-                        return this.age;
-                    };
-                    /**
-                     * Get gender.
-                     */
-                    FaceAttributes.prototype.getGender = function () {
-                        return this.gender;
-                    };
-                    /**
-                     * Get smile.
-                     */
-                    FaceAttributes.prototype.getSmile = function () {
-                        return this.smile;
-                    };
-                    /**
-                     * Get facialHair.
-                     */
-                    FaceAttributes.prototype.getFacialHair = function () {
-                        return this.facialHair;
-                    };
-                    /**
-                     * Get headPose.
-                     */
-                    FaceAttributes.prototype.getHeadPose = function () {
-                        return this.headPose;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    FaceAttributes.prototype.TAG = function () {
-                        return "attributes";
-                    };
-                    FaceAttributes.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.facialHair.toXML(), this.headPose.toXML());
-                        return xml;
-                    };
-                    return FaceAttributes;
-                })(Entity);
-                attribute.FaceAttributes = FaceAttributes;
-            })(attribute = face_4.attribute || (face_4.attribute = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * <p> An entity representing attributes of a Face. </p>
+         *
+         * <p> FaceAttributes also takes a role of group and parent of FaceAttribute entities. </p>
+         *
+         * @author Jeongho Nam
+         */
+        var FaceAttributes = (function (_super) {
+            __extends(FaceAttributes, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTOR
+            -------------------------------------------------------- */
+            /**
+             * Construct from a Face.
+             *
+             * @param face A Face that the FaceAttributes are belonged to.
+             */
+            function FaceAttributes(face) {
+                _super.call(this);
+                this.face = face;
+                this.age = 0;
+                this.gender = "";
+                this.smile = 0;
+                this.facialHair = new faceapi.FacialHair(this);
+                this.headPose = new faceapi.HeadPose(this);
+            }
+            FaceAttributes.prototype.constructByJSON = function (obj) {
+                faceapi.Global.fetch(this, obj);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get face.
+             */
+            FaceAttributes.prototype.getFace = function () {
+                return this.face;
+            };
+            /**
+             * Get age.
+             */
+            FaceAttributes.prototype.getAge = function () {
+                return this.age;
+            };
+            /**
+             * Get gender.
+             */
+            FaceAttributes.prototype.getGender = function () {
+                return this.gender;
+            };
+            /**
+             * Get smile.
+             */
+            FaceAttributes.prototype.getSmile = function () {
+                return this.smile;
+            };
+            /**
+             * Get facialHair.
+             */
+            FaceAttributes.prototype.getFacialHair = function () {
+                return this.facialHair;
+            };
+            /**
+             * Get headPose.
+             */
+            FaceAttributes.prototype.getHeadPose = function () {
+                return this.headPose;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FaceAttributes.prototype.TAG = function () {
+                return "attributes";
+            };
+            FaceAttributes.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.facialHair.toXML(), this.headPose.toXML());
+                return xml;
+            };
+            return FaceAttributes;
+        })(Entity);
+        faceapi.FaceAttributes = FaceAttributes;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSONEntity.ts" />
+/// <reference path="SimilarFaceArray.ts" />
+/// <reference path="FacePair.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var SimilarFace = (function (_super) {
+            __extends(SimilarFace, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a SimilarFaceArray.
+             *
+             * @param faceArray An array and parent of the SimilarFace.
+             */
+            function SimilarFace(faceArray) {
+                _super.call(this);
+                this.faceArray = faceArray;
+            }
+            SimilarFace.prototype.construct = function (xml) {
+                _super.prototype.construct.call(this, xml);
+                this.facePair = null;
+                if (xml.hasProperty("facePairID") == false)
+                    return;
+                var facePairID = xml.getProperty("facePairID");
+                var faceList = this.faceArray.getFaceList();
+                if (faceList != null && faceList.has(facePairID) == true)
+                    this.facePair = faceList.get(facePairID);
+            };
+            SimilarFace.prototype.constructByJSON = function (data) {
+                faceapi.Global.fetch(this, data);
+                var facePairID = data["persistedFaceId"];
+                var faceList = this.faceArray.getFaceList();
+                if (faceList != null && faceList.has(facePairID) == true)
+                    this.facePair = faceList.get(facePairID);
+                else
+                    this.facePair = null;
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get faceArray.
+             */
+            SimilarFace.prototype.getFaceArray = function () {
+                return this.faceArray;
+            };
+            /**
+             * Get facePair.
+             */
+            SimilarFace.prototype.getFacePair = function () {
+                return this.facePair;
+            };
+            /**
+             * Get confidence.
+             */
+            SimilarFace.prototype.getConfidence = function () {
+                return this.confidence;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            SimilarFace.prototype.TAG = function () {
+                return "similarFace";
+            };
+            SimilarFace.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                if (this.facePair != null)
+                    xml.setProperty("facePairID", this.facePair.getID());
+                return xml;
+            };
+            return SimilarFace;
+        })(Entity);
+        faceapi.SimilarFace = SimilarFace;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="SimilarFace.ts" />
+/// <reference path="IJSONEntity.ts" />
+/// <reference path="Face.ts" />
+/// <reference path="FaceList.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var SimilarFaceArray = (function (_super) {
+            __extends(SimilarFaceArray, _super);
+            function SimilarFaceArray() {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i - 0] = arguments[_i];
+                }
+                _super.call(this);
+                if (args.length == 1 && args[0] instanceof faceapi.FaceAPI) {
+                    this.api = args[0];
+                    this.face = null;
+                    this.faceList = null;
+                }
+                else if (args.length == 2 && args[0] instanceof faceapi.Face && args[1] instanceof faceapi.FaceList) {
+                    this.face = args[0];
+                    this.faceList = args[1];
+                    this.api = this.faceList.getListArray().getAPI();
+                }
+            }
+            SimilarFaceArray.prototype.construt = function (xml) {
+                this.faceList = null;
+                // SET FACE
+                if (xml.hasProperty("faceID") == true) {
+                    var faceID = xml.getProperty("faceID");
+                    var pictureArray = this.api.getPictureArray();
+                    for (var i = 0; i < pictureArray.length; i++) {
+                        var picture = pictureArray[i];
+                        if (picture.has(faceID) == true) {
+                            this.face = picture.get(faceID);
+                            break;
+                        }
+                    }
+                }
+                // SET FACE_LIST
+                if (xml.hasProperty("faceListID") == true) {
+                    var faceListID = xml.getProperty("faceListID");
+                    var faceListArray = this.api.getFaceListArray();
+                    if (faceListArray.has(faceListID) == true)
+                        this.faceList = faceListArray.get(faceListID);
+                }
+                // SET CHILDREN
+                _super.prototype.construct.call(this, xml);
+            };
+            SimilarFaceArray.prototype.constructByJSON = function (val) {
+                this.splice(0, this.length); // CLEAR
+                var items = val;
+                for (var i = 0; i < items.length; i++) {
+                    var similar = new faceapi.SimilarFace(this);
+                    similar.constructByJSON(items[i]);
+                    this.push(similar);
+                }
+            };
+            SimilarFaceArray.prototype.createChild = function (xml) {
+                return new faceapi.SimilarFace(this);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            SimilarFaceArray.prototype.getAPI = function () {
+                return this.api;
+            };
+            SimilarFaceArray.prototype.getFace = function () {
+                return this.face;
+            };
+            SimilarFaceArray.prototype.getFaceList = function () {
+                return this.faceList;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            SimilarFaceArray.prototype.TAG = function () {
+                return "similarFaceArray";
+            };
+            SimilarFaceArray.prototype.CHILD_TAG = function () {
+                return "similarFace";
+            };
+            SimilarFaceArray.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                if (this.face != null)
+                    xml.setProperty("faceID", this.face.getID());
+                if (this.faceList != null)
+                    xml.setProperty("faceListID", this.faceList.getID());
+                return xml;
+            };
+            return SimilarFaceArray;
+        })(EntityArray);
+        faceapi.SimilarFaceArray = SimilarFaceArray;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FacePairArray.ts" />
+/// <reference path="SimilarFaceArray.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * <p> A FacePairArray for representing a face list. </p>
+         *
+         * <p> References </p>
+         * <ul>
+         *  <li> Creating a FaceList: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+         *  <li> Find Similar: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395237 </li>
+         * </ul>
+         *
+         * @inheritDoc
+         */
+        var FaceList = (function (_super) {
+            __extends(FaceList, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceListArray and name.
+             *
+             * @param listArray An array and parent of the FaceList.
+             * @param name Name representing the FaceList.
+             */
+            function FaceList(listArray, name) {
+                if (name === void 0) { name = ""; }
+                _super.call(this, name);
+                this.listArray = listArray;
+                this.id = "";
+                this.name = name;
+                this.registered = false;
+            }
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE API
+            -------------------------------------------------------- */
+            /**
+             * Find similar faces in the FaceList from a Face.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395237 </li>
+             * </ul>
+             *
+             * @param face A Face who wants find the similars.
+             * @param maxCandidates Maximum number of candidates to be retured.
+             *
+             * @return Similar faces being looked similar.
+             */
+            FaceList.prototype.findSimilar = function (face, maxCandidates) {
+                var similarFaceArray = new faceapi.SimilarFaceArray(face, this);
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/findsimilars", "POST", {
+                    "faceId": face.getID(),
+                    "faceListId": this.id,
+                    "maxNumOfCandidatesReturned": maxCandidates
+                }, null, function (data) {
+                    similarFaceArray.constructByJSON(data);
+                });
+                return similarFaceArray;
+            };
+            /**
+             * Insert the FaceList to the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+             * </ul>
+             */
+            FaceList.prototype.insertToServer = function () {
+                // ISSUE ID
+                if (this.id == "")
+                    this.id = faceapi.FaceAPI.issueID("face_list");
+                var this_ = this;
+                // REGISTER TO THE SERVER
+                var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+                var method = "PUT";
+                var params = { "faceListId": this.id };
+                var data = {
+                    "name": this.name,
+                    "userData": ""
+                };
+                var success = function (data) {
+                    this_.registered = true;
+                };
+                // SEND
+                faceapi.FaceAPI.query(url, method, params, data, success);
+            };
+            /**
+             * Remove the FaceList from the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
+             * </ul>
+             */
+            FaceList.prototype.eraseFromServer = function () {
+                // READY
+                var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
+                var method = "DELETE";
+                var params = { "faceListId": this.id };
+                // SEND
+                faceapi.FaceAPI.query(url, method, params, null, null);
+                _super.prototype.eraseFromServer.call(this);
+            };
+            /**
+             * Insert a child FacePair instance to the Face-API server
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
+             * </ul>
+             */
+            FaceList.prototype.insertFaceToServer = function (face) {
+                if (this.isRegistered() == false)
+                    this.insertToServer();
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
+                    //"faceListId": this.id,
+                    "userData": "",
+                    "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
+                }, {
+                    "url": face.getPictureURL()
+                }, function (data) {
+                    face.setID(data["persistedFaceId"]);
+                });
+            };
+            /**
+             * Remove a child FacePair instance from the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
+             * </ul>
+             */
+            FaceList.prototype.eraseFaceFromServer = function (face) {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
+                    "faceListId": this.id,
+                    "persistedFaceId": face.getID()
+                }, null, null);
+                _super.prototype.eraseFaceFromServer.call(this, face);
+            };
+            /* --------------------------------------------------------
+                GETTERS & SETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get api in listArray.
+             */
+            FaceList.prototype.getAPI = function () {
+                return this.listArray.getAPI();
+            };
+            /**
+             * Get listArray.
+             */
+            FaceList.prototype.getListArray = function () {
+                return this.listArray;
+            };
+            /**
+             * Set name and notify it to the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524e </li>
+             * </ul>
+             *
+             * @param name New name of the FacePairArray.
+             */
+            FaceList.prototype.setName = function (name) {
+                var this_ = this;
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id, "PATCH", { "faceListId": this.id }, {
+                    "name": this.name,
+                    "userData": ""
+                }, function (data) {
+                    this_.name = name;
+                });
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FaceList.prototype.TAG = function () {
+                return "faceList";
+            };
+            return FaceList;
+        })(faceapi.FacePairArray);
+        faceapi.FaceList = FaceList;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="Face.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var FaceReferArray = (function (_super) {
+            __extends(FaceReferArray, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTOR
+            -------------------------------------------------------- */
+            /**
+             * Default Constructor.
+             */
+            function FaceReferArray() {
+                _super.call(this);
+            }
+            FaceReferArray.prototype.construct = function (xml) {
+                // CLEAR
+                this.splice(0, this.length);
+                if (xml.has(this.CHILD_TAG()) == false)
+                    return;
+                // FIND CHILDREN
+                var xmlList = xml.get(this.CHILD_TAG());
+                for (var i = 0; i < xmlList.length; i++) {
+                    var face = this.fetchChild(xmlList[i].getProperty("id"));
+                    if (face == null)
+                        continue;
+                    this.push(face);
+                }
+            };
+            FaceReferArray.prototype.fetchChild = function (id) {
+                return null;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FaceReferArray.prototype.TAG = function () {
+                return "faceReferArray";
+            };
+            FaceReferArray.prototype.CHILD_TAG = function () {
+                return "faceRefer";
+            };
+            FaceReferArray.prototype.toXML = function () {
+                var xml = new XML();
+                xml.setTag(this.TAG());
+                for (var i = 0; i < this.length; i++) {
+                    var childXML = new XML();
+                    childXML.setTag(this.CHILD_TAG());
+                    childXML.setProperty("id", this[i].getID());
+                }
+                return xml;
+            };
+            return FaceReferArray;
+        })(EntityArray);
+        faceapi.FaceReferArray = FaceReferArray;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSONEntity.ts" />
+/// <reference path="FaceReferArray.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var FaceGroup = (function (_super) {
+            __extends(FaceGroup, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTOR
+            -------------------------------------------------------- */
+            function FaceGroup(groupArray) {
+                _super.call(this);
+                this.groupArray = groupArray;
+            }
+            FaceGroup.prototype.constructByJSON = function (val) {
+                this.splice(0, this.length);
+                var idArray = val;
+                for (var i = 0; i < idArray.length; i++) {
+                    var id = idArray[i];
+                    var face = this.fetchChild(id);
+                    if (face == null)
+                        continue;
+                    this.push(face);
+                }
+            };
+            FaceGroup.prototype.fetchChild = function (id) {
+                var faceArray = this.groupArray.getFaceArray();
+                if (faceArray.has(id) == true)
+                    return faceArray.get(id);
+                var api = this.groupArray.getAPI();
+                if (api == null)
+                    return null;
+                var pictureArray = api.getPictureArray();
+                for (var i = 0; i < pictureArray.length; i++)
+                    if (pictureArray[i].has(id) == true)
+                        return pictureArray[i].get(id);
+                return null;
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get groupArray.
+             */
+            FaceGroup.prototype.getGroupArray = function () {
+                return this.groupArray;
+            };
+            return FaceGroup;
+        })(faceapi.FaceReferArray);
+        faceapi.FaceGroup = FaceGroup;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FaceGroup.ts" />
+/// <reference path="IJSONEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var SimilarFaceGroup = (function (_super) {
+            __extends(SimilarFaceGroup, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTOR
+            -------------------------------------------------------- */
+            function SimilarFaceGroup(groupArray) {
+                _super.call(this, groupArray);
+            }
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            SimilarFaceGroup.prototype.TAG = function () {
+                return "similarFaceGroup";
+            };
+            return SimilarFaceGroup;
+        })(faceapi.FaceGroup);
+        faceapi.SimilarFaceGroup = SimilarFaceGroup;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FaceGroup.ts" />
+/// <reference path="IJSONEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var MessyFaceGroup = (function (_super) {
+            __extends(MessyFaceGroup, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTOR
+            -------------------------------------------------------- */
+            function MessyFaceGroup(groupArray) {
+                _super.call(this, groupArray);
+            }
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            MessyFaceGroup.prototype.TAG = function () {
+                return "messyFaceGroup";
+            };
+            return MessyFaceGroup;
+        })(faceapi.FaceGroup);
+        faceapi.MessyFaceGroup = MessyFaceGroup;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSONEntity.ts" />
+/// <reference path="SimilarFaceGroup.ts" />
+/// <reference path="MessyFaceGroup.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var SimilarFaceGroupArray = (function (_super) {
+            __extends(SimilarFaceGroupArray, _super);
+            function SimilarFaceGroupArray(obj) {
+                _super.call(this);
+                this.messyGroup = new faceapi.MessyFaceGroup(this);
+                if (obj instanceof faceapi.FaceAPI) {
+                    this.api = obj;
+                    this.faceArray = new faceapi.FaceReferArray();
+                }
+                else {
+                    this.faceArray = obj;
+                    if (this.faceArray.length == 0)
+                        this.api = null;
+                    else
+                        this.api = this.faceArray[0].getPicture().getPictureArray().getAPI();
+                }
+            }
+            SimilarFaceGroupArray.prototype.construct = function (xml) {
+                _super.prototype.construct.call(this, xml);
+                this.messyGroup.construct(xml.get(this.messyGroup.TAG())[0]);
+                for (var i = 0; i < this.length; i++)
+                    for (var j = 0; j < this[i].length; j++)
+                        this.faceArray.push(this[i][j]);
+                for (i = 0; i < this.messyGroup.length; i++)
+                    this.faceArray.push(this.messyGroup[i]);
+                if (this.faceArray.length == 0)
+                    this.api = null;
+                else
+                    this.faceArray[i].getPicture().getPictureArray().getAPI();
+            };
+            SimilarFaceGroupArray.prototype.constructByJSON = function (data) {
+                this.splice(0, this.length);
+                var similarGroupArray = data["groups"];
+                var messyGroup = data["messyGroup"];
+                for (var i = 0; i < similarGroupArray.length; i++) {
+                    var similarGroup = new faceapi.SimilarFaceGroup(this);
+                    similarGroup.constructByJSON(similarGroupArray);
+                    this.push(similarGroup);
+                }
+                this.messyGroup.constructByJSON(messyGroup);
+            };
+            SimilarFaceGroupArray.prototype.createChild = function (xml) {
+                return new faceapi.SimilarFaceGroup(this);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get api.
+             */
+            SimilarFaceGroupArray.prototype.getAPI = function () {
+                if (this.api == null && this.faceArray.length != 0)
+                    this.api = this.faceArray[0].getPicture().getPictureArray().getAPI();
+                return this.api;
+            };
+            /**
+             * Get faceArray.
+             */
+            SimilarFaceGroupArray.prototype.getFaceArray = function () {
+                return this.faceArray;
+            };
+            /**
+             * Get messyGroup.
+             */
+            SimilarFaceGroupArray.prototype.getMessyGroup = function () {
+                return this.messyGroup;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            SimilarFaceGroupArray.prototype.TAG = function () {
+                return "similarFaceGroupArray";
+            };
+            SimilarFaceGroupArray.prototype.CHILD_TAG = function () {
+                return "similarFaceGroup";
+            };
+            SimilarFaceGroupArray.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.messyGroup.toXML());
+                return xml;
+            };
+            return SimilarFaceGroupArray;
+        })(EntityArray);
+        faceapi.SimilarFaceGroupArray = SimilarFaceGroupArray;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
 /// <reference path="Picture.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var picture;
-        (function (picture) {
+        /**
+         * An array and parent of Picture entities.
+         *
+         * @author Jeongho Nam
+         */
+        var PictureArray = (function (_super) {
+            __extends(PictureArray, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * An array and parent of Picture entities.
+             * Construct from a FaceAPI.
              *
-             * @author Jeongho Nam
+             * @param api A facade controller and factory class for Face-API.
              */
-            var PictureArray = (function (_super) {
-                __extends(PictureArray, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a FaceAPI.
-                 *
-                 * @param api A facade controller and factory class for Face-API.
-                 */
-                function PictureArray(api) {
-                    _super.call(this);
-                    this.api = api;
-                }
-                PictureArray.prototype.createChild = function (xml) {
-                    return new picture.Picture(this, xml.getProperty("url"));
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get api.
-                 */
-                PictureArray.prototype.getAPI = function () {
-                    return this.api;
-                };
-                /**
-                 * Test whether the PictureArray has a Picture having an url.
-                 *
-                 * @param url URL-address used as a key in the test.
-                 */
-                PictureArray.prototype.hasURL = function (url) {
-                    for (var i = 0; i < this.length; i++)
-                        if (this[i].getURL() == url)
-                            return true;
-                    return false;
-                };
-                /**
-                 * Get a Picture instance having the target url.
-                 *
-                 * @param url URL-address used as a key in the retrieve.
-                 * @return A Picture has the url.
-                 */
-                PictureArray.prototype.getByURL = function (url) {
-                    for (var i = 0; i < this.length; i++)
-                        if (this[i].getURL() == url)
-                            return this[i];
-                    throw Error("out of range");
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                PictureArray.prototype.TAG = function () {
-                    return "pictureArray";
-                };
-                PictureArray.prototype.CHILD_TAG = function () {
-                    return "picture";
-                };
-                return PictureArray;
-            })(EntityArray);
-            picture.PictureArray = PictureArray;
-        })(picture = faceapi.picture || (faceapi.picture = {}));
+            function PictureArray(api) {
+                _super.call(this);
+                this.api = api;
+            }
+            PictureArray.prototype.createChild = function (xml) {
+                return new faceapi.Picture(this, xml.getProperty("url"));
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get api.
+             */
+            PictureArray.prototype.getAPI = function () {
+                return this.api;
+            };
+            /**
+             * Test whether the PictureArray has a Picture having an url.
+             *
+             * @param url URL-address used as a key in the test.
+             */
+            PictureArray.prototype.hasURL = function (url) {
+                for (var i = 0; i < this.length; i++)
+                    if (this[i].getURL() == url)
+                        return true;
+                return false;
+            };
+            /**
+             * Get a Picture instance having the target url.
+             *
+             * @param url URL-address used as a key in the retrieve.
+             * @return A Picture has the url.
+             */
+            PictureArray.prototype.getByURL = function (url) {
+                for (var i = 0; i < this.length; i++)
+                    if (this[i].getURL() == url)
+                        return this[i];
+                throw Error("out of range");
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            PictureArray.prototype.TAG = function () {
+                return "pictureArray";
+            };
+            PictureArray.prototype.CHILD_TAG = function () {
+                return "picture";
+            };
+            return PictureArray;
+        })(EntityArray);
+        faceapi.PictureArray = PictureArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../face/Face.ts" />
-/// <reference path="../basic/IJSONEntity.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="Face.ts" />
+/// <reference path="IJSONEntity.ts" />
 /// <reference path="PictureArray.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var picture;
-        (function (picture) {
+        /**
+         * <p> A picture entity who containing Face entities. </p>
+         *
+         * @author Jeongho Nam
+         */
+        var Picture = (function (_super) {
+            __extends(Picture, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * <p> A picture entity who containing Face entities. </p>
+             * Construct from an PictureArray and url.
              *
-             * @author Jeongho Nam
+             * @param pictureArray An array and parent of Picture entities.
+             * @param url An url-address the (physical) picture is placed in.
              */
-            var Picture = (function (_super) {
-                __extends(Picture, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from an PictureArray and url.
-                 *
-                 * @param pictureArray An array and parent of Picture entities.
-                 * @param url An url-address the (physical) picture is placed in.
-                 */
-                function Picture(pictureArray, url) {
-                    if (url === void 0) { url = ""; }
-                    _super.call(this);
-                    this.pictureArray = pictureArray;
-                    this.url = url;
+            function Picture(pictureArray, url) {
+                if (url === void 0) { url = ""; }
+                _super.call(this);
+                this.pictureArray = pictureArray;
+                this.url = url;
+            }
+            Picture.prototype.constructByJSON = function (val) {
+                this.splice(0, this.length); // CLEAR
+                var array = val;
+                for (var i = 0; i < array.length; i++) {
+                    var face = new faceapi.Face(this);
+                    face.constructByJSON(array[i]);
+                    this.push(face);
                 }
-                Picture.prototype.constructByJSON = function (val) {
-                    this.splice(0, this.length); // CLEAR
-                    var array = val;
-                    for (var i = 0; i < array.length; i++) {
-                        var face = new faceapi.face.Face(this);
-                        face.constructByJSON(array[i]);
-                        this.push(face);
-                    }
-                };
-                Picture.prototype.createChild = function (xml) {
-                    return new faceapi.face.Face(this);
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                Picture.prototype.key = function () {
-                    return this.url;
-                };
-                /**
-                 * Get pictureArray.
-                 */
-                Picture.prototype.getPictureArray = function () {
-                    return this.pictureArray;
-                };
-                /**
-                 * Get url.
-                 */
-                Picture.prototype.getURL = function () {
-                    return this.url;
-                };
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE-API
-                -------------------------------------------------------- */
-                /**
-                 * <p> Detect Face(s) in the Picture. </p>
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
-                 * </ul>
-                 */
-                Picture.prototype.detect = function () {
-                    // REMOVE ALL
-                    this.splice(0, this.length);
-                    var this_ = this;
-                    // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/detect", "POST", {
-                        "returnFaceId": "true",
-                        "returnFaceLandmarks": "true",
-                        "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
-                    }, { "url": this.url }, function (data) {
-                        this_.constructByJSON(data);
-                    });
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Picture.prototype.TAG = function () {
-                    return "person";
-                };
-                Picture.prototype.CHILD_TAG = function () {
-                    return "face";
-                };
-                return Picture;
-            })(EntityArray);
-            picture.Picture = Picture;
-        })(picture = faceapi.picture || (faceapi.picture = {}));
+            };
+            Picture.prototype.createChild = function (xml) {
+                return new faceapi.Face(this);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            Picture.prototype.key = function () {
+                return this.url;
+            };
+            /**
+             * Get pictureArray.
+             */
+            Picture.prototype.getPictureArray = function () {
+                return this.pictureArray;
+            };
+            /**
+             * Get url.
+             */
+            Picture.prototype.getURL = function () {
+                return this.url;
+            };
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE-API
+            -------------------------------------------------------- */
+            /**
+             * <p> Detect Face(s) in the Picture. </p>
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
+             * </ul>
+             */
+            Picture.prototype.detect = function () {
+                // REMOVE ALL
+                this.splice(0, this.length);
+                var this_ = this;
+                // DETECT CHILDREN(FACES) AND CONSTRUCT THEM
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/detect", "POST", {
+                    "returnFaceId": "true",
+                    "returnFaceLandmarks": "true",
+                    "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
+                }, { "url": this.url }, function (data) {
+                    this_.constructByJSON(data);
+                });
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Picture.prototype.TAG = function () {
+                return "person";
+            };
+            Picture.prototype.CHILD_TAG = function () {
+                return "face";
+            };
+            return Picture;
+        })(EntityArray);
+        faceapi.Picture = Picture;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="../basic/IJSonEntity.ts" />
-/// <reference path="landmark/FaceLandmarks.ts" />
-/// <reference path="attribute/FaceAttributes.ts" />
-/// <reference path="../person/Person.ts" />
-/// <reference path="../person/PersonGroup.ts" />
-/// <reference path="../result/CandidatePersonArray.ts" />
-/// <reference path="../picture/Picture.ts" />
+/// <reference path="IJSonEntity.ts" />
+/// <reference path="FaceLandmarks.ts" />
+/// <reference path="FaceAttributes.ts" />
+/// <reference path="Person.ts" />
+/// <reference path="PersonGroup.ts" />
+/// <reference path="FaceList.ts" />
+/// <reference path="CandidatePersonArray.ts" />
+/// <reference path="SimilarFaceGroupArray.ts" />
+/// <reference path="Picture.ts" />
 /**
  * A face entity.
  *
@@ -4468,806 +5070,674 @@ var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face_5) {
-            var Face = (function (_super) {
-                __extends(Face, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Constructor from Picture.
-                 *
-                 * @param picture A picture that containing the Face.
-                 */
-                function Face(picture) {
-                    _super.call(this);
-                    this.picture = picture;
-                    this.person = null;
-                    this.id = "";
-                    this.landmarks = new face_5.landmark.FaceLandmarks(this);
-                    this.attributes = new face_5.attribute.FaceAttributes(this);
+        var Face = (function (_super) {
+            __extends(Face, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Constructor from a Picture.
+             *
+             * @param picture A picture that containing the Face.
+             */
+            function Face(picture) {
+                _super.call(this);
+                this.picture = picture;
+                this.person = null;
+                this.id = "";
+                this.landmarks = new faceapi.FaceLandmarks(this);
+                this.attributes = new faceapi.FaceAttributes(this);
+            }
+            Face.prototype.construct = function (xml) {
+                _super.prototype.construct.call(this, xml);
+                this.person = null;
+                if (xml.has("person") == false)
+                    return;
+                var person = xml.get("person")[0];
+                var personName = person.getProperty("name");
+                var personGroupID = person.getProperty("groupID");
+            };
+            Face.prototype.constructByJSON = function (obj) {
+                this.id = obj["faceId"];
+                _super.prototype.constructByJSON.call(this, obj["faceRectangle"]);
+                this.landmarks.constructByJSON(obj["faceLandmarks"]);
+                this.attributes.constructByJSON(obj["faceAttributes"]);
+            };
+            /* --------------------------------------------------------
+                COMPARES
+            -------------------------------------------------------- */
+            /**
+             * <p> Identify the Face is whom (Person, from a PersonGroup). </p>
+             *
+             * <p> You've to execute PersonGroup.train() method, asynchronous method dispatching
+             * "complete" Event when the training was completed, before running the identify() method. </p>
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+             * </ul>
+             *
+             * @param personGroup A PersonGroup, candidates of the owner.
+             * @param maxCandidates Permitted number of candidates to return.
+             *
+             * @return Candidates of the owner with conformaility degrees.
+             */
+            Face.prototype.identify = function (personGroup, maxCandidates) {
+                if (maxCandidates === void 0) { maxCandidates = 1; }
+                return personGroup.identify(this, maxCandidates);
+            };
+            /**
+             * Find similar faces in the FaceList from a Face.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395237 </li>
+             * </ul>
+             *
+             * @param faceList Candidate faces.
+             * @param maxCandidates Maximum number of candidates to be retured.
+             *
+             * @return Similar faces being looked similar.
+             */
+            Face.prototype.findSimilar = function (faceList, maxCandidates) {
+                return faceList.findSimilar(this, maxCandidates);
+            };
+            /**
+             * <p> Divide candidate faces into groups based on face similarity. </p>
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395238 </li>
+             * </ul>
+             *
+             * @param faces Candidate faces.
+             * @return Grouped faces by similarity.
+             */
+            Face.group = function () {
+                var faces = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    faces[_i - 0] = arguments[_i];
                 }
-                Face.prototype.construct = function (xml) {
-                    _super.prototype.construct.call(this, xml);
-                    this.person = null;
-                    if (xml.has("person") == false)
-                        return;
-                    var person = xml.get("person")[0];
-                    var personName = person.getProperty("name");
-                    var personGroupID = person.getProperty("groupID");
-                };
-                Face.prototype.constructByJSON = function (obj) {
-                    this.id = obj["faceId"];
-                    _super.prototype.constructByJSON.call(this, obj["faceRectangle"]);
-                    this.landmarks.constructByJSON(obj["faceLandmarks"]);
-                    this.attributes.constructByJSON(obj["faceAttributes"]);
-                };
-                /* --------------------------------------------------------
-                    COMPARES
-                -------------------------------------------------------- */
-                /**
-                 * <p> Identify the Face is whom (Person, from a PersonGroup). </p>
-                 *
-                 * <p> You've to execute PersonGroup.train() method, asynchronous method dispatching
-                 * "complete" Event when the training was completed, before running the identify() method. </p>
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
-                 * </ul>
-                 *
-                 * @param personGroup A PersonGroup, candidates of the owner.
-                 * @param maxCandidates Permitted number of candidates to return.
-                 *
-                 * @return Candidates of the owner with conformaility degrees.
-                 */
-                Face.prototype.identify = function (personGroup, maxCandidates) {
-                    if (maxCandidates === void 0) { maxCandidates = 1; }
-                    return personGroup.identify(this, maxCandidates);
-                };
-                /**
-                 * Test whether two Faces are owned by a same Person.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
-                 * </ul>
-                 *
-                 * @param face Target Face to compare with.
-                 * @return A pair of flag (whether two Faces are from a same person) and confidence (conformality degree).
-                 */
-                Face.prototype.equals = function (face) {
-                    if (this == face)
-                        return new Pair(true, 1.0);
-                    var pair = new Pair(false, -1.0);
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/verify", "POST", null, { "faceId1": this.id, "faceId2": face.id }, function (data) {
-                        var isIdentical = data["isIdentical"];
-                        var confidence = data["confidence"];
-                        pair = new Pair(isIdentical, confidence);
-                    });
-                    return pair;
-                };
-                /* --------------------------------------------------------
-                    GETTERS & SETTERS
-                -------------------------------------------------------- */
-                Face.prototype.key = function () {
-                    return this.id;
-                };
-                /**
-                 * Get id.
-                 */
-                Face.prototype.getID = function () {
-                    return this.id;
-                };
-                /**
-                 * Get picture.
-                 */
-                Face.prototype.getPicture = function () {
-                    return this.picture;
-                };
-                /**
-                 * Get person.
-                 */
-                Face.prototype.getPerson = function () {
-                    return this.person;
-                };
-                /**
-                 * Get landmarks.
-                 */
-                Face.prototype.getLandmarks = function () {
-                    return this.landmarks;
-                };
-                /**
-                 * Get attributes.
-                 */
-                Face.prototype.getAttributes = function () {
-                    return this.attributes;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Face.prototype.TAG = function () {
-                    return "face";
-                };
-                Face.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    xml.push(this.landmarks.toXML(), this.attributes.toXML());
-                    return xml;
-                };
-                return Face;
-            })(face_5.FaceRectangle);
-            face_5.Face = Face;
-        })(face = faceapi.face || (faceapi.face = {}));
+                var faceArray = new faceapi.FaceReferArray();
+                var faceIDArray = new Array();
+                for (var i = 0; i < faces.length; i++) {
+                    faceArray.push(faces[i]);
+                    faceIDArray.push(faces[i].getID());
+                }
+                var similarFaceGroupArray = new faceapi.SimilarFaceGroupArray(faceArray);
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/group", "POST", null, { "faceIds": faceIDArray }, function (data) {
+                    similarFaceGroupArray.constructByJSON(data);
+                });
+                return similarFaceGroupArray;
+            };
+            /**
+             * Test whether two Faces are owned by a same Person.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a/console </li>
+             * </ul>
+             *
+             * @param face Target Face to compare with.
+             * @return A pair of flag (whether two Faces are from a same person) and confidence (conformality degree).
+             */
+            Face.prototype.equals = function (face) {
+                if (this == face)
+                    return new Pair(true, 1.0);
+                var pair = new Pair(false, -1.0);
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/verify", "POST", null, { "faceId1": this.id, "faceId2": face.id }, function (data) {
+                    var isIdentical = data["isIdentical"];
+                    var confidence = data["confidence"];
+                    pair = new Pair(isIdentical, confidence);
+                });
+                return pair;
+            };
+            /* --------------------------------------------------------
+                GETTERS & SETTERS
+            -------------------------------------------------------- */
+            Face.prototype.key = function () {
+                return this.id;
+            };
+            /**
+             * Get id.
+             */
+            Face.prototype.getID = function () {
+                return this.id;
+            };
+            /**
+             * Get picture.
+             */
+            Face.prototype.getPicture = function () {
+                return this.picture;
+            };
+            /**
+             * Get person.
+             */
+            Face.prototype.getPerson = function () {
+                return this.person;
+            };
+            /**
+             * Get landmarks.
+             */
+            Face.prototype.getLandmarks = function () {
+                return this.landmarks;
+            };
+            /**
+             * Get attributes.
+             */
+            Face.prototype.getAttributes = function () {
+                return this.attributes;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Face.prototype.TAG = function () {
+                return "face";
+            };
+            Face.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.landmarks.toXML(), this.attributes.toXML());
+                return xml;
+            };
+            return Face;
+        })(faceapi.FaceRectangle);
+        faceapi.Face = Face;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="CandidatePerson.ts" />
-/// <referench path="../basic/IJSONEntity.ts" />
-/// <reference path="../face/Face.ts" />
+/// <referench path="IJSONEntity.ts" />
+/// <reference path="Face.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var result;
-        (function (result) {
-            /**
-             * An array and parent of CandidatePerson.
-             *
-             * @author Jeongho Nam
-             */
-            var CandidatePersonArray = (function (_super) {
-                __extends(CandidatePersonArray, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a FaceAPI, Face and PersonGroup.
-                 *
-                 * @param api A facade controller and factory class for Face-API.
-                 * @param face A face who wanted to find its owner.
-                 * @param personGroup A group of Person, candidates of owner.
-                 */
-                function CandidatePersonArray(api, face, personGroup) {
-                    if (face === void 0) { face = null; }
-                    if (personGroup === void 0) { personGroup = null; }
-                    _super.call(this);
-                    this.api = api;
-                    this.face = face;
-                    this.personGroup = personGroup;
+        /**
+         * <p> An array and parent of CandidatePerson. </p>
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+         * </ul>
+         *
+         * @author Jeongho Nam
+         */
+        var CandidatePersonArray = (function (_super) {
+            __extends(CandidatePersonArray, _super);
+            function CandidatePersonArray() {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i - 0] = arguments[_i];
                 }
-                CandidatePersonArray.prototype.construct = function (xml) {
+                _super.call(this);
+                if (args.length == 1 && args[0] instanceof faceapi.FaceAPI) {
+                    this.api = args[0];
                     this.face = null;
                     this.personGroup = null;
-                    // SET FACE
-                    if (xml.hasProperty("faceID") == true) {
-                        var faceID = xml.getProperty("faceID");
-                        var pictureArray = this.api.getPictureArray();
-                        for (var i = 0; i < pictureArray.length; i++) {
-                            var picture = pictureArray[i];
-                            if (picture.has(faceID) == true) {
-                                this.face = picture.get(faceID);
-                                break;
-                            }
+                }
+                else if (args.length == 2 && args[0] instanceof faceapi.Face && args[1] instanceof faceapi.PersonGroup) {
+                    this.face = args[0];
+                    this.personGroup = args[1];
+                    this.api = this.face.getPicture().getPictureArray().getAPI();
+                }
+            }
+            CandidatePersonArray.prototype.construct = function (xml) {
+                this.face = null;
+                this.personGroup = null;
+                // SET FACE
+                if (xml.hasProperty("faceID") == true) {
+                    var faceID = xml.getProperty("faceID");
+                    var pictureArray = this.api.getPictureArray();
+                    for (var i = 0; i < pictureArray.length; i++) {
+                        var picture = pictureArray[i];
+                        if (picture.has(faceID) == true) {
+                            this.face = picture.get(faceID);
+                            break;
                         }
                     }
-                    // SET PERSON_GROUP
-                    if (xml.hasProperty("personGroupID") == true) {
-                        var personGroupID = xml.getProperty("personGroupID");
-                        var personGroupArray = this.api.getPersonGroupArray();
-                        if (personGroupArray.has(personGroupID) == true)
-                            this.personGroup = personGroupArray.get(personGroupID);
-                    }
-                    // SET CHILDREN
-                    _super.prototype.construct.call(this, xml);
-                };
-                CandidatePersonArray.prototype.constructByJSON = function (data) {
-                    this.splice(0, this.length); // CLEAR
-                    var array = data["candidates"];
-                    for (var i = 0; i < array.length; i++) {
-                        var candidatePerson = new result.CandidatePerson(this);
-                        candidatePerson.constructByJSON(array[i]);
-                        this.push(candidatePerson);
-                    }
-                };
-                CandidatePersonArray.prototype.createChild = function (xml) {
-                    if (xml.hasProperty("personID") == true)
-                        return new result.CandidatePerson(this);
-                    else
-                        return null;
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get api.
-                 */
-                CandidatePersonArray.prototype.getAPI = function () {
-                    return this.api;
-                };
-                /**
-                 * Get face.
-                 */
-                CandidatePersonArray.prototype.getFace = function () {
-                    return this.face;
-                };
-                /**
-                 * Get personGroup.
-                 */
-                CandidatePersonArray.prototype.getPersonGroup = function () {
-                    return this.personGroup;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                CandidatePersonArray.prototype.TAG = function () {
-                    return "candidatePersonArray";
-                };
-                CandidatePersonArray.prototype.CHILD_TAG = function () {
-                    return "candidatePerson";
-                };
-                CandidatePersonArray.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    if (this.face != null)
-                        xml.setProperty("faceID", this.face.getID());
-                    if (this.personGroup != null)
-                        xml.setProperty("personGroupID", this.personGroup.getID());
-                    return xml;
-                };
-                return CandidatePersonArray;
-            })(EntityArray);
-            result.CandidatePersonArray = CandidatePersonArray;
-        })(result = faceapi.result || (faceapi.result = {}));
+                }
+                // SET PERSON_GROUP
+                if (xml.hasProperty("personGroupID") == true) {
+                    var personGroupID = xml.getProperty("personGroupID");
+                    var personGroupArray = this.api.getPersonGroupArray();
+                    if (personGroupArray.has(personGroupID) == true)
+                        this.personGroup = personGroupArray.get(personGroupID);
+                }
+                // SET CHILDREN
+                _super.prototype.construct.call(this, xml);
+            };
+            CandidatePersonArray.prototype.constructByJSON = function (data) {
+                this.splice(0, this.length); // CLEAR
+                var array = data["candidates"];
+                for (var i = 0; i < array.length; i++) {
+                    var candidatePerson = new faceapi.CandidatePerson(this);
+                    candidatePerson.constructByJSON(array[i]);
+                    this.push(candidatePerson);
+                }
+            };
+            CandidatePersonArray.prototype.createChild = function (xml) {
+                if (xml.hasProperty("personID") == true)
+                    return new faceapi.CandidatePerson(this);
+                else
+                    return null;
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get api.
+             */
+            CandidatePersonArray.prototype.getAPI = function () {
+                return this.api;
+            };
+            /**
+             * Get face.
+             */
+            CandidatePersonArray.prototype.getFace = function () {
+                return this.face;
+            };
+            /**
+             * Get personGroup.
+             */
+            CandidatePersonArray.prototype.getPersonGroup = function () {
+                return this.personGroup;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            CandidatePersonArray.prototype.TAG = function () {
+                return "candidatePersonArray";
+            };
+            CandidatePersonArray.prototype.CHILD_TAG = function () {
+                return "candidatePerson";
+            };
+            CandidatePersonArray.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                if (this.face != null)
+                    xml.setProperty("faceID", this.face.getID());
+                if (this.personGroup != null)
+                    xml.setProperty("personGroupID", this.personGroup.getID());
+                return xml;
+            };
+            return CandidatePersonArray;
+        })(EntityArray);
+        faceapi.CandidatePersonArray = CandidatePersonArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="Person.ts" />
-/// <reference path="../basic/IGroup.ts" />
-/// <reference path="../result/CandidatePersonArray.ts" />
+/// <reference path="IGroup.ts" />
+/// <reference path="CandidatePersonArray.ts" />
 /// <reference path="PersonGroupArray.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var person;
-        (function (person) {
+        /**
+         * <p> A group of Person instances. </p>
+         *
+         * <p> The PersonGroup class is required when you try to identify a Face is from whom (Person). </p>
+         *
+         * <p> Reference </p>
+         * <ul>
+         *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+         *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+         * </ul>
+         *
+         * @author Jeongho Nam
+         */
+        var PersonGroup = (function (_super) {
+            __extends(PersonGroup, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * <p> A group of Person instances. </p>
+             * Construct from a PersonGroupArray and name.
              *
-             * <p> The PersonGroup class is required when you try to identify a Face is from whom (Person). </p>
+             * @param groupArray An array and parent of the PersonGroup.
+             * @param name Allocated (or to be allocated) name of the PersonGroup.
+             */
+            function PersonGroup(groupArray, name) {
+                if (name === void 0) { name = ""; }
+                _super.call(this);
+                this.groupArray = groupArray;
+                this.id = "";
+                this.name = name;
+                this.trained = false;
+                this.registered = false;
+                this.listeners = new Map();
+            }
+            PersonGroup.prototype.createChild = function (xml) {
+                return new faceapi.Person(this, xml.getProperty("name"));
+            };
+            /* --------------------------------------------------------
+                OPERATORS
+            -------------------------------------------------------- */
+            PersonGroup.prototype.push = function () {
+                var items = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    items[_i - 0] = arguments[_i];
+                }
+                if (this.isRegistered() == false)
+                    this.insertToServer();
+                for (var i = 0; i < items.length; i++)
+                    items[i].insertToServer();
+                return _super.prototype.push.apply(this, items);
+            };
+            PersonGroup.prototype.splice = function (start, deleteCount) {
+                var items = [];
+                for (var _i = 2; _i < arguments.length; _i++) {
+                    items[_i - 2] = arguments[_i];
+                }
+                var i;
+                for (i = start; i < Math.min(start + deleteCount, this.length); i++)
+                    items[i].eraseFromServer();
+                for (i = 0; i < items.length; i++)
+                    items[i].insertToServer();
+                return _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
+            };
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE API
+            -------------------------------------------------------- */
+            /**
+             * <p> Start training; studying.  The method train() a pre-process essentially required
+             * for identify(). </p>
              *
-             * <p> Reference </p>
+             * <p> The training is processed in server side asynchronously. When you call the method train(),
+             * it dispatches an Event "activate". When the training is completed in server side, PersonGroup
+             * will dispatch the "complete" Event. </p>
+             *
              * <ul>
-             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
-             *  <li> https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
+             * </ul>
+             */
+            PersonGroup.prototype.train = function () {
+                // 등록을 먼저 수행
+                if (this.isRegistered() == false)
+                    this.insertToServer();
+                // 학습 수행
+                var this_ = this;
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", null, //{"personGroupId": this.id},
+                null, function (data) {
+                    setTimeout(PersonGroup.checkTrainStatus, 50, this_);
+                });
+            };
+            /**
+             * Query about training status to Face-API server.
+             *
+             * @param this_ A PersonGroup object who executed the train() method.
+             */
+            PersonGroup.checkTrainStatus = function (this_) {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this_.id + "/training", "GET", null, null, function (data) {
+                    var status = data["status"];
+                    trace("on progress", status);
+                    if (status == "succeeded") {
+                        this_.trained = true;
+                        this_.dispatchEvent(new Event("complete"));
+                    }
+                    else if (status == "failed") {
+                        var errorEvent = new ErrorEvent();
+                        errorEvent.message = data["message"];
+                        this_.dispatchEvent(errorEvent);
+                    }
+                    else {
+                        // 50ms 후에 재 확인
+                        setTimeout(PersonGroup.checkTrainStatus, 50, this_);
+                    }
+                }, false // ASYNCHRONOUSLY
+                );
+            };
+            /**
+             * <p> Ideitify who is owner of the Face. </p>
+             *
+             * <p> You've to execute train() method, asynchronous method dispatching "complete" Event
+             * when the training was completed, before running the identify() method. </p>
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
              * </ul>
              *
-             * @author Jeongho Nam
+             * @param face Target face to identify
+             * @param maxCandidates Permitted number of candidates to return.
+             *
+             * @return Candidates of the owner with conformaility degrees.
              */
-            var PersonGroup = (function (_super) {
-                __extends(PersonGroup, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a PersonGroupArray and name.
-                 *
-                 * @param groupArray An array and parent of the PersonGroup.
-                 * @param name Allocated (or to be allocated) name of the PersonGroup.
-                 */
-                function PersonGroup(groupArray, name) {
-                    if (name === void 0) { name = ""; }
-                    _super.call(this);
-                    this.groupArray = groupArray;
-                    this.id = "";
-                    this.name = name;
-                    this.trained = false;
-                    this.registered = false;
-                    this.listeners = new Map();
-                }
-                PersonGroup.prototype.createChild = function (xml) {
-                    return new person.Person(this, xml.getProperty("name"));
-                };
-                /* --------------------------------------------------------
-                    OPERATORS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.push = function () {
-                    var items = [];
-                    for (var _i = 0; _i < arguments.length; _i++) {
-                        items[_i - 0] = arguments[_i];
-                    }
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    for (var i = 0; i < items.length; i++)
-                        items[i].insertToServer();
-                    return _super.prototype.push.apply(this, items);
-                };
-                PersonGroup.prototype.splice = function (start, deleteCount) {
-                    var items = [];
-                    for (var _i = 2; _i < arguments.length; _i++) {
-                        items[_i - 2] = arguments[_i];
-                    }
-                    var i;
-                    for (i = start; i < Math.min(start + deleteCount, this.length); i++)
-                        items[i].eraseFromServer();
-                    for (i = 0; i < items.length; i++)
-                        items[i].insertToServer();
-                    return _super.prototype.splice.apply(this, [start, deleteCount].concat(items));
-                };
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API
-                -------------------------------------------------------- */
-                /**
-                 * <p> Start training; studying.  The method train() a pre-process essentially required
-                 * for identify(). </p>
-                 *
-                 * <p> The training is processed in server side asynchronously. When you call the method train(),
-                 * it dispatches an Event "activate". When the training is completed in server side, PersonGroup
-                 * will dispatch the "complete" Event. </p>
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249 </li>
-                 * </ul>
-                 */
-                PersonGroup.prototype.train = function () {
-                    // 등록을 먼저 수행
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    // 학습 수행
-                    var this_ = this;
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", null, //{"personGroupId": this.id},
-                    null, function (data) {
-                        setTimeout(PersonGroup.checkTrainStatus, 50, this_);
-                    });
-                };
-                /**
-                 * Query about training status to Face-API server.
-                 *
-                 * @param this_ A PersonGroup object who executed the train() method.
-                 */
-                PersonGroup.checkTrainStatus = function (this_) {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this_.id + "/training", "GET", null, null, function (data) {
-                        var status = data["status"];
-                        trace("on progress", status);
-                        if (status == "succeeded") {
-                            this_.trained = true;
-                            this_.dispatchEvent(new Event("complete"));
-                        }
-                        else if (status == "failed") {
-                            var errorEvent = new ErrorEvent();
-                            errorEvent.message = data["message"];
-                            this_.dispatchEvent(errorEvent);
-                        }
-                        else {
-                            // 50ms 후에 재 확인
-                            setTimeout(PersonGroup.checkTrainStatus, 50, this_);
-                        }
-                    }, false // ASYNCHRONOUSLY
-                    );
-                };
-                /**
-                 * <p> Ideitify who is owner of the Face. </p>
-                 *
-                 * <p> You've to execute train() method, asynchronous method dispatching "complete" Event
-                 * when the training was completed, before running the identify() method. </p>
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
-                 * </ul>
-                 *
-                 * @param face Target face to identify
-                 * @param maxCandidates Permitted number of candidates to return.
-                 *
-                 * @return Candidates of the owner with conformaility degrees.
-                 */
-                PersonGroup.prototype.identify = function (face, maxCandidates) {
-                    if (maxCandidates === void 0) { maxCandidates = 1; }
-                    // Have to be trained.
-                    if (this.isTrained() == false)
-                        throw new Error("Not trained.");
-                    var this_ = this;
-                    var candidatePersonArray = new faceapi.result.CandidatePersonArray(this.groupArray.getAPI(), face, this);
-                    trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/identify", "POST", null, {
-                        "personGroupId": this.id,
-                        "faceIds": [face.getID()],
-                        "maxNumOfCandidatesReturned": maxCandidates
-                    }, function (data) {
-                        candidatePersonArray.constructByJSON(data);
-                    });
-                    return candidatePersonArray;
-                };
-                /**
-                 * Insert the PersonGroup to the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
-                 * </ul>
-                 */
-                PersonGroup.prototype.insertToServer = function () {
-                    // 식별자 번호 발급
-                    if (this.id == "")
-                        this.id = faceapi.FaceAPI.issueID("person_group");
-                    var this_ = this;
-                    trace("PersonGroup::insertToServer");
-                    // 서버에 등록
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", null, //{"personGroupId": this.id},
-                    { "name": this.name, "userData": "" }, function (data) {
-                        this_.registered = true;
-                    });
-                };
-                /**
-                 * Remove the PersonGroup from the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
-                 * </ul>
-                 */
-                PersonGroup.prototype.eraseFromServer = function () {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, null);
-                    this.trained = false;
-                    this.registered = false;
-                };
-                /* --------------------------------------------------------
-                    EVENT LISTENERS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.hasEventListener = function (type) {
-                    return this.listeners.has(type);
-                };
-                PersonGroup.prototype.addEventListener = function (type, listener) {
-                    if (this.listeners.has(type) == false)
-                        this.listeners.set(type, new Set());
-                    var listenerSet = this.listeners.get(type);
-                    listenerSet.insert(listener);
-                };
-                PersonGroup.prototype.removeEventListener = function (type, listener) {
-                    if (this.listeners.has(type) == false)
-                        return;
-                    var listenerSet = this.listeners.get(type);
-                    listenerSet.erase(listener);
-                };
-                PersonGroup.prototype.dispatchEvent = function (event) {
-                    if (this.listeners.has(event.type) == false)
-                        return;
-                    var listenerSet = this.listeners.get(event.type);
-                    for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
-                        it.value(event);
-                };
-                /* --------------------------------------------------------
-                    GETTERS & SETTERS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.key = function () {
-                    return this.id;
-                };
-                /**
-                 * Get groupArray.
-                 */
-                PersonGroup.prototype.getGroupArray = function () {
-                    return this.groupArray;
-                };
-                /**
-                 * Get id.
-                 */
-                PersonGroup.prototype.getID = function () {
-                    return this.id;
-                };
-                /**
-                 * Get name.
-                 */
-                PersonGroup.prototype.getName = function () {
-                    return this.name;
-                };
-                PersonGroup.prototype.isRegistered = function () {
-                    return this.registered;
-                    ;
-                };
-                /**
-                 * Test whether the PersonGroup has trained.
-                 */
-                PersonGroup.prototype.isTrained = function () {
-                    return this.trained;
-                };
-                /**
-                 * Set name not only in PersonGroup but also in the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524a </li>
-                 * </ul>
-                 *
-                 * @param name New name
-                 */
-                PersonGroup.prototype.setName = function (name) {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PATCH", null, { "name": name, "userData": "" }, null);
-                    this.name = name;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                PersonGroup.prototype.TAG = function () {
-                    return "personGroup";
-                };
-                PersonGroup.prototype.CHILD_TAG = function () {
-                    return "person";
-                };
-                return PersonGroup;
-            })(EntityArray);
-            person.PersonGroup = PersonGroup;
-        })(person = faceapi.person || (faceapi.person = {}));
+            PersonGroup.prototype.identify = function (face, maxCandidates) {
+                if (maxCandidates === void 0) { maxCandidates = 1; }
+                // Have to be trained.
+                if (this.isTrained() == false)
+                    throw new Error("Not trained.");
+                var this_ = this;
+                var candidatePersonArray = new faceapi.CandidatePersonArray(face, this);
+                trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/identify", "POST", null, {
+                    "personGroupId": this.id,
+                    "faceIds": [face.getID()],
+                    "maxNumOfCandidatesReturned": maxCandidates
+                }, function (data) {
+                    candidatePersonArray.constructByJSON(data);
+                });
+                return candidatePersonArray;
+            };
+            /**
+             * Insert the PersonGroup to the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
+             * </ul>
+             */
+            PersonGroup.prototype.insertToServer = function () {
+                // 식별자 번호 발급
+                if (this.id == "")
+                    this.id = faceapi.FaceAPI.issueID("person_group");
+                var this_ = this;
+                trace("PersonGroup::insertToServer");
+                // 서버에 등록
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", null, //{"personGroupId": this.id},
+                { "name": this.name, "userData": "" }, function (data) {
+                    this_.registered = true;
+                });
+            };
+            /**
+             * Remove the PersonGroup from the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
+             * </ul>
+             */
+            PersonGroup.prototype.eraseFromServer = function () {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, null);
+                this.trained = false;
+                this.registered = false;
+            };
+            /* --------------------------------------------------------
+                EVENT LISTENERS
+            -------------------------------------------------------- */
+            PersonGroup.prototype.hasEventListener = function (type) {
+                return this.listeners.has(type);
+            };
+            PersonGroup.prototype.addEventListener = function (type, listener) {
+                if (this.listeners.has(type) == false)
+                    this.listeners.set(type, new Set());
+                var listenerSet = this.listeners.get(type);
+                listenerSet.insert(listener);
+            };
+            PersonGroup.prototype.removeEventListener = function (type, listener) {
+                if (this.listeners.has(type) == false)
+                    return;
+                var listenerSet = this.listeners.get(type);
+                listenerSet.erase(listener);
+            };
+            PersonGroup.prototype.dispatchEvent = function (event) {
+                if (this.listeners.has(event.type) == false)
+                    return;
+                var listenerSet = this.listeners.get(event.type);
+                for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
+                    it.value(event);
+            };
+            /* --------------------------------------------------------
+                GETTERS & SETTERS
+            -------------------------------------------------------- */
+            PersonGroup.prototype.key = function () {
+                return this.id;
+            };
+            /**
+             * Get groupArray.
+             */
+            PersonGroup.prototype.getGroupArray = function () {
+                return this.groupArray;
+            };
+            /**
+             * Get id.
+             */
+            PersonGroup.prototype.getID = function () {
+                return this.id;
+            };
+            /**
+             * Get name.
+             */
+            PersonGroup.prototype.getName = function () {
+                return this.name;
+            };
+            PersonGroup.prototype.isRegistered = function () {
+                return this.registered;
+                ;
+            };
+            /**
+             * Test whether the PersonGroup has trained.
+             */
+            PersonGroup.prototype.isTrained = function () {
+                return this.trained;
+            };
+            /**
+             * Set name not only in PersonGroup but also in the Face-API server.
+             *
+             * <ul>
+             *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524a </li>
+             * </ul>
+             *
+             * @param name New name
+             */
+            PersonGroup.prototype.setName = function (name) {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PATCH", null, { "name": name, "userData": "" }, null);
+                this.name = name;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            PersonGroup.prototype.TAG = function () {
+                return "personGroup";
+            };
+            PersonGroup.prototype.CHILD_TAG = function () {
+                return "person";
+            };
+            return PersonGroup;
+        })(EntityArray);
+        faceapi.PersonGroup = PersonGroup;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="PersonGroup.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var person;
-        (function (person) {
+        /**
+         * An array and parent of PersonGroup entities.
+         *
+         * @author Jeongho Nam
+         */
+        var PersonGroupArray = (function (_super) {
+            __extends(PersonGroupArray, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * An array and parent of PersonGroup entities.
+             * Construct from a FaceAPI.
              *
-             * @author Jeongho Nam
+             * @param api A facade controller and factory class for Face-API.
              */
-            var PersonGroupArray = (function (_super) {
-                __extends(PersonGroupArray, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a FaceAPI.
-                 *
-                 * @param api A facade controller and factory class for Face-API.
-                 */
-                function PersonGroupArray(api) {
-                    _super.call(this);
-                    this.api = api;
-                }
-                PersonGroupArray.prototype.createChild = function (xml) {
-                    return new person.PersonGroup(this, xml.getProperty("name"));
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get api.
-                 */
-                PersonGroupArray.prototype.getAPI = function () {
-                    return this.api;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                PersonGroupArray.prototype.TAG = function () {
-                    return "personGroupArray";
-                };
-                PersonGroupArray.prototype.CHILD_TAG = function () {
-                    return "personGroup";
-                };
-                return PersonGroupArray;
-            })(EntityArray);
-            person.PersonGroupArray = PersonGroupArray;
-        })(person = faceapi.person || (faceapi.person = {}));
+            function PersonGroupArray(api) {
+                _super.call(this);
+                this.api = api;
+            }
+            PersonGroupArray.prototype.createChild = function (xml) {
+                return new faceapi.PersonGroup(this, xml.getProperty("name"));
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get api.
+             */
+            PersonGroupArray.prototype.getAPI = function () {
+                return this.api;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            PersonGroupArray.prototype.TAG = function () {
+                return "personGroupArray";
+            };
+            PersonGroupArray.prototype.CHILD_TAG = function () {
+                return "personGroup";
+            };
+            return PersonGroupArray;
+        })(EntityArray);
+        faceapi.PersonGroupArray = PersonGroupArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../face/FacePairArray.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var facelist;
-        (function (facelist) {
-            /**
-             * <p> A FacePairArray for representing a face list. </p>
-             *
-             * <p> References </p>
-             * <ul>
-             *  <li> Creating a FaceList: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
-             *  <li> Find Similar: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395237 </li>
-             * </ul>
-             *
-             * @inheritDoc
-             */
-            var FaceList = (function (_super) {
-                __extends(FaceList, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a FaceListArray and name.
-                 *
-                 * @param listArray An array and parent of the FaceList.
-                 * @param name Name representing the FaceList.
-                 */
-                function FaceList(listArray, name) {
-                    if (name === void 0) { name = ""; }
-                    _super.call(this, name);
-                    this.listArray = listArray;
-                    this.id = "";
-                    this.name = name;
-                    this.registered = false;
-                }
-                /* --------------------------------------------------------
-                    INTERACTION WITH FACE API
-                -------------------------------------------------------- */
-                /**
-                 * Insert the FaceList to the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
-                 * </ul>
-                 */
-                FaceList.prototype.insertToServer = function () {
-                    // ISSUE ID
-                    if (this.id == "")
-                        this.id = faceapi.FaceAPI.issueID("face_list");
-                    var this_ = this;
-                    // REGISTER TO THE SERVER
-                    var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
-                    var method = "PUT";
-                    var params = { "faceListId": this.id };
-                    var data = {
-                        "name": this.name,
-                        "userData": ""
-                    };
-                    var success = function (data) {
-                        this_.registered = true;
-                    };
-                    // SEND
-                    faceapi.FaceAPI.query(url, method, params, data, success);
-                };
-                /**
-                 * Remove the FaceList from the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
-                 * </ul>
-                 */
-                FaceList.prototype.eraseFromServer = function () {
-                    // READY
-                    var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
-                    var method = "DELETE";
-                    var params = { "faceListId": this.id };
-                    // SEND
-                    faceapi.FaceAPI.query(url, method, params, null, null);
-                    _super.prototype.eraseFromServer.call(this);
-                };
-                /**
-                 * Insert a child FacePair instance to the Face-API server
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
-                 * </ul>
-                 */
-                FaceList.prototype.insertFaceToServer = function (face) {
-                    if (this.isRegistered() == false)
-                        this.insertToServer();
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
-                        //"faceListId": this.id,
-                        "userData": "",
-                        "targetFace": face.getX() + "," + face.getY() + "," + face.getWidth() + "," + face.getHeight()
-                    }, {
-                        "url": face.getPictureURL()
-                    }, function (data) {
-                        face.setID(data["persistedFaceId"]);
-                    });
-                };
-                /**
-                 * Remove a child FacePair instance from the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
-                 * </ul>
-                 */
-                FaceList.prototype.eraseFaceFromServer = function (face) {
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
-                        "faceListId": this.id,
-                        "persistedFaceId": face.getID()
-                    }, null, null);
-                    _super.prototype.eraseFaceFromServer.call(this, face);
-                };
-                /* --------------------------------------------------------
-                    GETTERS & SETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get api in listArray.
-                 */
-                FaceList.prototype.getAPI = function () {
-                    return this.listArray.getAPI();
-                };
-                /**
-                 * Get listArray.
-                 */
-                FaceList.prototype.getListArray = function () {
-                    return this.listArray;
-                };
-                /**
-                 * Set name and notify it to the Face-API server.
-                 *
-                 * <ul>
-                 *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524e </li>
-                 * </ul>
-                 *
-                 * @param name New name of the FacePairArray.
-                 */
-                FaceList.prototype.setName = function (name) {
-                    var this_ = this;
-                    faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id, "PATCH", { "faceListId": this.id }, {
-                        "name": this.name,
-                        "userData": ""
-                    }, function (data) {
-                        this_.name = name;
-                    });
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                FaceList.prototype.TAG = function () {
-                    return "faceList";
-                };
-                return FaceList;
-            })(faceapi.face.FacePairArray);
-            facelist.FaceList = FaceList;
-        })(facelist = faceapi.facelist || (faceapi.facelist = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="FaceList.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var facelist;
-        (function (facelist) {
+        /**
+         * An array and parent of FaceList entities.
+         *
+         * @author Jeongho Nam
+         */
+        var FaceListArray = (function (_super) {
+            __extends(FaceListArray, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
             /**
-             * An array and parent of FaceList entities.
+             * Construct from a FaceAPI.
              *
-             * @author Jeongho Nam
+             * @param api A facade controller and factory class for Face-API.
              */
-            var FaceListArray = (function (_super) {
-                __extends(FaceListArray, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a FaceAPI.
-                 *
-                 * @param api A facade controller and factory class for Face-API.
-                 */
-                function FaceListArray(api) {
-                    _super.call(this);
-                    this.api = api;
-                }
-                FaceListArray.prototype.createChild = function (xml) {
-                    return new facelist.FaceList(this, xml.getProperty("name"));
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get api.
-                 */
-                FaceListArray.prototype.getAPI = function () {
-                    return this.api;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                FaceListArray.prototype.TAG = function () {
-                    return "faceListArray";
-                };
-                FaceListArray.prototype.CHILD_TAG = function () {
-                    return "faceList";
-                };
-                return FaceListArray;
-            })(EntityArray);
-            facelist.FaceListArray = FaceListArray;
-        })(facelist = faceapi.facelist || (faceapi.facelist = {}));
+            function FaceListArray(api) {
+                _super.call(this);
+                this.api = api;
+            }
+            FaceListArray.prototype.createChild = function (xml) {
+                return new faceapi.FaceList(this, xml.getProperty("name"));
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get api.
+             */
+            FaceListArray.prototype.getAPI = function () {
+                return this.api;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            FaceListArray.prototype.TAG = function () {
+                return "faceListArray";
+            };
+            FaceListArray.prototype.CHILD_TAG = function () {
+                return "faceList";
+            };
+            return FaceListArray;
+        })(EntityArray);
+        faceapi.FaceListArray = FaceListArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="../../SamchonFramework.ts" />
 /// <reference path="../../jquery.d.ts" />
-/// <reference path="person/PersonGroupArray.ts" />
-/// <reference path="facelist/FaceListArray.ts" />
-/// <reference path="picture/PictureArray.ts" />
+/// <reference path="PersonGroupArray.ts" />
+/// <reference path="FaceListArray.ts" />
+/// <reference path="PictureArray.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
@@ -5287,9 +5757,9 @@ var hiswill;
              */
             function FaceAPI() {
                 _super.call(this);
-                this.personGroupArray = new faceapi.person.PersonGroupArray(this);
-                this.faceListArray = new faceapi.facelist.FaceListArray(this);
-                this.pictureArray = new faceapi.picture.PictureArray(this);
+                this.personGroupArray = new faceapi.PersonGroupArray(this);
+                this.faceListArray = new faceapi.FaceListArray(this);
+                this.pictureArray = new faceapi.PictureArray(this);
             }
             /**
              * Factory method of PersonGroup.
@@ -5297,27 +5767,27 @@ var hiswill;
              * @param name Name of a new PersonGroup
              */
             FaceAPI.prototype.createPersonGroup = function (name) {
-                var personGroup = new faceapi.person.PersonGroup(this.personGroupArray, name);
+                var personGroup = new faceapi.PersonGroup(this.personGroupArray, name);
                 this.personGroupArray.push(personGroup);
                 return personGroup;
             };
             /**
              * Factory method of FaceList.
              *
-             * @apram name Name of a new FaceList.
+             * @param name Name of a new FaceList.
              */
             FaceAPI.prototype.createFaceList = function (name) {
-                var faceList = new faceapi.facelist.FaceList(this.faceListArray, name);
+                var faceList = new faceapi.FaceList(this.faceListArray, name);
                 this.faceListArray.push(faceList);
                 return faceList;
             };
             /**
              * Factory method of Picture.
              *
-             * @apram url URL-address of a new Picture.
+             * @param url URL-address of a new Picture.
              */
             FaceAPI.prototype.createPicture = function (url) {
-                var picture = new faceapi.picture.Picture(this.pictureArray, url);
+                var picture = new faceapi.Picture(this.pictureArray, url);
                 this.pictureArray.push(picture);
                 return picture;
             };
@@ -5414,856 +5884,497 @@ var hiswill;
         faceapi.FaceAPI = FaceAPI;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSONEntity.ts" />
+/// <reference path="Person.ts" />
+/// <reference path="CandidatePersonArray.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * <p> A candidate person derived from Identify. </p>
+         *
+         * <ul>
+         *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
+         * </ul>
+         *
+         * @author Jeongho Nam
+         */
+        var CandidatePerson = (function (_super) {
+            __extends(CandidatePerson, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a CandidatePersonArray
+             *
+             * @param personArray An array and parent of CandidatePerson.
+             */
+            function CandidatePerson(personArray) {
+                _super.call(this);
+                this.personArray = personArray;
+            }
+            CandidatePerson.prototype.construct = function (xml) {
+                _super.prototype.construct.call(this, xml);
+                this.person = null;
+                if (xml.hasProperty("personID") == false)
+                    return;
+                var personID = xml.getProperty("personID");
+                var personGroup = this.personArray.getPersonGroup();
+                if (personGroup != null && personGroup.has(personID) == true)
+                    this.person = personGroup.get(personID);
+            };
+            CandidatePerson.prototype.constructByJSON = function (obj) {
+                faceapi.Global.fetch(this, obj); // confidence
+                // SET PERSON
+                var personGroup = this.personArray.getPersonGroup();
+                var personID = obj["personId"];
+                if (personGroup != null && personGroup.has(personID) == true)
+                    this.person = personGroup.get(personID);
+                else
+                    this.person = null;
+            };
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Get personArray.
+             */
+            CandidatePerson.prototype.getPersonArray = function () {
+                return this.personArray;
+            };
+            /**
+             * Get person.
+             */
+            CandidatePerson.prototype.getPerson = function () {
+                return this.person;
+            };
+            /**
+             * Get confidence.
+             */
+            CandidatePerson.prototype.getConfidence = function () {
+                return this.confidence;
+            };
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            CandidatePerson.prototype.TAG = function () {
+                return "candidatePerson";
+            };
+            CandidatePerson.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                if (this.person != null)
+                    xml.setProperty("personID", this.person.getID());
+                return xml;
+            };
+            return CandidatePerson;
+        })(Entity);
+        faceapi.CandidatePerson = CandidatePerson;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="hiswill/faceapi/FaceAPI.ts" />
+var api = hiswill.faceapi;
+function main() {
+    var faceAPI = new api.FaceAPI();
+    var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
+    picture.detect();
+    trace("Detected");
+    //var faceList = faceAPI.createFaceList("other_group");
+    var personGroup = faceAPI.createPersonGroup("others");
+    for (var i = 0; i < 3; i++) {
+        var face = picture[i];
+        //faceList.push(face);
+        var person = new api.Person(personGroup, "my_name_" + (i + 1));
+        personGroup.push(person);
+        person.push(face);
+    }
+    trace("Registered");
+    personGroup.addEventListener("complete", function (ev) {
+        trace("Trained");
+        var face = picture[0];
+        var candidates = personGroup.identify(face, 2);
+        trace("Identified", candidates.toXML());
+    });
+    personGroup.train();
+}
+/// <reference path="FaceAPI.ts" />
 /// <reference path="IJSonEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var basic;
-        (function (basic) {
-            /**
-             * An entity representing coordinates X and Y.
-             *
-             * @author Jeongho Nam
-             */
-            var Point = (function (_super) {
-                __extends(Point, _super);
-                /* --------------------------------------------------------
-                    CONSTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Construct from a XML tag name.
-                 */
-                function Point(tag) {
-                    if (tag === void 0) { tag = ""; }
-                    _super.call(this);
-                    this.tag = tag;
-                    this.x = 0;
-                    this.y = 0;
-                }
-                Point.prototype.constructByJSON = function (val) {
-                    faceapi.Global.fetch(this, val);
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get coordinate X.
-                 */
-                Point.prototype.getX = function () {
-                    return this.x;
-                };
-                /**
-                 * Get coordinate Y.
-                 */
-                Point.prototype.getY = function () {
-                    return this.y;
-                };
-                /* --------------------------------------------------------
-                    EXPORTERS
-                -------------------------------------------------------- */
-                Point.prototype.TAG = function () {
-                    return this.tag;
-                };
-                Point.prototype.toXML = function () {
-                    var xml = _super.prototype.toXML.call(this);
-                    xml.eraseProperty("tag");
-                    return xml;
-                };
-                return Point;
-            })(Entity);
-            basic.Point = Point;
-        })(basic = faceapi.basic || (faceapi.basic = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../FaceAPI.ts" />
-/// <reference path="../basic/Point.ts" />
-/// <reference path="../basic/IJSonEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var face;
-        (function (face) {
-            /**
-             * An abstract class having position and size data of rectangle which are representing a face in a picture.
-             *
-             * @author Jeongho Nam
-             */
-            var FaceRectangle = (function (_super) {
-                __extends(FaceRectangle, _super);
-                /* --------------------------------------------------------
-                    CONTRUCTORS
-                -------------------------------------------------------- */
-                /**
-                 * Default Constructor.
-                 */
-                function FaceRectangle() {
-                    _super.call(this);
-                    this.width = 0;
-                    this.height = 0;
-                }
-                FaceRectangle.prototype.constructByJSON = function (obj) {
-                    faceapi.Global.fetch(this, obj);
-                    this.x = obj["left"];
-                    this.y = obj["top"];
-                };
-                /* --------------------------------------------------------
-                    GETTERS
-                -------------------------------------------------------- */
-                /**
-                 * Get width.
-                 */
-                FaceRectangle.prototype.getWidth = function () {
-                    return this.width;
-                };
-                /**
-                 * Get height.
-                 */
-                FaceRectangle.prototype.getHeight = function () {
-                    return this.height;
-                };
-                return FaceRectangle;
-            })(faceapi.basic.Point);
-            face.FaceRectangle = FaceRectangle;
-        })(face = faceapi.face || (faceapi.face = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../basic/IJSonEntity.ts" />
 /// <reference path="FaceLandmarks.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * An abstract entity representing a landmark of a face with its position and size.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var FaceLandmark = (function (_super) {
-                    __extends(FaceLandmark, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a FaceLandmarks.
-                     *
-                     * @param landmarks A group and parent of the FaceLandmark.
-                     */
-                    function FaceLandmark(landmarks) {
-                        _super.call(this);
-                    }
-                    FaceLandmark.prototype.constructByJSON = function (val) {
-                        faceapi.Global.fetch(this, val);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get landmarks.
-                     */
-                    FaceLandmark.prototype.getLandmarks = function () {
-                        return this.landmarks;
-                    };
-                    return FaceLandmark;
-                })(Entity);
-                landmark.FaceLandmark = FaceLandmark;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * An abstract entity representing a landmark of a face with its position and size.
+         *
+         * @author Jeongho Nam
+         */
+        var FaceLandmark = (function (_super) {
+            __extends(FaceLandmark, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function FaceLandmark(landmarks) {
+                _super.call(this);
+            }
+            FaceLandmark.prototype.constructByJSON = function (val) {
+                faceapi.Global.fetch(this, val);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get landmarks.
+             */
+            FaceLandmark.prototype.getLandmarks = function () {
+                return this.landmarks;
+            };
+            return FaceLandmark;
+        })(Entity);
+        faceapi.FaceLandmark = FaceLandmark;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../basic/IJSonEntity.ts" />
-/// <reference path="../../basic/Point.ts" />
-/// <reference path="Eyes.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * An entity representing an eye.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Eye = (function (_super) {
-                    __extends(Eye, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from an Eyes and direction.
-                     *
-                     * @param eyes A parent entity containing two Eye(s).
-                     * @param direction Direction of placed in.
-                     */
-                    function Eye(eyes, direction) {
-                        _super.call(this);
-                        this.eyes = eyes;
-                        this.direction = direction;
-                        this.top = new faceapi.basic.Point("top");
-                        this.bottom = new faceapi.basic.Point("bottom");
-                        this.inner = new faceapi.basic.Point("inner");
-                        this.outer = new faceapi.basic.Point("outer");
-                        this.pupil = new landmark.Pupil(this);
-                    }
-                    Eye.prototype.constructByJSON = function (obj) {
-                        if (this.direction == faceapi.Direction.LEFT) {
-                            this.top.constructByJSON(obj["eyeLeftTop"]);
-                            this.bottom.constructByJSON(obj["eyeLeftBottom"]);
-                            this.inner.constructByJSON(obj["eyeLeftInner"]);
-                            this.outer.constructByJSON(obj["eyeLeftOuter"]);
-                            this.pupil.constructByJSON(obj["pupilLeft"]);
-                        }
-                        else {
-                            this.top.constructByJSON(obj["eyeRightTop"]);
-                            this.bottom.constructByJSON(obj["eyeRightBottom"]);
-                            this.inner.constructByJSON(obj["eyeRightInner"]);
-                            this.outer.constructByJSON(obj["eyeRightOuter"]);
-                            this.pupil.constructByJSON(obj["pupilRight"]);
-                        }
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get eyes.
-                     */
-                    Eye.prototype.getEyes = function () {
-                        return this.eyes;
-                    };
-                    /**
-                     * Get opposite side's Eye.
-                     */
-                    Eye.prototype.getOpposite = function () {
-                        if (this.direction == faceapi.Direction.LEFT)
-                            return this.eyes.getRight();
-                        else
-                            return this.eyes.getLeft();
-                    };
-                    /**
-                     * Get top.
-                     */
-                    Eye.prototype.getTop = function () {
-                        return this.top;
-                    };
-                    /**
-                     * Get bottom.
-                     */
-                    Eye.prototype.getBottom = function () {
-                        return this.bottom;
-                    };
-                    /**
-                     * Get inner.
-                     */
-                    Eye.prototype.getInner = function () {
-                        return this.inner;
-                    };
-                    /**
-                     * Get outer.
-                     */
-                    Eye.prototype.getOuter = function () {
-                        return this.outer;
-                    };
-                    /**
-                     * Get pupil.
-                     */
-                    Eye.prototype.getPupil = function () {
-                        return this.pupil;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eye.prototype.TAG = function () {
-                        if (this.direction == faceapi.Direction.LEFT)
-                            return "left";
-                        else
-                            return "right";
-                    };
-                    Eye.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.eraseProperty("direction");
-                        xml.push(this.top.toXML(), this.bottom.toXML(), this.inner.toXML(), this.outer.toXML(), this.pupil.toXML());
-                        return xml;
-                    };
-                    return Eye;
-                })(Entity);
-                landmark.Eye = Eye;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
 /// <reference path="Eye.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * A FaceLandmark representing eyes.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Eyes = (function (_super) {
-                    __extends(Eyes, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a FaceLandmarks.
-                     *
-                     * @param landmarks A group and parent of the FaceLandmark.
-                     */
-                    function Eyes(landmarks) {
-                        _super.call(this, landmarks);
-                        this.left = new landmark.Eye(this, faceapi.Direction.LEFT);
-                        this.right = new landmark.Eye(this, faceapi.Direction.RIGHT);
-                    }
-                    Eyes.prototype.constructByJSON = function (obj) {
-                        this.left.constructByJSON(obj);
-                        this.right.constructByJSON(obj);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get left.
-                     */
-                    Eyes.prototype.getLeft = function () {
-                        return this.left;
-                    };
-                    /**
-                     * Get right.
-                     */
-                    Eyes.prototype.getRight = function () {
-                        return this.right;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eyes.prototype.TAG = function () {
-                        return "eyes";
-                    };
-                    Eyes.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.left.toXML(), this.right.toXML());
-                        return xml;
-                    };
-                    return Eyes;
-                })(landmark.FaceLandmark);
-                landmark.Eyes = Eyes;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * A FaceLandmark representing eyes.
+         *
+         * @author Jeongho Nam
+         */
+        var Eyes = (function (_super) {
+            __extends(Eyes, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function Eyes(landmarks) {
+                _super.call(this, landmarks);
+                this.left = new faceapi.Eye(this, faceapi.Direction.LEFT);
+                this.right = new faceapi.Eye(this, faceapi.Direction.RIGHT);
+            }
+            Eyes.prototype.constructByJSON = function (obj) {
+                this.left.constructByJSON(obj);
+                this.right.constructByJSON(obj);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get left.
+             */
+            Eyes.prototype.getLeft = function () {
+                return this.left;
+            };
+            /**
+             * Get right.
+             */
+            Eyes.prototype.getRight = function () {
+                return this.right;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Eyes.prototype.TAG = function () {
+                return "eyes";
+            };
+            Eyes.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.left.toXML(), this.right.toXML());
+                return xml;
+            };
+            return Eyes;
+        })(faceapi.FaceLandmark);
+        faceapi.Eyes = Eyes;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../basic/IJSonEntity.ts" />
-/// <reference path="../../basic/Point.ts" />
-/// <reference path="Eyebrows.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
+/// <reference path="Point.ts" />
+/// <reference path="Eyes.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * An entity representing an eyebrow.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Eyebrow = (function (_super) {
-                    __extends(Eyebrow, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from an Eyebrows and direction.
-                     *
-                     * @param eyeBrows A parent entity containing two Eyebrow(s).
-                     * @param direction Direction of placed in.
-                     */
-                    function Eyebrow(eyeBrows, direction) {
-                        _super.call(this);
-                        this.eyeBrows = eyeBrows;
-                        this.direction = direction;
-                        this.inner = new faceapi.basic.Point("inner");
-                        this.outer = new faceapi.basic.Point("outer");
-                    }
-                    Eyebrow.prototype.constructByJSON = function (obj) {
-                        if (this.direction == faceapi.Direction.LEFT) {
-                            this.inner.constructByJSON(obj["eyebrowLeftInner"]);
-                            this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
-                        }
-                        else {
-                            this.inner.constructByJSON(obj["eyebrowRightInner"]);
-                            this.outer.constructByJSON(obj["eyebrowRightOuter"]);
-                        }
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get eyeBrows.
-                     */
-                    Eyebrow.prototype.getEyeBrows = function () {
-                        return this.eyeBrows;
-                    };
-                    /**
-                     * Get opposite side's Eyebrow.
-                     */
-                    Eyebrow.prototype.getOpposite = function () {
-                        if (this.direction == faceapi.Direction.LEFT)
-                            return this.eyeBrows.getRight();
-                        else
-                            return this.eyeBrows.getLeft();
-                    };
-                    /**
-                     * Get inner.
-                     */
-                    Eyebrow.prototype.getInner = function () {
-                        return this.inner;
-                    };
-                    /**
-                     * Get outer.
-                     */
-                    Eyebrow.prototype.getOuter = function () {
-                        return this.outer;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eyebrow.prototype.TAG = function () {
-                        if (this.direction == faceapi.Direction.LEFT)
-                            return "left";
-                        else
-                            return "right";
-                    };
-                    Eyebrow.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.eraseProperty("direction");
-                        xml.push(this.inner.toXML(), this.outer.toXML());
-                        return xml;
-                    };
-                    return Eyebrow;
-                })(Entity);
-                landmark.Eyebrow = Eyebrow;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * An entity representing an eye.
+         *
+         * @author Jeongho Nam
+         */
+        var Eye = (function (_super) {
+            __extends(Eye, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from an Eyes and direction.
+             *
+             * @param eyes A parent entity containing two Eye(s).
+             * @param direction Direction of placed in.
+             */
+            function Eye(eyes, direction) {
+                _super.call(this);
+                this.eyes = eyes;
+                this.direction = direction;
+                this.top = new faceapi.Point("top");
+                this.bottom = new faceapi.Point("bottom");
+                this.inner = new faceapi.Point("inner");
+                this.outer = new faceapi.Point("outer");
+                this.pupil = new faceapi.Pupil(this);
+            }
+            Eye.prototype.constructByJSON = function (obj) {
+                if (this.direction == faceapi.Direction.LEFT) {
+                    this.top.constructByJSON(obj["eyeLeftTop"]);
+                    this.bottom.constructByJSON(obj["eyeLeftBottom"]);
+                    this.inner.constructByJSON(obj["eyeLeftInner"]);
+                    this.outer.constructByJSON(obj["eyeLeftOuter"]);
+                    this.pupil.constructByJSON(obj["pupilLeft"]);
+                }
+                else {
+                    this.top.constructByJSON(obj["eyeRightTop"]);
+                    this.bottom.constructByJSON(obj["eyeRightBottom"]);
+                    this.inner.constructByJSON(obj["eyeRightInner"]);
+                    this.outer.constructByJSON(obj["eyeRightOuter"]);
+                    this.pupil.constructByJSON(obj["pupilRight"]);
+                }
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get eyes.
+             */
+            Eye.prototype.getEyes = function () {
+                return this.eyes;
+            };
+            /**
+             * Get opposite side's Eye.
+             */
+            Eye.prototype.getOpposite = function () {
+                if (this.direction == faceapi.Direction.LEFT)
+                    return this.eyes.getRight();
+                else
+                    return this.eyes.getLeft();
+            };
+            /**
+             * Get top.
+             */
+            Eye.prototype.getTop = function () {
+                return this.top;
+            };
+            /**
+             * Get bottom.
+             */
+            Eye.prototype.getBottom = function () {
+                return this.bottom;
+            };
+            /**
+             * Get inner.
+             */
+            Eye.prototype.getInner = function () {
+                return this.inner;
+            };
+            /**
+             * Get outer.
+             */
+            Eye.prototype.getOuter = function () {
+                return this.outer;
+            };
+            /**
+             * Get pupil.
+             */
+            Eye.prototype.getPupil = function () {
+                return this.pupil;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Eye.prototype.TAG = function () {
+                if (this.direction == faceapi.Direction.LEFT)
+                    return "left";
+                else
+                    return "right";
+            };
+            Eye.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.eraseProperty("direction");
+                xml.push(this.top.toXML(), this.bottom.toXML(), this.inner.toXML(), this.outer.toXML(), this.pupil.toXML());
+                return xml;
+            };
+            return Eye;
+        })(Entity);
+        faceapi.Eye = Eye;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
+/// <reference path="FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
 /// <reference path="Eyebrow.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * A FaceLandmark representing eyebrows.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Eyebrows = (function (_super) {
-                    __extends(Eyebrows, _super);
-                    /* --------------------------------------------------------
-                        CONSTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a FaceLandmarks.
-                     *
-                     * @param landmarks A group and parent of the FaceLandmark.
-                     */
-                    function Eyebrows(landmarks) {
-                        _super.call(this, landmarks);
-                        this.left = new landmark.Eyebrow(this, faceapi.Direction.LEFT);
-                        this.right = new landmark.Eyebrow(this, faceapi.Direction.RIGHT);
-                    }
-                    Eyebrows.prototype.constructByJSON = function (obj) {
-                        this.left.constructByJSON(obj);
-                        this.right.constructByJSON(obj);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get left.
-                     */
-                    Eyebrows.prototype.getLeft = function () {
-                        return this.left;
-                    };
-                    /**
-                     * Get right.
-                     */
-                    Eyebrows.prototype.getRight = function () {
-                        return this.right;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Eyebrows.prototype.TAG = function () {
-                        return "eyeBrows";
-                    };
-                    Eyebrows.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.left.toXML(), this.right.toXML());
-                        return xml;
-                    };
-                    return Eyebrows;
-                })(landmark.FaceLandmark);
-                landmark.Eyebrows = Eyebrows;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path='../../basic/IJSonEntity.ts' />
-/// <reference path='../../basic/Point.ts' />
-/// <reference path='Mouth.ts' />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * An entity representing a lip contained in a Mouth.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Lip = (function (_super) {
-                    __extends(Lip, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a Mouth.
-                     *
-                     * @param mouth A mouth containing the Lip.
-                     */
-                    function Lip(mouth) {
-                        _super.call(this);
-                        this.mouth = mouth;
-                        this.upperTop = new faceapi.basic.Point("upperTop");
-                        this.upperBottom = new faceapi.basic.Point("upperBottom");
-                        this.underTop = new faceapi.basic.Point("underTop");
-                        this.underBottom = new faceapi.basic.Point("underBottom");
-                    }
-                    Lip.prototype.constructByJSON = function (obj) {
-                        this.upperTop.constructByJSON(obj["upperLipTop"]);
-                        this.upperBottom.constructByJSON(obj["upperLipBottom"]);
-                        this.underTop.constructByJSON(obj["underLipTop"]);
-                        this.underBottom.constructByJSON(obj["underLipBottom"]);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get mouth.
-                     */
-                    Lip.prototype.getMouth = function () {
-                        return this.mouth;
-                    };
-                    /**
-                     * Get upperTop.
-                     */
-                    Lip.prototype.getUpperTop = function () {
-                        return this.upperTop;
-                    };
-                    /**
-                     * Get upperBottom.
-                     */
-                    Lip.prototype.getUpperBottom = function () {
-                        return this.upperBottom;
-                    };
-                    /**
-                     * Get underTop.
-                     */
-                    Lip.prototype.getUnderTop = function () {
-                        return this.underTop;
-                    };
-                    /**
-                     * Get underBottom.
-                     */
-                    Lip.prototype.getUnderBottom = function () {
-                        return this.underBottom;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Lip.prototype.TAG = function () {
-                        return "lip";
-                    };
-                    Lip.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.upperTop.toXML(), this.upperBottom.toXML(), this.underTop.toXML(), this.underBottom.toXML());
-                        return xml;
-                    };
-                    return Lip;
-                })(Entity);
-                landmark.Lip = Lip;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path='FaceLandmark.ts' />
-/// <reference path='Lip.ts' />
-/// <reference path='../../basic/Point.ts' />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * A FaceLandmark representing a mouth.
-                 */
-                var Mouth = (function (_super) {
-                    __extends(Mouth, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a FaceLandmarks.
-                     *
-                     * @param landmarks A group and parent of the FaceLandmark.
-                     */
-                    function Mouth(landmarks) {
-                        _super.call(this, landmarks);
-                        this.lip = new landmark.Lip(this);
-                        this.left = new faceapi.basic.Point("left");
-                        this.right = new faceapi.basic.Point("right");
-                    }
-                    Mouth.prototype.constructByJSON = function (obj) {
-                        this.lip.constructByJSON(obj);
-                        this.left.constructByJSON(obj["mouthLeft"]);
-                        this.right.constructByJSON(obj["mouthRight"]);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get lip.
-                     */
-                    Mouth.prototype.getLip = function () {
-                        return this.lip;
-                    };
-                    /**
-                     * Get left.
-                     */
-                    Mouth.prototype.getLeft = function () {
-                        return this.left;
-                    };
-                    /**
-                     * Get right.
-                     */
-                    Mouth.prototype.getRight = function () {
-                        return this.right;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Mouth.prototype.TAG = function () {
-                        return "mouth";
-                    };
-                    Mouth.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
-                        return xml;
-                    };
-                    return Mouth;
-                })(landmark.FaceLandmark);
-                landmark.Mouth = Mouth;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="FaceLandmark.ts" />
-/// <reference path="../../basic/Point.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * A FaceLandmark representing a nose.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Nose = (function (_super) {
-                    __extends(Nose, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from a FaceLandmarks.
-                     *
-                     * @param landmarks A group and parent of the FaceLandmark.
-                     */
-                    function Nose(landmarks) {
-                        _super.call(this, landmarks);
-                        this.tip = new faceapi.basic.Point("tip");
-                        this.leftRoot = new faceapi.basic.Point("leftRoot");
-                        this.rightRoot = new faceapi.basic.Point("rightRoot");
-                        this.leftAlarTop = new faceapi.basic.Point("leftAlarTop");
-                        this.rightAlarTop = new faceapi.basic.Point("rightAlarTop");
-                        this.leftAlarOutTip = new faceapi.basic.Point("leftAlarOutTip");
-                        this.rightAlarOutTip = new faceapi.basic.Point("rightAlarOutTip");
-                    }
-                    Nose.prototype.constructByJSON = function (obj) {
-                        this.tip.constructByJSON(obj["noseTip"]);
-                        this.leftRoot.constructByJSON(obj["noseRootLeft"]);
-                        this.rightRoot.constructByJSON(obj["noseRootRight"]);
-                        this.leftAlarTop.constructByJSON(obj["noseLeftAlarTop"]);
-                        this.rightAlarTop.constructByJSON(obj["noseRightAlarTop"]);
-                        this.leftAlarOutTip.constructByJSON(obj["noseLeftAlarOutTip"]);
-                        this.rightAlarOutTip.constructByJSON(obj["noseRightAlarOutTip"]);
-                    };
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get tip.
-                     */
-                    Nose.prototype.getTip = function () {
-                        return this.tip;
-                    };
-                    /**
-                     * Get leftRoot.
-                     */
-                    Nose.prototype.getLeftRoot = function () {
-                        return this.leftRoot;
-                    };
-                    /**
-                     * Get rightRoot.
-                     */
-                    Nose.prototype.getRightRoot = function () {
-                        return this.rightRoot;
-                    };
-                    /**
-                     * Get leftAlarTop.
-                     */
-                    Nose.prototype.getLeftAlarTop = function () {
-                        return this.leftAlarTop;
-                    };
-                    /**
-                     * Get rightAlarTop.
-                     */
-                    Nose.prototype.getRightAlarTop = function () {
-                        return this.rightAlarTop;
-                    };
-                    /**
-                     * Get letAlarOutTip.
-                     */
-                    Nose.prototype.getLeftAlarOutTip = function () {
-                        return this.leftAlarOutTip;
-                    };
-                    /**
-                     * Get rightAlarOutTip.
-                     */
-                    Nose.prototype.getRightAlarOutTip = function () {
-                        return this.rightAlarOutTip;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Nose.prototype.TAG = function () {
-                        return "nose";
-                    };
-                    Nose.prototype.toXML = function () {
-                        var xml = _super.prototype.toXML.call(this);
-                        xml.push(this.tip.toXML(), this.leftRoot.toXML(), this.rightRoot.toXML(), this.leftAlarTop.toXML(), this.rightAlarTop.toXML(), this.leftAlarOutTip.toXML(), this.rightAlarOutTip.toXML());
-                        return xml;
-                    };
-                    return Nose;
-                })(landmark.FaceLandmark);
-                landmark.Nose = Nose;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="../../FaceAPI.ts" />
-/// <reference path="../../basic/Point.ts" />
-/// <reference path="Eye.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var face;
-        (function (face) {
-            var landmark;
-            (function (landmark) {
-                /**
-                 * An entity representing a pupil in an Eye.
-                 *
-                 * @author Jeongho Nam
-                 */
-                var Pupil = (function (_super) {
-                    __extends(Pupil, _super);
-                    /* --------------------------------------------------------
-                        CONTRUCTORS
-                    -------------------------------------------------------- */
-                    /**
-                     * Construct from an Eye.
-                     *
-                     * @param eye An eye the Pupil is belonged to.
-                     */
-                    function Pupil(eye) {
-                        _super.call(this, "pupil");
-                        this.eye = eye;
-                    }
-                    /* --------------------------------------------------------
-                        GETTERS
-                    -------------------------------------------------------- */
-                    /**
-                     * Get eye.
-                     */
-                    Pupil.prototype.getEye = function () {
-                        return this.eye;
-                    };
-                    /* --------------------------------------------------------
-                        EXPORTERS
-                    -------------------------------------------------------- */
-                    Pupil.prototype.TAG = function () {
-                        return _super.prototype.TAG.call(this);
-                    };
-                    return Pupil;
-                })(faceapi.basic.Point);
-                landmark.Pupil = Pupil;
-            })(landmark = face.landmark || (face.landmark = {}));
-        })(face = faceapi.face || (faceapi.face = {}));
+        /**
+         * A FaceLandmark representing eyebrows.
+         *
+         * @author Jeongho Nam
+         */
+        var Eyebrows = (function (_super) {
+            __extends(Eyebrows, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function Eyebrows(landmarks) {
+                _super.call(this, landmarks);
+                this.left = new faceapi.Eyebrow(this, faceapi.Direction.LEFT);
+                this.right = new faceapi.Eyebrow(this, faceapi.Direction.RIGHT);
+            }
+            Eyebrows.prototype.constructByJSON = function (obj) {
+                this.left.constructByJSON(obj);
+                this.right.constructByJSON(obj);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get left.
+             */
+            Eyebrows.prototype.getLeft = function () {
+                return this.left;
+            };
+            /**
+             * Get right.
+             */
+            Eyebrows.prototype.getRight = function () {
+                return this.right;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Eyebrows.prototype.TAG = function () {
+                return "eyeBrows";
+            };
+            Eyebrows.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.left.toXML(), this.right.toXML());
+                return xml;
+            };
+            return Eyebrows;
+        })(faceapi.FaceLandmark);
+        faceapi.Eyebrows = Eyebrows;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
-/// <reference path="basic/IJSONEntity.ts" />
+/// <reference path="IJSonEntity.ts" />
+/// <reference path="Point.ts" />
+/// <reference path="Eyebrows.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * An entity representing an eyebrow.
+         *
+         * @author Jeongho Nam
+         */
+        var Eyebrow = (function (_super) {
+            __extends(Eyebrow, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from an Eyebrows and direction.
+             *
+             * @param eyeBrows A parent entity containing two Eyebrow(s).
+             * @param direction Direction of placed in.
+             */
+            function Eyebrow(eyeBrows, direction) {
+                _super.call(this);
+                this.eyeBrows = eyeBrows;
+                this.direction = direction;
+                this.inner = new faceapi.Point("inner");
+                this.outer = new faceapi.Point("outer");
+            }
+            Eyebrow.prototype.constructByJSON = function (obj) {
+                if (this.direction == faceapi.Direction.LEFT) {
+                    this.inner.constructByJSON(obj["eyebrowLeftInner"]);
+                    this.outer.constructByJSON(obj["eyebrowLeftOuter"]);
+                }
+                else {
+                    this.inner.constructByJSON(obj["eyebrowRightInner"]);
+                    this.outer.constructByJSON(obj["eyebrowRightOuter"]);
+                }
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get eyeBrows.
+             */
+            Eyebrow.prototype.getEyeBrows = function () {
+                return this.eyeBrows;
+            };
+            /**
+             * Get opposite side's Eyebrow.
+             */
+            Eyebrow.prototype.getOpposite = function () {
+                if (this.direction == faceapi.Direction.LEFT)
+                    return this.eyeBrows.getRight();
+                else
+                    return this.eyeBrows.getLeft();
+            };
+            /**
+             * Get inner.
+             */
+            Eyebrow.prototype.getInner = function () {
+                return this.inner;
+            };
+            /**
+             * Get outer.
+             */
+            Eyebrow.prototype.getOuter = function () {
+                return this.outer;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Eyebrow.prototype.TAG = function () {
+                if (this.direction == faceapi.Direction.LEFT)
+                    return "left";
+                else
+                    return "right";
+            };
+            Eyebrow.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.eraseProperty("direction");
+                xml.push(this.inner.toXML(), this.outer.toXML());
+                return xml;
+            };
+            return Eyebrow;
+        })(Entity);
+        faceapi.Eyebrow = Eyebrow;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSONEntity.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
@@ -6328,29 +6439,307 @@ var hiswill;
         faceapi.Direction = Direction;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <reference path="hiswill/faceapi/FaceAPI.ts" />
-var api = hiswill.faceapi;
-function main() {
-    var faceAPI = new api.FaceAPI();
-    var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
-    picture.detect();
-    trace("Detected");
-    //var faceList = faceAPI.createFaceList("other_group");
-    var personGroup = faceAPI.createPersonGroup("others");
-    for (var i = 0; i < 3; i++) {
-        var face = picture[i];
-        //faceList.push(face);
-        var person = new api.person.Person(personGroup, "my_name_" + (i + 1));
-        personGroup.push(person);
-        person.push(face);
-    }
-    trace("Registered");
-    personGroup.addEventListener("complete", function (ev) {
-        trace("Trained");
-        var face = picture[0];
-        var candidates = personGroup.identify(face, 2);
-        trace("Identified", candidates.toXML());
-    });
-    personGroup.train();
-}
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FaceLandmark.ts" />
+/// <reference path="Lip.ts" />
+/// <reference path="Point.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * A FaceLandmark representing a mouth.
+         */
+        var Mouth = (function (_super) {
+            __extends(Mouth, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function Mouth(landmarks) {
+                _super.call(this, landmarks);
+                this.lip = new faceapi.Lip(this);
+                this.left = new faceapi.Point("left");
+                this.right = new faceapi.Point("right");
+            }
+            Mouth.prototype.constructByJSON = function (obj) {
+                this.lip.constructByJSON(obj);
+                this.left.constructByJSON(obj["mouthLeft"]);
+                this.right.constructByJSON(obj["mouthRight"]);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get lip.
+             */
+            Mouth.prototype.getLip = function () {
+                return this.lip;
+            };
+            /**
+             * Get left.
+             */
+            Mouth.prototype.getLeft = function () {
+                return this.left;
+            };
+            /**
+             * Get right.
+             */
+            Mouth.prototype.getRight = function () {
+                return this.right;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Mouth.prototype.TAG = function () {
+                return "mouth";
+            };
+            Mouth.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
+                return xml;
+            };
+            return Mouth;
+        })(faceapi.FaceLandmark);
+        faceapi.Mouth = Mouth;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="IJSonEntity.ts" />
+/// <reference path="Point.ts" />
+/// <reference path="Mouth.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * An entity representing a lip contained in a Mouth.
+         *
+         * @author Jeongho Nam
+         */
+        var Lip = (function (_super) {
+            __extends(Lip, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a Mouth.
+             *
+             * @param mouth A mouth containing the Lip.
+             */
+            function Lip(mouth) {
+                _super.call(this);
+                this.mouth = mouth;
+                this.upperTop = new faceapi.Point("upperTop");
+                this.upperBottom = new faceapi.Point("upperBottom");
+                this.underTop = new faceapi.Point("underTop");
+                this.underBottom = new faceapi.Point("underBottom");
+            }
+            Lip.prototype.constructByJSON = function (obj) {
+                this.upperTop.constructByJSON(obj["upperLipTop"]);
+                this.upperBottom.constructByJSON(obj["upperLipBottom"]);
+                this.underTop.constructByJSON(obj["underLipTop"]);
+                this.underBottom.constructByJSON(obj["underLipBottom"]);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get mouth.
+             */
+            Lip.prototype.getMouth = function () {
+                return this.mouth;
+            };
+            /**
+             * Get upperTop.
+             */
+            Lip.prototype.getUpperTop = function () {
+                return this.upperTop;
+            };
+            /**
+             * Get upperBottom.
+             */
+            Lip.prototype.getUpperBottom = function () {
+                return this.upperBottom;
+            };
+            /**
+             * Get underTop.
+             */
+            Lip.prototype.getUnderTop = function () {
+                return this.underTop;
+            };
+            /**
+             * Get underBottom.
+             */
+            Lip.prototype.getUnderBottom = function () {
+                return this.underBottom;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Lip.prototype.TAG = function () {
+                return "lip";
+            };
+            Lip.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.upperTop.toXML(), this.upperBottom.toXML(), this.underTop.toXML(), this.underBottom.toXML());
+                return xml;
+            };
+            return Lip;
+        })(Entity);
+        faceapi.Lip = Lip;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FaceLandmark.ts" />
+/// <reference path="Point.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * A FaceLandmark representing a nose.
+         *
+         * @author Jeongho Nam
+         */
+        var Nose = (function (_super) {
+            __extends(Nose, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function Nose(landmarks) {
+                _super.call(this, landmarks);
+                this.tip = new faceapi.Point("tip");
+                this.leftRoot = new faceapi.Point("leftRoot");
+                this.rightRoot = new faceapi.Point("rightRoot");
+                this.leftAlarTop = new faceapi.Point("leftAlarTop");
+                this.rightAlarTop = new faceapi.Point("rightAlarTop");
+                this.leftAlarOutTip = new faceapi.Point("leftAlarOutTip");
+                this.rightAlarOutTip = new faceapi.Point("rightAlarOutTip");
+            }
+            Nose.prototype.constructByJSON = function (obj) {
+                this.tip.constructByJSON(obj["noseTip"]);
+                this.leftRoot.constructByJSON(obj["noseRootLeft"]);
+                this.rightRoot.constructByJSON(obj["noseRootRight"]);
+                this.leftAlarTop.constructByJSON(obj["noseLeftAlarTop"]);
+                this.rightAlarTop.constructByJSON(obj["noseRightAlarTop"]);
+                this.leftAlarOutTip.constructByJSON(obj["noseLeftAlarOutTip"]);
+                this.rightAlarOutTip.constructByJSON(obj["noseRightAlarOutTip"]);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get tip.
+             */
+            Nose.prototype.getTip = function () {
+                return this.tip;
+            };
+            /**
+             * Get leftRoot.
+             */
+            Nose.prototype.getLeftRoot = function () {
+                return this.leftRoot;
+            };
+            /**
+             * Get rightRoot.
+             */
+            Nose.prototype.getRightRoot = function () {
+                return this.rightRoot;
+            };
+            /**
+             * Get leftAlarTop.
+             */
+            Nose.prototype.getLeftAlarTop = function () {
+                return this.leftAlarTop;
+            };
+            /**
+             * Get rightAlarTop.
+             */
+            Nose.prototype.getRightAlarTop = function () {
+                return this.rightAlarTop;
+            };
+            /**
+             * Get letAlarOutTip.
+             */
+            Nose.prototype.getLeftAlarOutTip = function () {
+                return this.leftAlarOutTip;
+            };
+            /**
+             * Get rightAlarOutTip.
+             */
+            Nose.prototype.getRightAlarOutTip = function () {
+                return this.rightAlarOutTip;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Nose.prototype.TAG = function () {
+                return "nose";
+            };
+            Nose.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.tip.toXML(), this.leftRoot.toXML(), this.rightRoot.toXML(), this.leftAlarTop.toXML(), this.rightAlarTop.toXML(), this.leftAlarOutTip.toXML(), this.rightAlarOutTip.toXML());
+                return xml;
+            };
+            return Nose;
+        })(faceapi.FaceLandmark);
+        faceapi.Nose = Nose;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="Point.ts" />
+/// <reference path="Eye.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * An entity representing a pupil in an Eye.
+         *
+         * @author Jeongho Nam
+         */
+        var Pupil = (function (_super) {
+            __extends(Pupil, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from an Eye.
+             *
+             * @param eye An eye the Pupil is belonged to.
+             */
+            function Pupil(eye) {
+                _super.call(this, "pupil");
+                this.eye = eye;
+            }
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get eye.
+             */
+            Pupil.prototype.getEye = function () {
+                return this.eye;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Pupil.prototype.TAG = function () {
+                return _super.prototype.TAG.call(this);
+            };
+            return Pupil;
+        })(faceapi.Point);
+        faceapi.Pupil = Pupil;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
 //# sourceMappingURL=FaceAPI.js.map

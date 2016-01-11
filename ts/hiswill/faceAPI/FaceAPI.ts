@@ -1,9 +1,9 @@
 ﻿/// <reference path="../../SamchonFramework.ts" />
 /// <reference path="../../jquery.d.ts" />
 
-/// <reference path="person/PersonGroupArray.ts" />
-/// <reference path="facelist/FaceListArray.ts" />
-/// <reference path="picture/PictureArray.ts" />
+/// <reference path="PersonGroupArray.ts" />
+/// <reference path="FaceListArray.ts" />
+/// <reference path="PictureArray.ts" />
 
 namespace hiswill.faceapi
 {
@@ -18,17 +18,17 @@ namespace hiswill.faceapi
         /**
          * An array of PersonGroup.
          */
-        protected personGroupArray: person.PersonGroupArray;
+        protected personGroupArray: PersonGroupArray;
 
         /**
          * An array of FaceList.
          */
-        protected faceListArray: facelist.FaceListArray;
+        protected faceListArray: FaceListArray;
 
         /**
          * An array of Picture.
          */
-        protected pictureArray: picture.PictureArray;
+        protected pictureArray: PictureArray;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -40,9 +40,9 @@ namespace hiswill.faceapi
         {
             super();
 
-            this.personGroupArray = new person.PersonGroupArray(this);
-            this.faceListArray = new facelist.FaceListArray(this);
-            this.pictureArray = new picture.PictureArray(this);
+            this.personGroupArray = new PersonGroupArray(this);
+            this.faceListArray = new FaceListArray(this);
+            this.pictureArray = new PictureArray(this);
         }
 
         /**
@@ -50,9 +50,9 @@ namespace hiswill.faceapi
          *
          * @param name Name of a new PersonGroup
          */
-        public createPersonGroup(name: string): person.PersonGroup 
+        public createPersonGroup(name: string): PersonGroup 
         {
-            var personGroup: person.PersonGroup = new person.PersonGroup(this.personGroupArray, name);
+            var personGroup: PersonGroup = new PersonGroup(this.personGroupArray, name);
             this.personGroupArray.push(personGroup);
 
             return personGroup;
@@ -61,11 +61,11 @@ namespace hiswill.faceapi
         /**
          * Factory method of FaceList.
          *
-         * @apram name Name of a new FaceList.
+         * @param name Name of a new FaceList.
          */
-        public createFaceList(name: string): facelist.FaceList 
+        public createFaceList(name: string): FaceList 
         {
-            var faceList: facelist.FaceList = new faceapi.facelist.FaceList(this.faceListArray, name);
+            var faceList: FaceList = new faceapi.FaceList(this.faceListArray, name);
             this.faceListArray.push(faceList);
 
             return faceList;
@@ -74,11 +74,11 @@ namespace hiswill.faceapi
         /**
          * Factory method of Picture.
          *
-         * @apram url URL-address of a new Picture.
+         * @param url URL-address of a new Picture.
          */
-        public createPicture(url: string): picture.Picture 
+        public createPicture(url: string): Picture 
         {
-            var picture: picture.Picture = new faceapi.picture.Picture(this.pictureArray, url);
+            var picture: Picture = new faceapi.Picture(this.pictureArray, url);
             this.pictureArray.push(picture);
 
             return picture;
@@ -90,7 +90,7 @@ namespace hiswill.faceapi
         /**
          * Get personGroupArray.
          */
-        public getPersonGroupArray(): person.PersonGroupArray
+        public getPersonGroupArray(): PersonGroupArray
         {
             return this.personGroupArray;
         }
@@ -98,7 +98,7 @@ namespace hiswill.faceapi
         /**
          * Get faceListArray.
          */
-        public getFaceListArray(): facelist.FaceListArray
+        public getFaceListArray(): FaceListArray
         {
             return this.faceListArray;
         }
@@ -106,7 +106,7 @@ namespace hiswill.faceapi
         /**
          * Get pictureArray.
          */
-        public getPictureArray(): picture.PictureArray 
+        public getPictureArray(): PictureArray 
         {
             return this.pictureArray;
         }

@@ -1,6 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="basic/IJSONEntity.ts" />
+/// <reference path="IJSONEntity.ts" />
 
 namespace hiswill.faceapi
 {
@@ -28,7 +28,7 @@ namespace hiswill.faceapi
                     entity[key] = json[key];
                 else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray)
                 {
-                    var json_entity: basic.IJSONEntity = <basic.IJSONEntity>entity[key];
+                    var json_entity: IJSONEntity = <IJSONEntity>entity[key];
                     json_entity.constructByJSON(json[key]);
                 }
             }

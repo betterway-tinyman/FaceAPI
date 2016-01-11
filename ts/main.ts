@@ -20,7 +20,7 @@ function main(): void
 
         //faceList.push(face);
 
-        var person = new api.person.Person(personGroup, "my_name_" + (i+1));
+        var person = new api.Person(personGroup, "my_name_" + (i+1));
         personGroup.push(person);
         person.push(face);
     }
