@@ -279,5 +279,10 @@ namespace hiswill.faceapi
         
             return xml;
         }
+
+        public toRectangle(): fabric.IRect
+        {
+            return new fabric.Rect();
+        }
     }
 }

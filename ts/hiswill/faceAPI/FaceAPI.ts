@@ -138,7 +138,7 @@ namespace hiswill.faceapi
          */
         private static get CERTIFICATION_KEY(): string 
         {
-            return "YOUR CERTIFICATION KEY";
+            return "something";
         }
 
         /**

@@ -10,11 +10,11 @@ function main(): void
     picture.detect();
 
     trace("Detected");
-
+    
     //var faceList = faceAPI.createFaceList("other_group");
     var personGroup = faceAPI.createPersonGroup("others");
 
-    for (var i: number = 0; i < 3; i++)
+    for (var i: number = 0; i < picture.length; i++)
     {
         var face = picture[i];
 
@@ -23,6 +23,8 @@ function main(): void
         var person = new api.Person(personGroup, "my_name_" + (i+1));
         personGroup.push(person);
         person.push(face);
+
+        trace(i + "th person is constructoed");
     }
 
     trace("Registered");

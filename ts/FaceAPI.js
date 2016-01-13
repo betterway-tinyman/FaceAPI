@@ -5235,6 +5235,9 @@ var hiswill;
                 xml.push(this.landmarks.toXML(), this.attributes.toXML());
                 return xml;
             };
+            Face.prototype.toRectangle = function () {
+                return new fabric.Rect();
+            };
             return Face;
         })(faceapi.FaceRectangle);
         faceapi.Face = Face;
@@ -5830,7 +5833,7 @@ var hiswill;
                  * Certification key for Face-API server.
                  */
                 get: function () {
-                    return "YOUR CERTIFICATION KEY";
+                    return "something";
                 },
                 enumerable: true,
                 configurable: true
@@ -5981,12 +5984,13 @@ function main() {
     trace("Detected");
     //var faceList = faceAPI.createFaceList("other_group");
     var personGroup = faceAPI.createPersonGroup("others");
-    for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < picture.length; i++) {
         var face = picture[i];
         //faceList.push(face);
         var person = new api.Person(personGroup, "my_name_" + (i + 1));
         personGroup.push(person);
         person.push(face);
+        trace(i + "th person is constructoed");
     }
     trace("Registered");
     personGroup.addEventListener("complete", function (ev) {
