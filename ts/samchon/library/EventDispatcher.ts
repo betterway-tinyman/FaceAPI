@@ -79,11 +79,17 @@ namespace samchon.library
                 this.target = target;
         }
 
+        /**
+         * @inheritdoc
+         */
         public hasEventListener(type: string): boolean 
         {
             return this.listeners.has(type);
         }
         
+        /**
+         * @inheritdoc
+         */
         public dispatchEvent(event: Event): boolean
         {
             event.target = this.target;
@@ -98,6 +104,9 @@ namespace samchon.library
             return true;
         }
         
+        /**
+         * @inheritdoc
+         */
         public addEventListener(type: string, listener: EventListener): void
         {
             var listenerSet: std.UnorderedSet<EventListener>;
@@ -113,6 +122,9 @@ namespace samchon.library
             listenerSet.insert(listener);
         }
 
+        /**
+         * @inheritdoc
+         */
         public removeEventListener(type: string, listener: EventListener): void
         {
             if (this.listeners.has(type) == false)

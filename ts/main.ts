@@ -1,4 +1,5 @@
 ﻿/// <reference path="hiswill/faceapi/FaceAPI.ts" />
+/// <reference path="samchon.ts" />
 
 import api = hiswill.faceapi;
 

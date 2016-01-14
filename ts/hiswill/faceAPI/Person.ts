@@ -15,7 +15,8 @@ namespace hiswill.faceapi
      *  <li> Identify: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239 </li>
      * </ul>
      *
-     * @inheritDoc
+     * @author Jeongho Nam
+     * @inheritdoc
      */
     export class Person
         extends FacePairArray
