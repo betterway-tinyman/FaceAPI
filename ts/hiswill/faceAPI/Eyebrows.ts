@@ -73,9 +73,9 @@ namespace hiswill.faceapi
             return "eyeBrows";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             xml.push
             (
                 this.left.toXML(),

@@ -70,7 +70,7 @@ namespace hiswill.faceapi
             this.face = null;
         }
 
-        public construct(xml: XML): void
+        public construct(xml: library.XML): void
         {
             super.construct(xml);
 
@@ -196,9 +196,9 @@ namespace hiswill.faceapi
             return "facePair";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             if (this.face != null)
                 xml.setProperty("faceID", this.face.getID());
 

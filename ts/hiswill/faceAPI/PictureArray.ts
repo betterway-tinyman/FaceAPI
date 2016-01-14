@@ -1,6 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="Picture.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="Picture.ts" />
 
 namespace hiswill.faceapi 
 {
@@ -10,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class PictureArray
-        extends EntityArray<Picture>
+        extends protocol.EntityArray<Picture>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -32,7 +33,7 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
-        protected createChild(xml: XML): Picture 
+        protected createChild(xml: library.XML): Picture 
         {
             return new Picture(this, xml.getProperty("url"));
         }
@@ -55,8 +56,8 @@ namespace hiswill.faceapi
          */
         public hasURL(url: string): boolean 
         {
-            for (var i: number = 0; i < this.length; i++)
-                if (this[i].getURL() == url)
+            for (var i: number = 0; i < this.size(); i++)
+                if (this.at(i).getURL() == url)
                     return true;
 
             return false;
@@ -70,9 +71,9 @@ namespace hiswill.faceapi
          */
         public getByURL(url: string): Picture 
         {
-            for (var i: number = 0; i < this.length; i++)
-                if (this[i].getURL() == url)
-                    return this[i];
+            for (var i: number = 0; i < this.size(); i++)
+                if (this.at(i).getURL() == url)
+                    return this.at(i);
 
             throw Error("out of range");
         }

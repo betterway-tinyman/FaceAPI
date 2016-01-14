@@ -1,5 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/Entity.ts" />
 /// <reference path="IJSonEntity.ts" />
 
 /// <referench path='FaceLandmark.ts' />
@@ -17,7 +18,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceLandmarks 
-        extends Entity
+        extends protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -123,9 +124,9 @@ namespace hiswill.faceapi
             return "landmarks";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             xml.push
             (
                 this.eyeBrows.toXML(),

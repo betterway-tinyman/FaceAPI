@@ -1,5 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/Entity.ts" />
 /// <reference path="IJSONEntity.ts" />
 
 /// <reference path="SimilarFaceArray.ts" />
@@ -8,7 +9,7 @@
 namespace hiswill.faceapi
 {
     export class SimilarFace
-        extends Entity
+        extends protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -35,7 +36,7 @@ namespace hiswill.faceapi
             this.faceArray = faceArray;
         }
 
-        public construct(xml: XML): void
+        public construct(xml: library.XML): void
         {
             super.construct(xml);
             this.facePair = null;
@@ -99,9 +100,9 @@ namespace hiswill.faceapi
             return "similarFace";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             
             if (this.facePair != null)
                 xml.setProperty("facePairID", this.facePair.getID());

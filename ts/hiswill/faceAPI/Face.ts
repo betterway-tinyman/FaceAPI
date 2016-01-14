@@ -72,7 +72,7 @@ namespace hiswill.faceapi
             this.attributes = new FaceAttributes(this);
         }
     
-        public construct(xml: XML): void
+        public construct(xml: library.XML): void
         {
             super.construct(xml);
 
@@ -81,7 +81,7 @@ namespace hiswill.faceapi
             if (xml.has("person") == false)
                 return;
 
-            var person: XML = xml.get("person")[0];
+            var person: library.XML = xml.get("person").at(0);
             var personName: string = person.getProperty("name");
             var personGroupID: string = person.getProperty("groupID");
         }
@@ -185,12 +185,12 @@ namespace hiswill.faceapi
          * @param face Target Face to compare with.
          * @return A pair of flag (whether two Faces are from a same person) and confidence (conformality degree).
          */
-        public equals(face: Face): Pair<boolean, number>
+        public equals(face: Face): std.Pair<boolean, number>
         {
             if (this == face)
-                return new Pair<boolean, number>(true, 1.0);
+                return new std.Pair<boolean, number>(true, 1.0);
 
-            var pair: Pair<boolean, number> = new Pair<boolean, number>(false, -1.0);
+            var pair: std.Pair<boolean, number> = new std.Pair<boolean, number>(false, -1.0);
 
             FaceAPI.query
             (
@@ -205,7 +205,7 @@ namespace hiswill.faceapi
                     var isIdentical: boolean = data["isIdentical"];
                     var confidence: number = data["confidence"];
 
-                    pair = new Pair<boolean, number>(isIdentical, confidence);
+                    pair = new std.Pair<boolean, number>(isIdentical, confidence);
                 }
             );
 
@@ -268,9 +268,9 @@ namespace hiswill.faceapi
             return "face";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             xml.push
             (
                 this.landmarks.toXML(),

@@ -1,11 +1,15 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="Person.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="Person.ts" />
 /// <reference path="IGroup.ts" />
+/// <reference path="../../samchon/library/IEventDispatcher.ts" />
 
 /// <reference path="CandidatePersonArray.ts" />
 
 /// <reference path="PersonGroupArray.ts" />
+// 
+/// <reference path="../../samchon/library/EventDispatcher.ts" />
 
 namespace hiswill.faceapi 
 {
@@ -23,8 +27,8 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class PersonGroup
-        extends EntityArray<Person>
-        implements IGroup<Person>
+        extends protocol.EntityArray<Person>
+        implements IGroup<Person>, library.IEventDispatcher
     {
         /**
          * An array and parent of the PersonGroup.
@@ -54,7 +58,7 @@ namespace hiswill.faceapi
         /**
          * A group of pointers of event listener method.
          */
-        protected listeners: Map<string, Set<(ev: Event) => void>>;
+        protected eventDispatcher: library.EventDispatcher;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -76,10 +80,10 @@ namespace hiswill.faceapi
             this.trained = false;
             this.registered = false;
 
-            this.listeners = new Map<string, Set<(ev: Event) => void>>();
+            this.eventDispatcher = new library.EventDispatcher(this);
         }
     
-        protected createChild(xml: XML): Person
+        protected createChild(xml: library.XML): Person
         {
             return new Person(this, xml.getProperty("name"));
         }
@@ -98,18 +102,18 @@ namespace hiswill.faceapi
             return super.push(...items);
         }
 
-        public splice(start: number, deleteCount?: number, ...items: Person[]): Person[] 
-        {
-            var i: number;
+        //public splice(start: number, deleteCount?: number, ...items: Person[]): Person[] 
+        //{
+        //    var i: number;
 
-            for (i = start; i < Math.min(start + deleteCount, this.length); i++)
-                items[i].eraseFromServer();
+        //    for (i = start; i < Math.min(start + deleteCount, this.length); i++)
+        //        items[i].eraseFromServer();
 
-            for (i = 0; i < items.length; i++)
-                items[i].insertToServer();
+        //    for (i = 0; i < items.length; i++)
+        //        items[i].insertToServer();
 
-            return super.splice(start, deleteCount, ...items);
-        }
+        //    return super.splice(start, deleteCount, ...items);
+        //}
 
         /* --------------------------------------------------------
             INTERACTION WITH FACE API
@@ -302,35 +306,22 @@ namespace hiswill.faceapi
         -------------------------------------------------------- */
         public hasEventListener(type: string): boolean
         {
-            return this.listeners.has(type);
+            return this.eventDispatcher.hasEventListener(type);
+        }
+
+        public dispatchEvent(event: Event): boolean
+        {
+            return this.eventDispatcher.dispatchEvent(event);
         }
         
-        public addEventListener(type: string, listener:(event:Event) => void): void
+        public addEventListener(type: string, listener:EventListener): void
         {
-            if (this.listeners.has(type) == false)
-                this.listeners.set(type, new Set<(ev: Event) => void>());
-
-            var listenerSet = this.listeners.get(type);
-            listenerSet.insert(listener);
+            this.eventDispatcher.addEventListener(type, listener);
         }
 
-        public removeEventListener(type: string, listener: (event: Event) => void): void
+        public removeEventListener(type: string, listener: EventListener): void
         {
-            if (this.listeners.has(type) == false)
-                return;
-
-            var listenerSet = this.listeners.get(type);
-            listenerSet.erase(listener);
-        }
-
-        public dispatchEvent(event: Event): void
-        {
-            if (this.listeners.has(event.type) == false)
-                return;
-
-            var listenerSet = this.listeners.get(event.type);
-            for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
-                it.value(event);
+            this.eventDispatcher.removeEventListener(type, listener);
         }
 
         /* --------------------------------------------------------

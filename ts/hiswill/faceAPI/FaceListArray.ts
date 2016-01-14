@@ -1,5 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
 /// <reference path="FaceList.ts" />
 
 namespace hiswill.faceapi
@@ -10,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceListArray
-        extends EntityArray<FaceList>
+        extends protocol.EntityArray<FaceList>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -32,7 +33,7 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
-        protected createChild(xml: XML): FaceList
+        protected createChild(xml: library.XML): FaceList
         {
             return new FaceList(this, xml.getProperty("name"));
         }

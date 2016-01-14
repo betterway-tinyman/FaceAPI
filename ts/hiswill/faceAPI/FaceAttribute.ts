@@ -1,5 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/Entity.ts" />
 /// <reference path="IJSonEntity.ts" />
 
 /// <reference path='FaceAttributes.ts' />
@@ -12,7 +13,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceAttribute
-        extends Entity
+        extends protocol.Entity
         implements IJSONEntity
     {
         /**

@@ -1,6 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="CandidatePerson.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="CandidatePerson.ts" />
 /// <referench path="IJSONEntity.ts" />
 
 /// <reference path="Face.ts" />
@@ -17,7 +18,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class CandidatePersonArray
-        extends EntityArray<CandidatePerson>
+        extends protocol.EntityArray<CandidatePerson>
         implements IJSONEntity
     {
         /**
@@ -74,7 +75,7 @@ namespace hiswill.faceapi
             }
         }
 
-        public construct(xml: XML): void
+        public construct(xml: library.XML): void
         {
             this.face = null;
             this.personGroup = null;
@@ -86,9 +87,9 @@ namespace hiswill.faceapi
 
                 var pictureArray: PictureArray = this.api.getPictureArray();
 
-                for (var i: number = 0; i < pictureArray.length; i++) 
+                for (var i: number = 0; i < pictureArray.size(); i++) 
                 {
-                    var picture: Picture = pictureArray[i];
+                    var picture: Picture = pictureArray.at(i);
 
                     if (picture.has(faceID) == true) 
                     {
@@ -114,7 +115,7 @@ namespace hiswill.faceapi
 
         public constructByJSON(data: any): void
         {
-            this.splice(0, this.length); // CLEAR
+            this.clear();
 
             var array: Array<any> = data["candidates"];
 
@@ -127,7 +128,7 @@ namespace hiswill.faceapi
             }
         }
 
-        protected createChild(xml: XML): CandidatePerson
+        protected createChild(xml: library.XML): CandidatePerson
         {
             if (xml.hasProperty("personID") == true)
                 return new CandidatePerson(this);
@@ -174,9 +175,9 @@ namespace hiswill.faceapi
             return "candidatePerson";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
 
             if (this.face != null)
                 xml.setProperty("faceID", this.face.getID());

@@ -1,5 +1,6 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/Entity.ts" />
 /// <reference path="IJSONEntity.ts" />
 
 /// <reference path="Person.ts" />
@@ -18,7 +19,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class CandidatePerson
-        extends Entity
+        extends protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -51,7 +52,7 @@ namespace hiswill.faceapi
             this.personArray = personArray;
         }
 
-        public construct(xml: XML): void
+        public construct(xml: library.XML): void
         {
             super.construct(xml);
             this.person = null;
@@ -115,9 +116,9 @@ namespace hiswill.faceapi
             return "candidatePerson";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
 
             if (this.person != null)
                 xml.setProperty("personID", this.person.getID());

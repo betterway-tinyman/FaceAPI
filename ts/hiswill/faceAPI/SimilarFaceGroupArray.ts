@@ -1,14 +1,15 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="SimilarFaceGroup.ts" />
 /// <reference path="IJSONEntity.ts" />
 
-/// <reference path="SimilarFaceGroup.ts" />
 /// <reference path="MessyFaceGroup.ts" />
 
 namespace hiswill.faceapi
 {
     export class SimilarFaceGroupArray
-        extends EntityArray<SimilarFaceGroup>
+        extends protocol.EntityArray<SimilarFaceGroup>
         implements IJSONEntity
     {
         protected api: FaceAPI;
@@ -38,35 +39,35 @@ namespace hiswill.faceapi
             else
             {
                 this.faceArray = <FaceReferArray>obj;
-                if (this.faceArray.length == 0)
+                if (this.faceArray.size() == 0)
                     this.api = null;
                 else
-                    this.api = this.faceArray[0].getPicture().getPictureArray().getAPI();
+                    this.api = this.faceArray.at(0).getPicture().getPictureArray().getAPI();
             }
         }
 
-        public construct(xml: XML): void
+        public construct(xml: library.XML): void
         {
             super.construct(xml);
 
-            this.messyGroup.construct(xml.get(this.messyGroup.TAG())[0]);
+            this.messyGroup.construct(xml.get(this.messyGroup.TAG()).at(0));
 
-            for (var i: number = 0; i < this.length; i++)
-                for (var j: number = 0; j < this[i].length; j++)
-                    this.faceArray.push(this[i][j]);
+            for (var i: number = 0; i < this.size(); i++)
+                for (var j: number = 0; j < this.at(i).size(); j++)
+                    this.faceArray.push(this.at(i).at(j));
 
-            for (i = 0; i < this.messyGroup.length; i++)
-                this.faceArray.push(this.messyGroup[i]);
+            for (i = 0; i < this.messyGroup.size(); i++)
+                this.faceArray.push(this.messyGroup.at(i));
 
-            if (this.faceArray.length == 0)
+            if (this.faceArray.size() == 0)
                 this.api = null;
             else
-                this.faceArray[i].getPicture().getPictureArray().getAPI();
+                this.api = this.faceArray.at(i).getPicture().getPictureArray().getAPI();
         }
 
         public constructByJSON(data: any): void
         {
-            this.splice(0, this.length);
+            this.clear();
 
             var similarGroupArray: Array<Object> = data["groups"];
             var messyGroup: Array<Object> = data["messyGroup"];
@@ -82,7 +83,7 @@ namespace hiswill.faceapi
             this.messyGroup.constructByJSON(messyGroup);
         }
 
-        protected createChild(xml: XML): SimilarFaceGroup
+        protected createChild(xml: library.XML): SimilarFaceGroup
         {
             return new SimilarFaceGroup(this);
         }
@@ -95,8 +96,8 @@ namespace hiswill.faceapi
          */
         public getAPI(): FaceAPI
         {
-            if (this.api == null && this.faceArray.length != 0)
-                this.api = this.faceArray[0].getPicture().getPictureArray().getAPI();
+            if (this.api == null && this.faceArray.size() != 0)
+                this.api = this.faceArray.at(0).getPicture().getPictureArray().getAPI();
 
             return this.api;
         }
@@ -129,9 +130,9 @@ namespace hiswill.faceapi
             return "similarFaceGroup";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             xml.push(this.messyGroup.toXML());
 
             return xml;

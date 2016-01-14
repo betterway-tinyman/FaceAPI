@@ -1,6 +1,8 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
 /// <reference path="IJSONEntity.ts" />
+/// <reference path="../../samchon/protocol/Entity.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
 
 namespace hiswill.faceapi
 {
@@ -17,7 +19,7 @@ namespace hiswill.faceapi
          * @param entity A target entity to construct member data.
          * @param json JSON object containing member data.
          */
-        public static fetch(entity: IEntity, json: Object): void
+        public static fetch(entity: protocol.IEntity, json: Object): void
         {
             for (var key in json)
             {
@@ -26,7 +28,7 @@ namespace hiswill.faceapi
 
                 if (typeof entity[key] == "number" || typeof entity[key] == "string")
                     entity[key] = json[key];
-                else if (entity[key] instanceof Entity || entity[key] instanceof EntityArray)
+                else if (entity[key] instanceof protocol.Entity || entity[key] instanceof protocol.EntityArray)
                 {
                     var json_entity: IJSONEntity = <IJSONEntity>entity[key];
                     json_entity.constructByJSON(json[key]);

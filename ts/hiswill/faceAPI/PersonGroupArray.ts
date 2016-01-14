@@ -1,6 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="PersonGroup.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="PersonGroup.ts" />
 
 namespace hiswill.faceapi 
 {
@@ -10,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class PersonGroupArray
-        extends EntityArray<PersonGroup>
+        extends protocol.EntityArray<PersonGroup>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -32,7 +33,7 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
-        protected createChild(xml: XML): PersonGroup
+        protected createChild(xml: library.XML): PersonGroup
         {
             return new PersonGroup(this, xml.getProperty("name"));
         }

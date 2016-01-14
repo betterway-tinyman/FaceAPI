@@ -14,9 +14,9 @@ function main(): void
     //var faceList = faceAPI.createFaceList("other_group");
     var personGroup = faceAPI.createPersonGroup("others");
 
-    for (var i: number = 0; i < picture.length; i++)
+    for (var i: number = 0; i < picture.size(); i++)
     {
-        var face = picture[i];
+        var face = picture.at(i);
 
         //faceList.push(face);
 

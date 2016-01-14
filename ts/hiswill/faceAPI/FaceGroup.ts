@@ -24,7 +24,7 @@ namespace hiswill.faceapi
 
         public constructByJSON(val: any): void
         {
-            this.splice(0, this.length);
+            this.clear();
 
             var idArray: Array<string> = val;
 
@@ -51,9 +51,9 @@ namespace hiswill.faceapi
                 return null;
 
             var pictureArray: PictureArray = api.getPictureArray();
-            for (var i: number = 0; i < pictureArray.length; i++)
-                if (pictureArray[i].has(id) == true)
-                    return pictureArray[i].get(id);
+            for (var i: number = 0; i < pictureArray.size(); i++)
+                if (pictureArray.at(i).has(id) == true)
+                    return pictureArray.at(i).get(id);
 
             return null;
         }

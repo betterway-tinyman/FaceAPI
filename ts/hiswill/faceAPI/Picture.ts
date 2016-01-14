@@ -1,6 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="Face.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="Face.ts" />
 /// <reference path="IJSONEntity.ts" />
 
 /// <reference path="PictureArray.ts" />
@@ -13,7 +14,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class Picture 
-        extends EntityArray<Face>
+        extends protocol.EntityArray<Face>
         implements IJSONEntity
     {
         /**
@@ -45,7 +46,7 @@ namespace hiswill.faceapi
     
         public constructByJSON(val: any): void
         {
-            this.splice(0, this.length); // CLEAR
+            this.clear(); // CLEAR
 
             var array: Array<any> = val;
 
@@ -58,7 +59,7 @@ namespace hiswill.faceapi
             }
         }
 
-        protected createChild(xml:XML): Face
+        protected createChild(xml: library.XML): Face
         {
             return new Face(this);
         }
@@ -100,7 +101,7 @@ namespace hiswill.faceapi
         public detect(): void 
         {
             // REMOVE ALL
-            this.splice(0, this.length);
+            this.clear();
 
             var this_ = this;
 

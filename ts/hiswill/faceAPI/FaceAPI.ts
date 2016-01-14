@@ -1,8 +1,14 @@
-﻿/// <reference path="../../SamchonFramework.ts" />
+﻿/// <reference path="../../samchon/protocol/Entity.ts" />
 
 /// <reference path="PersonGroupArray.ts" />
 /// <reference path="FaceListArray.ts" />
 /// <reference path="PictureArray.ts" />
+
+import std = samchon.std;
+import library = samchon.library;
+import protocol = samchon.protocol;
+
+var trace = samchon.trace;
 
 namespace hiswill.faceapi
 {
@@ -12,7 +18,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceAPI
-        extends Entity 
+        extends protocol.Entity 
     {
         /**
          * An array of PersonGroup.
@@ -118,9 +124,9 @@ namespace hiswill.faceapi
             return "faceAPI";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             xml.push
             (
                 this.personGroupArray.toXML(),

@@ -1,6 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="FaceRectangle.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="FaceRectangle.ts" />
 ///     <reference path="FacePair.ts" />
 /// <reference path="IGroup.ts" />
 
@@ -18,7 +19,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FacePairArray
-        extends EntityArray<FaceRectangle>
+        extends protocol.EntityArray<FaceRectangle>
         implements IGroup<FaceRectangle>
     {
         /**
@@ -53,7 +54,7 @@ namespace hiswill.faceapi
             this.registered = false;
         }
     
-        protected createChild(xml: XML): FaceRectangle
+        protected createChild(xml: library.XML): FaceRectangle
         {
             return new FacePair(this);
         }
@@ -88,18 +89,18 @@ namespace hiswill.faceapi
             return super.push(...items);
         }
 
-        public splice(start: number, end?: number, ... items: FaceRectangle[]): FaceRectangle[]
-        {
-            // Remove the elements from Face-API server.
-            for (var i: number = start;  i < Math.min(start + end, this.length); i++)
-                (<FacePair>this[i]).eraseFromServer();
+        //public splice(start: number, end?: number, ... items: FaceRectangle[]): FaceRectangle[]
+        //{
+        //    // Remove the elements from Face-API server.
+        //    for (var i: number = start;  i < Math.min(start + end, this.size()); i++)
+        //        (<FacePair>this.at(i)).eraseFromServer();
 
-            // To return
-            var output = super.splice(start, end);
+        //    // To return
+        //    var output = super.splice(start, end);
 
-            this.push(...items);
-            return output;
-        }
+        //    this.push(...items);
+        //    return output;
+        //}
 
         /* --------------------------------------------------------
             INTERACTION WITH FACE API SERVER

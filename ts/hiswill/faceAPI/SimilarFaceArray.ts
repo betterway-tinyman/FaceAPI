@@ -1,6 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="SimilarFace.ts" />
+/// <reference path="../../samchon/protocol/EntityArray.ts" />
+///     <reference path="SimilarFace.ts" />
 /// <reference path="IJSONEntity.ts" />
 
 /// <reference path="Face.ts" />
@@ -9,7 +10,7 @@
 namespace hiswill.faceapi
 {
     export class SimilarFaceArray
-        extends EntityArray<SimilarFace>
+        extends protocol.EntityArray<SimilarFace>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -64,7 +65,7 @@ namespace hiswill.faceapi
             }
         }
 
-        public construt(xml: XML): void
+        public construt(xml: library.XML): void
         {
             
             this.faceList = null;
@@ -76,9 +77,9 @@ namespace hiswill.faceapi
 
                 var pictureArray: PictureArray = this.api.getPictureArray();
 
-                for (var i: number = 0; i < pictureArray.length; i++)
+                for (var i: number = 0; i < pictureArray.size(); i++)
                 {
-                    var picture: Picture = pictureArray[i];
+                    var picture: Picture = pictureArray.at(i);
 
                     if (picture.has(faceID) == true) {
                         this.face = picture.get(faceID);
@@ -103,7 +104,7 @@ namespace hiswill.faceapi
 
         public constructByJSON(val: any): void
         {
-            this.splice(0, this.length); // CLEAR
+            this.clear(); // CLEAR
             
             var items: Array<Object> = val;
 
@@ -116,7 +117,7 @@ namespace hiswill.faceapi
             }
         }
 
-        protected createChild(xml: XML): SimilarFace
+        protected createChild(xml: library.XML): SimilarFace
         {
             return new SimilarFace(this);
         }
@@ -150,9 +151,9 @@ namespace hiswill.faceapi
             return "similarFace";
         }
 
-        public toXML(): XML
+        public toXML(): library.XML
         {
-            var xml: XML = super.toXML();
+            var xml: library.XML = super.toXML();
             
             if (this.face != null)
                 xml.setProperty("faceID", this.face.getID());

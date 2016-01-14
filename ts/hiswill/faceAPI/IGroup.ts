@@ -1,5 +1,7 @@
 ﻿/// <reference path="IFaceAPI.ts" />
 
+/// <reference path="../../samchon/protocol/IEntity.ts" />
+
 namespace hiswill.faceapi
 {
     /**
@@ -9,8 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export interface IGroup<_Ty>
-        extends IFaceAPI, 
-                Array<_Ty>, IEntity
+        extends IFaceAPI, protocol.IEntity
     {
         push(...items: _Ty[]): number;
         //{
@@ -20,11 +21,11 @@ namespace hiswill.faceapi
         //    super.push(items);
         //}
     
-        splice(start: number, end?: number, ...items: _Ty[]): _Ty[];
+        //splice(start: number, end?: number, ...items: _Ty[]): _Ty[];
         //{
         //    var i: number;
         //    for (i = start; i < start + end; i++)
-        //        this.eraseFromServer(this[i]);
+        //        this.eraseFromServer(this.at(i));
         
         //    for (i = 0; i < items.length; i++)
         //        this.insertToServer(items[i]);
