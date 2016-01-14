@@ -46,6 +46,9 @@ namespace samchon.protocol
             super();
         }
 
+        /**
+         * @inheritdoc
+         */
         public construct(xml: library.XML): void
         {
             this.listener = xml.getProperty("listener");
@@ -53,6 +56,9 @@ namespace samchon.protocol
             super.construct(xml);
         }
 
+        /**
+         * @inheritdoc
+         */
         protected createChild(xml: library.XML): InvokeParameter
         {
             return new InvokeParameter();

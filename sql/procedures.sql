@@ -379,10 +379,168 @@ GO
 	ARCHIVERS
 ====================================================================== */
 -- PARAMETERIC TABLES
+CREATE TYPE ISSUED_UID_TABLE AS TABLE
+(
+	uid BIGINT
+);
+GO
 
-CREATE PROCEDURE archive
+CREATE PROCEDURE private_merge_face
+	@pictureUID BIGINT,
+	@xml XML
 AS
-	SELECT 1;
+	DECLARE @uid_table ISSUED_UID_TABLE
+
+	-----------------------------------------
+	-- MERGE FACE
+	-----------------------------------------
+	Merge Face ORG
+		USING
+		(
+			SELECT 
+				T.C.value('uid', 'BIGINT') uid,
+				@pictureUID pictureUID,
+				T.C.value('personUID', 'BIGINT') personUID,
+				T.C.value('x', 'REAL') x,
+				T.C.value('y', 'REAL') y,
+				T.C.value('width', 'REAL') width,
+				T.C.value('height', 'REAL') height
+			FROM @xml.nodes('picture/face') AS T(C)
+		) NEW
+		ON ORG.uid = NEW.uid
+	WHEN MATCHED THEN
+		UPDATE SET 
+			uid = NEW.uid,
+			pictureUID = NEW.pictureUID,
+			personUID = NEW.personUID,
+			x = NEW.x,
+			y = NEW.y,
+			width = NEW.width,
+			height = NEW.height
+	WHEN NOT MATCHED THEN
+		INSERT VALUES 
+		(
+			NEW.uid,
+			NEW.pictureUID,
+			NEW.personUID,
+			NEW.x,
+			NEW.y,
+			NEW.width,
+			NEW.height
+		)
+		OUTPUT INSERTED.uid INTO @uid_table;
+
+	-----------------------------------------
+	-- ALLOCATE NEWLY ISSUED UID
+	-----------------------------------------
+	DECLARE @i INT = 1
+	DECLARE @size INT = @xml.value('count(pictureArray/picture)', 'INT')
+
+	DECLARE @faceXML XML
+	DECLARE @uid BIGINT
+
+	-- CONSTRUCT CURSOR
+	DECLARE @cursor CURSOR
+	SET @cursor = CURSOR FOR
+		SELECT uid FROM @uid_table
+
+	OPEN @cursor
+
+	-- ITERATE
+	WHILE (@i <= @size)
+	BEGIN
+		SET @faceXML = @xml.query('picture/face[sql:variable("@i")]')
+		
+		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
+		SET @uid = @faceXML.value('@uid', 'BIGINT')
+		IF (@uid IS NULL)
+		BEGIN
+			FETCH NEXT FROM @cursor INTO @uid
+			SET @pictureXML.modify('insert sql:variable("@uid") into (/Picture)[1]')
+		END
+	END
+
+	-----------------------------------------
+	-- MERGE ATTRIBUTES
+	-----------------------------------------
+
+	-----------------------------------------
+	-- MERGE LANDMARKS
+	-----------------------------------------
+GO
+
+CREATE PROCEDURE private_merge_picture
+	@xml XML
+AS
+	DECLARE @uid_table ISSUED_UID_TABLE
+
+	-----------------------------------------
+	-- MERGE PICTURE
+	-----------------------------------------
+	Merge Picture ORG
+		USING
+		(
+			SELECT 
+				T.C.value('uid', 'BIGINT') uid,
+				T.C.value('name', 'NVARCHAR(100)') name,
+				T.C.value('url', 'NVARCHAR(1000)') url
+			FROM @xml.nodes('pictureArray/picture') AS T(C)
+		) NEW
+		ON ORG.uid = NEW.uid
+	WHEN MATCHED THEN
+		UPDATE SET name = NEW.name, url = NEW.url
+	WHEN NOT MATCHED THEN
+		INSERT VALUES (NEW.name, NEW.url)
+		OUTPUT INSERTED.uid INTO @uid_table;
+
+	-----------------------------------------
+	-- ALLOCATE NEWLY ISSUED UID
+	-----------------------------------------
+	DECLARE @i INT = 1
+	DECLARE @size INT = @xml.value('count(pictureArray/picture)', 'INT')
+
+	DECLARE @pictureXML XML
+	DECLARE @uid BIGINT
+
+	-- CONSTRUCT CURSOR
+	DECLARE @cursor CURSOR
+	SET @cursor = CURSOR FOR
+		SELECT uid FROM @uid_table
+
+	OPEN @cursor
+
+	-- ITERATE
+	WHILE (@i <= @size)
+	BEGIN
+		SET @pictureXML = @xml.query('pictureArray/picture[sql:variable("@i")]')
+		
+		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
+		SET @uid = @pictureXML.value('@uid', 'BIGINT')
+		IF (@uid IS NULL)
+		BEGIN
+			FETCH NEXT FROM @cursor INTO @uid
+			SET @pictureXML.modify('insert sql:variable("@uid") into (/Picture)[1]')
+		END
+
+		-- MERGE FACES
+		EXEC private_merge_face @uid, pictureXML
+	END
+GO
+
+CREATE PROCEDURE mergePersonGroup
+	@xml XML
+AS
+	
+GO
+CREATE PROCEDURE mergePerson
+	@xml XML
+AS
+GO
+
+CREATE PROCEDURE mergeFaceAPI
+	@xml XML
+AS
+
 GO
 
 /* ======================================================================

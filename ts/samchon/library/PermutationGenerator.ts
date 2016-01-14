@@ -9,7 +9,7 @@ namespace samchon.library
      * <p> nPr </p>
      * 
      * @author Jeongho Nam
-     * @inheritDoc
+     * @inheritdoc
      */
     export class PermuationGenerator
         extends CaseGenerator
@@ -32,6 +32,9 @@ namespace samchon.library
                 this.size_ *= i;
         }
 
+        /**
+         * @inheritdoc
+         */
         public at(index: number): Array<number>
         {
             var atoms: Array<number> = new Array<number>();

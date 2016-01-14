@@ -8,7 +8,7 @@ namespace samchon.library
      * <p> A combined-permutation case generator. </p>
      * <p> <sub>n</sub>TT<sub>r</sub> </p>
      * 
-     * @inheritDoc
+     * @inheritdoc
      * @author Jeongho Nam
      */
     export class CombinedPermutationGenerator

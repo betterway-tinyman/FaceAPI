@@ -16,7 +16,7 @@ namespace samchon.protocol.slave
      * and master::ParallelSystem and reports elapsed time of each commmand (by Invoke message)
      * for estimation of its performance. </p>
      * 
-     * @inheritDoc
+     * @inheritdoc
      * @author Jeongho Nam
      */
     export class SlaveSystem
@@ -30,6 +30,9 @@ namespace samchon.protocol.slave
             super();
         }
 
+        /**
+         * @inheritdoc
+         */
         public replyData(invoke: Invoke): void
         {
             var history: InvokeHistory = new InvokeHistory(invoke);
