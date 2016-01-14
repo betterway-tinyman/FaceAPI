@@ -1,3 +1,5 @@
+USE FaceAPI
+
 DECLARE @xml XML = 
 N'<faceAPI>
   <personGroupArray>
@@ -229,16 +231,14 @@ N'<faceAPI>
 </faceAPI>'
 
 DECLARE @size INT = @xml.value('count(faceAPI/personGroupArray/personGroup)', 'INT')
-
-DECLARE @personGroupArray XML = @xml.query('faceAPI/personGroupArray/personGroup[1]')
-
-SELECT @size, @personGroupArray;
+DECLARE @person XML = @xml.query('faceAPI/personGroupArray/personGroup[2]/person')
 
 SELECT 
 	T.C.value('@uid',' BIGINT'),
 	T.C.value('@name', 'NVARCHAR(100)'),
-	T.C.value('@fake', 'INT')
-FROM @xml.nodes('faceAPI/personGroupArray/personGroup') AS T(C);
+	T.C.value('@fake', 'INT'),
+	T.C.value('parent::*/@uid', 'BIGINT') groupUID
+FROM @xml.nodes('faceAPI/personGroupArray/personGroup/person') AS T(C);
 
 SELECT 
 	T.C.value('@uid',' BIGINT')

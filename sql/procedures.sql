@@ -385,16 +385,23 @@ CREATE TYPE ISSUED_UID_TABLE AS TABLE
 );
 GO
 
+CREATE PROCEDURE private_merge_person
+	@xml
+AS
+	
+GO
+
 CREATE PROCEDURE private_merge_face
-	@pictureUID BIGINT,
 	@xml XML
 AS
 	DECLARE @uid_table ISSUED_UID_TABLE
 
+	DECLARE @uid = @xml.value('@uid', 'BIGINT')
+
 	-----------------------------------------
 	-- MERGE FACE
 	-----------------------------------------
-	Merge Face ORG
+	Merge Face ORG`
 		USING
 		(
 			SELECT 
@@ -463,10 +470,38 @@ AS
 	-----------------------------------------
 	-- MERGE ATTRIBUTES
 	-----------------------------------------
+	-- FACE_ATTRIBUTES
+	MERGE FaceAttributes
+		USING 
+		(
+			SELECT 
+				T.C.value('orderUID', 'BIGINT') orderUID,
+				T.C.value('age', 'REAL') age,
+				T.C.value('gender', 'NVARCHAR(10)') gender,
+				T.C.value('smile', 'REAL') smile,
+			FROM @xml.nodes('picture/face/face/attributes') AS T(C)
+		)
+	WHEN NOT MATCHED THEN
+		INSERT VALUES (NEW.orderUID, NEW.age, NEW.gender, NEW.smile)
+	WHEN MATCHED THEN
+		UPDATE SET age = NEW.age, gender = NEW.gender, smile = NEW.smile;
+
+	-- FACIAL_HAIR
+	MERGE FacialHair
+		USING
+		(
+			SELECT
+				T.C.value(
+		)
+
+	-- HEAD_POSE
+
 
 	-----------------------------------------
 	-- MERGE LANDMARKS
 	-----------------------------------------
+	
+
 GO
 
 CREATE PROCEDURE private_merge_picture
@@ -516,6 +551,7 @@ AS
 		
 		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
 		SET @uid = @pictureXML.value('@uid', 'BIGINT')
+		
 		IF (@uid IS NULL)
 		BEGIN
 			FETCH NEXT FROM @cursor INTO @uid
@@ -523,7 +559,7 @@ AS
 		END
 
 		-- MERGE FACES
-		EXEC private_merge_face @uid, pictureXML
+		EXEC private_merge_face pictureXML
 	END
 GO
 
