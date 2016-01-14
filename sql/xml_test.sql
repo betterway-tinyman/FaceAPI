@@ -234,12 +234,6 @@ DECLARE @size INT = @xml.value('count(faceAPI/personGroupArray/personGroup)', 'I
 DECLARE @person XML = @xml.query('faceAPI/personGroupArray/personGroup[2]/person')
 
 SELECT 
-	T.C.value('@uid',' BIGINT'),
-	T.C.value('@name', 'NVARCHAR(100)'),
-	T.C.value('@fake', 'INT'),
-	T.C.value('parent::*/@uid', 'BIGINT') groupUID
-FROM @xml.nodes('faceAPI/personGroupArray/personGroup/person') AS T(C);
-
-SELECT 
-	T.C.value('@uid',' BIGINT')
-FROM @xml.nodes('faceAPI/pictureArray/picture/face') AS T(C);
+	T.C.value('@mustache', 'REAL') mustache,
+	T.C.value('parent::*/parent::*/@width', 'NVARCHAR(100)') width
+FROM @xml.nodes('faceAPI/pictureArray/picture/face/attributes/facialHair') AS T(C);
