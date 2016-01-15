@@ -11,220 +11,26 @@ USE FaceAPI
 /* ======================================================================
 	CLEAR PROCEDURES & TYPES
 ====================================================================== */
--- VIEW
------------------------------
----- FACE
---IF(OBJECT_ID('V_EYEBROW_XML') IS NOT NULL)			DROP VIEW V_EYEBROW_XML;
---IF(OBJECT_ID('V_EYE_XML') IS NOT NULL)				DROP VIEW V_EYE_XML;
---IF(OBJECT_ID('V_NOSE_XML') IS NOT NULL)				DROP VIEW V_NOSE_XML;
---IF(OBJECT_ID('V_MOUTH_XML') IS NOT NULL)			DROP VIEW V_MOUTH_XML;
-
---IF(OBJECT_ID('V_FACE_LANDMARKS_XML') IS NOT NULL)	DROP VIEW V_FACE_LANDMARKS_XML;
---IF(OBJECT_ID('V_FACE_ATTRIBUTES_XML') IS NOT NULL)	DROP VIEW V_FACE_ATTRIBUTES_XML;
---IF(OBJECT_ID('V_FACE_XML') IS NOT NULL)				DROP VIEW V_FACE_XML;
-
----- BASIC ENTITIES
---IF(OBJECT_ID('V_PERSON_GROUP_XML') IS NOT NULL)		DROP VIEW V_PERSON_GROUP_XML;
---IF(OBJECT_ID('V_PICTURE_XML') IS NOT NULL)			DROP VIEW V_PICTURE_XML;
-
---IF(OBJECT_ID('V_FACE_API_XML') IS NOT NULL)			DROP VIEW V_FACE_API_XML;
-
 -----------------------------
 -- PROCEDURES
 -----------------------------
-IF OBJECT_ID('test') IS NOT NULL					DROP PROCEDURE test;
-IF OBJECT_ID('getFaceAPI') IS NOT NULL				DROP PROCEDURE getFaceAPI;
+IF OBJECT_ID('test') IS NOT NULL						DROP PROCEDURE test;
 
+IF OBJECT_ID('mergeFaceAPI') IS NOT NULL				DROP PROCEDURE mergeFaceAPI
+IF OBJECT_ID('mergePersonGroup') IS NOT NULL			DROP PROCEDURE mergePersonGroup
+IF OBJECT_ID('mergePerson') IS NOT NULL					DROP PROCEDURE mergePerson
+IF OBJECT_ID('mergePicture') IS NOT NULL				DROP PROCEDURE mergePicture
+IF OBJECT_ID('mergeFace') IS NOT NULL					DROP PROCEDURE mergeFace
+
+IF OBJECT_ID('private_merge_person_group') IS NOT NULL	DROP PROCEDURE private_merge_person_group
+IF OBJECT_ID('private_merge_person') IS NOT NULL		DROP PROCEDURE private_merge_person
+IF OBJECT_ID('private_merge_picture') IS NOT NULL		DROP PROCEDURE private_merge_picture
+IF OBJECT_ID('private_merge_face') IS NOT NULL			DROP PROCEDURE private_merge_face
+
+IF OBJECT_ID('getFaceAPI') IS NOT NULL					DROP PROCEDURE getFaceAPI
+
+IF TYPE_ID('ISSUED_UID_TABLE') IS NOT NULL				DROP TYPE ISSUED_UID_TABLE
 GO
-
---/* ======================================================================
---	VIEWS
---====================================================================== */
----- FACES
--------------------------------
---CREATE VIEW V_EYEBROW_XML
---AS
---	SELECT 
---		faceUID, direction,
---		(SELECT innerX x, innerY y FOR XML RAW(N'inner'), type) AS 'inner',
---		(SELECT outerX x, outerY y FOR XML RAW(N'outer'), type) AS 'outer'
---	FROM Eyebrow
---	-- FOR XML RAW(N'something'), type
---GO
-
---CREATE VIEW V_EYE_XML
---AS
---	SELECT 
---		faceUID, direction,
---		(SELECT topX x, topY y FOR XML RAW(N'top'), type) AS 'top',
---		(SELECT bottomX x, bottomY y FOR XML RAW(N'bottom'), type) AS 'bottom',
---		(SELECT innerX x, innerY y FOR XML RAW(N'inner'), type) AS 'inner',
---		(SELECT outerX x, outerY y FOR XML RAW(N'outer'), type) AS 'outer',
---	(
---		SELECT * FROM Pupil P
---		WHERE P.faceUID = E.faceUID AND P.direction = E.direction
---		FOR XML RAW(N'pupil'), type
---	) AS 'pupil'
---	FROM Eye E
---	-- FOR XML RAW(N'something'), type
---GO
-
---CREATE VIEW V_NOSE_XML
---AS
---	SELECT 
---		faceUID,
---		(SELECT leftRootX x, leftRootY y FOR XML RAW(N'leftRoot'), type)  AS 'leftRoot',
---		(SELECT leftAlarTopX x, leftAlarTopY y FOR XML RAW(N'leftAlarTop'), type)  AS 'leftAlarTop',
---		(SELECT leftAlarOutTipX x, leftAlarOutTipY y FOR XML RAW(N'leftAlarOutTip'), type)  AS 'leftAlarOutTip',
---		(SELECT rightRootX x, rightRootY y FOR XML RAW(N'rightRoot'), type) AS 'rightRoot',
---		(SELECT rightAlarTopX x, rightAlarTopY y FOR XML RAW(N'rightAlarTop'), type) AS 'rightAlarTop',
---		(SELECT rightAlarOutTipX x, rightAlarOutTipY y FOR XML RAW(N'rightRoot'), type) AS 'rightAlarOutTip'
---	FROM Nose
---	-- FOR XML RAW(N'nose'), type
---GO
-
---CREATE VIEW V_MOUTH_XML
---AS
---	SELECT 
---		faceUID,
---		(SELECT leftX x, leftY y FOR XML RAW(N'left'), type) AS 'left',
---		(SELECT rightX x, rightY y FOR XML RAW(N'right'), type) AS 'right',
---	(
---		SELECT 
---			faceUID,
---			(SELECT upperTopX x, upperTopY y FOR XML RAW(N'upperTop'), type) AS 'upperTop',
---			(SELECT upperBottomX x, upperBottomY y FOR XML RAW(N'upperBottom'), type) AS 'upperBottom',
---			(SELECT underTopX x, underTopY y FOR XML RAW(N'underTop'), type) AS 'underTop',
---			(SELECT underBottomX x, underBottomY y FOR XML RAW(N'underBottom'), type) AS 'underBottom'
---		FROM Lip
---		WHERE faceUID = M.faceUID
---		FOR XML RAW(N'lip'), type
---	) AS 'lip'
---	FROM Mouth M
---	-- FOR XML RAW(N'mouth'), type
---GO
-
---CREATE VIEW V_FACE_LANDMARKS_XML
---AS
---	SELECT F.faceUID,
---	(
---		-- EYES
---		SELECT
---		(
---			SELECT * FROM V_EYEBROW_XML
---			WHERE faceUID = F.faceUID AND direction = 1
---			FOR XML RAW(N'left'), type
---		) AS 'left',
---		(
---			SELECT * FROM V_EYEBROW_XML
---			WHERE faceUID = F.faceUID AND direction = 2
---			FOR XML RAW(N'right'), type
---		) AS 'right'
---		FOR XML RAW(N'eyebrows'), type
---	) AS 'eyebrows',
---	(
---		-- EYES
---		SELECT
---		(
---			SELECT * FROM V_EYE_XML
---			WHERE faceUID = F.faceUID AND direction = 1
---			FOR XML RAW(N'left'), type
---		) AS 'left',
---		(
---			SELECT * FROM V_EYE_XML
---			WHERE faceUID = F.faceUID AND direction = 2
---			FOR XML RAW(N'right'), type
---		) AS 'right'
---		FOR XML RAW(N'eyes'), type
---	) AS 'eyes',
---	(
---		SELECT * FROM V_NOSE_XML
---		WHERE faceUID = F.faceUID
---		FOR XML RAW(N'nose'), type
---	) AS 'nose',
---	(
---		SELECT * FROM V_MOUTH_XML
---		WHERE faceUID = F.faceUID
---		FOR XML RAW(N'mouth'), type
---	) AS 'mouth'
---	FROM FaceLandmarks F
---	-- FOR XML RAW(N'landmarks'), type
---GO
-
---CREATE VIEW V_FACE_ATTRIBUTES_XML
---AS
---	SELECT *,
---	(
---		SELECT * FROM FacialHair
---		WHERE faceUID = A.faceUID
---		FOR XML RAW(N'facialHair'), type
---	) AS 'facialHair',
---	(
---		SELECT * FROM HeadPose
---		WHERE faceUID = A.faceUID
---		FOR XML RAW(N'headPose'), type
---	) AS 'headPose'
---	FROM FaceAttributes A
---	-- FOR XML RAW(N'attributes'), type
---GO
-
---CREATE VIEW V_FACE_XML
---AS
---	SELECT *,
---	(
---		SELECT * FROM V_FACE_ATTRIBUTES_XML
---		WHERE faceUID = F.uid
---		FOR XML RAW(N'attributes'), type
---	) AS 'attributes',
---	(
---		SELECT * FROM V_FACE_LANDMARKS_XML
---		WHERE faceUID = F.uid
---		FOR XML RAW(N'landmarks'), type
---	) AS 'landmarks'
---	FROM Face F
---	-- FOR XML RAW(N'face'), type
---GO
-
--------------------------------
----- BASIC ENTITIES
--------------------------------
---CREATE VIEW V_PERSON_GROUP_XML
---AS
---	SELECT *,
---	(
---		SELECT * FROM Person
---		WHERE groupUID = G.uid
---		FOR XML RAW(N'person'), type
---	) AS 'person'
---	FROM PersonGroup G;
---	-- FOR XML RAW(N'personGroup'), ROOT(N'personGroupArray'), type
---GO
-
---CREATE VIEW V_PICTURE_XML
---AS
---	SELECT *,
---	(
---		SELECT * FROM V_FACE_XML
---		WHERE pictureUID = P.uid
---		FOR XML RAW(N'face'), type
---	) AS 'picture'
---	FROM Picture P
---	-- FOR XML RAW(N'picture'), ROOT(N'pictureArray'), type
---GO
-
---CREATE VIEW V_FACE_API_XML
---AS
---	SELECT
---	(
---		SELECT * FROM V_PERSON_GROUP_XML
---		FOR XML RAW(N'personGroup'), ROOT(N'personGroupArray'), type
---	) AS 'personGroupArray',
---	(
---		SELECT * FROM V_PICTURE_XML
---		FOR XML RAW(N'picture'), ROOT(N'pictureArray'), type
---	) AS 'pictureArray'
---	-- FOR XML RAW(N'faceAPI')
---GO
 
 /* ======================================================================
 	GETTERS
@@ -386,68 +192,210 @@ CREATE TYPE ISSUED_UID_TABLE AS TABLE
 GO
 
 CREATE PROCEDURE private_merge_person
-	@xml
+	@xml XML OUTPUT
 AS
-	
+	DECLARE @uid_table ISSUED_UID_TABLE
+	DECLARE @uid BIGINT
+
+	DECLARE @cursor CURSOR
+	DECLARE @i INT
+	DECLARE @size INT
+
+	-----------------------------------------
+	-- DELETE UNLISTED(S)
+	-----------------------------------------
+	DELETE P FROM Person P
+		INNER JOIN
+		(
+			SELECT uid 
+			FROM Person
+			WHERE groupUID = @xml.value('(*/@uid)[0]', 'BIGINT')
+
+			EXCEPT
+
+			SELECT X.C.value('@uid', 'BIGINT')
+			FROM @xml.nodes('*/person') AS X(C)
+		) T
+		ON P.uid = T.uid;
+
+	-----------------------------------------
+	-- MERGE
+	-----------------------------------------
+	Merge Person ORG
+		USING
+		(
+			SELECT
+				T.C.value('@uid', 'BIGINT') uid,
+				T.C.value('parent::*/@uid', 'BIGINT') groupUID,
+				T.C.value('@name', 'NVARCHAR(100)') name
+			FROM @xml.nodes('*/person') AS T(C)
+		) NEW 
+		ON ORG.uid = NEW.uid
+	WHEN MATCHED THEN 
+		UPDATE SET
+			groupUID = NEW.groupUID, 
+			name = NEW.name
+	WHEN NOT MATCHED THEN
+		INSERT VALUES (NEW.groupUID, NEW.name)
+		OUTPUT INSERTED.uid INTO @uid_table;
+
+	-----------------------------------------
+	-- ALLOCATE NEWLY ISSUED UID(S)
+	-----------------------------------------
+	SET @cursor = CURSOR FOR 
+		SELECT uid FROM @uid_table
+
+	SET @i = 1
+	SET @size = @xml.value('count(*/person)', 'INT')
+
+	OPEN @cursor
+
+	WHILE (@i <= @size)
+	BEGIN
+		DECLARE @rowXML XML = @xml.query('*/person[sql:variable("@i")]')
+		
+		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
+		SET @uid = @rowXML.value('(*/@uid)[1]', 'BIGINT')
+
+		IF (@uid IS NULL)
+		BEGIN
+			FETCH NEXT FROM @cursor INTO @uid
+			SET @rowXML.modify('insert attribute uid {sql:variable("@uid")} into /*[1]')
+		END
+
+		-- SWAP
+		SET @xml.modify('insert sql:variable("@rowXML") before (*/person[sql:variable("@i")])[1]')
+		SET @xml.modify('delete */person[sql:variable("@i") + 1]')
+
+		SET @i = @i + 1
+	END
+GO
+
+CREATE PROCEDURE private_merge_person_group
+	@xml XML OUTPUT
+AS
+	DECLARE @uid_table ISSUED_UID_TABLE
+	DECLARE @uid BIGINT
+
+	DECLARE @cursor CURSOR
+	DECLARE @i INT
+	DECLARE @size INT
+
+	-----------------------------------------
+	-- MERGE
+	-----------------------------------------
+	Merge PersonGroup ORG
+		USING
+		(
+			SELECT
+				T.C.value('@uid', 'BIGINT') uid,
+				T.C.value('@name', 'NVARCHAR(100)') name
+			FROM @xml.nodes('*/personGroup') AS T(C)
+		) NEW 
+		ON ORG.uid = NEW.uid
+	WHEN MATCHED THEN 
+		UPDATE SET name = NEW.name
+	WHEN NOT MATCHED THEN
+		INSERT VALUES (NEW.name)
+		OUTPUT INSERTED.uid INTO @uid_table;
+
+	-----------------------------------------
+	-- ALLOCATE NEWLY ISSUED UID(S)
+	-----------------------------------------
+	SET @cursor = CURSOR FOR 
+		SELECT uid FROM @uid_table
+
+	SET @i = 1
+	SET @size = @xml.value('count(*/personGroup)', 'INT')
+
+	OPEN @cursor
+
+	WHILE (@i <= @size)
+	BEGIN
+		DECLARE @rowXML XML = @xml.query('*/personGroup[sql:variable("@i")]')
+		
+		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
+		SET @uid = @rowXML.value('(*/@uid)[1]', 'BIGINT')
+		
+		IF (@uid IS NULL)
+		BEGIN
+			FETCH NEXT FROM @cursor INTO @uid
+
+			SET @rowXML.modify('insert attribute uid {sql:variable("@uid")} into /*[1]')
+		END
+
+		-- MERGE PERSON
+		EXEC private_merge_person @rowXML OUT
+
+		-- SWAP
+		SET @xml.modify('insert sql:variable("@rowXML") before (*/personGroup[sql:variable("@i")])[1]')
+		SET @xml.modify('delete */personGroup[sql:variable("@i") + 1]')
+
+		SET @i = @i + 1
+	END
 GO
 
 CREATE PROCEDURE private_merge_face
-	@xml XML
+	@xml XML OUTPUT
 AS
 	DECLARE @uid_table ISSUED_UID_TABLE
 
-	DECLARE @uid = @xml.value('@uid', 'BIGINT')
+	DECLARE @pictureUID BIGINT = @xml.value('(*/@uid)[1]', 'BIGINT')
+
+	-- DROP TRUNCATEDS
+	DELETE F FROM Face F
+	INNER JOIN 
+	(
+		SELECT uid FROM Face
+		WHERE personUID = @pictureUID 
+		
+		EXCEPT
+
+		SELECT X.C.value('@uid', 'BIGINT')
+		FROM @xml.nodes('*/face') AS X(C)
+	) T
+	ON F.uid = T.uid;
 
 	-----------------------------------------
 	-- MERGE FACE
 	-----------------------------------------
-	Merge Face ORG`
+	Merge Face ORG
 		USING
 		(
-			SELECT 
-				T.C.value('uid', 'BIGINT') uid,
-				@pictureUID pictureUID,
-				T.C.value('personUID', 'BIGINT') personUID,
-				T.C.value('x', 'REAL') x,
-				T.C.value('y', 'REAL') y,
-				T.C.value('width', 'REAL') width,
-				T.C.value('height', 'REAL') height
-			FROM @xml.nodes('picture/face') AS T(C)
+			SELECT
+				T.C.value('@uid', 'BIGINT') uid,
+				T.C.value('parent::*/@uid', 'BIGINT') pictureUID,
+				T.C.value('@personUID', 'BIGINT') personUID,
+				T.C.value('@x', 'REAL') x,
+				T.C.value('@y', 'REAL') y,
+				T.C.value('@width', 'REAL') width,
+				T.C.value('@height', 'REAL') height
+			FROM @xml.nodes('*/face') T(C)
 		) NEW
 		ON ORG.uid = NEW.uid
 	WHEN MATCHED THEN
-		UPDATE SET 
-			uid = NEW.uid,
-			pictureUID = NEW.pictureUID,
-			personUID = NEW.personUID,
-			x = NEW.x,
-			y = NEW.y,
-			width = NEW.width,
-			height = NEW.height
+		UPDATE SET
+			pictureUID = NEW.pictureUID, personUID = NEW.personUID,
+			x = NEW.x, y = NEW.y, width = NEW.width, height = NEW.height
 	WHEN NOT MATCHED THEN
-		INSERT VALUES 
+		INSERT VALUES
 		(
-			NEW.uid,
-			NEW.pictureUID,
-			NEW.personUID,
-			NEW.x,
-			NEW.y,
-			NEW.width,
-			NEW.height
+			NEW.pictureUID, NEW.personUID,
+			NEW.x, NEW.y, NEW.width, NEW.height
 		)
 		OUTPUT INSERTED.uid INTO @uid_table;
 
 	-----------------------------------------
 	-- ALLOCATE NEWLY ISSUED UID
 	-----------------------------------------
+	DECLARE @cursor CURSOR
 	DECLARE @i INT = 1
-	DECLARE @size INT = @xml.value('count(pictureArray/picture)', 'INT')
+	DECLARE @size INT = @xml.value('count(*/face)', 'INT')
 
-	DECLARE @faceXML XML
 	DECLARE @uid BIGINT
+	DECLARE @rowXML XML
 
 	-- CONSTRUCT CURSOR
-	DECLARE @cursor CURSOR
 	SET @cursor = CURSOR FOR
 		SELECT uid FROM @uid_table
 
@@ -456,56 +404,344 @@ AS
 	-- ITERATE
 	WHILE (@i <= @size)
 	BEGIN
-		SET @faceXML = @xml.query('picture/face[sql:variable("@i")]')
+		SET @rowXML = @xml.query('*/face[sql:variable("@i")]')
 		
 		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
-		SET @uid = @faceXML.value('@uid', 'BIGINT')
+		SET @uid = @rowXML.value('(*/@uid)[1]', 'BIGINT')
+		
 		IF (@uid IS NULL)
 		BEGIN
 			FETCH NEXT FROM @cursor INTO @uid
-			SET @pictureXML.modify('insert sql:variable("@uid") into (/Picture)[1]')
+			SET @rowXML.modify('insert attribute uid {sql:variable("@uid")} into /*[1]')
 		END
+
+		-- SWAP
+		SET @xml.modify('insert sql:variable("@rowXML") before (*/face[sql:variable("@i")])[1]')
+		SET @xml.modify('delete */face[sql:variable("@i") + 1]')
+
+		SET @i = @i + 1
 	END
 
 	-----------------------------------------
 	-- MERGE ATTRIBUTES
 	-----------------------------------------
 	-- FACE_ATTRIBUTES
-	MERGE FaceAttributes
+	MERGE FaceAttributes ORG
 		USING 
 		(
 			SELECT 
-				T.C.value('orderUID', 'BIGINT') orderUID,
-				T.C.value('age', 'REAL') age,
-				T.C.value('gender', 'NVARCHAR(10)') gender,
-				T.C.value('smile', 'REAL') smile,
-			FROM @xml.nodes('picture/face/face/attributes') AS T(C)
-		)
+				T.C.value('parent::*/@uid', 'BIGINT') faceUID,
+				T.C.value('@age', 'REAL') age,
+				T.C.value('@gender', 'NVARCHAR(10)') gender,
+				T.C.value('@smile', 'REAL') smile
+			FROM @xml.nodes('picture/face/attributes') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
 	WHEN NOT MATCHED THEN
-		INSERT VALUES (NEW.orderUID, NEW.age, NEW.gender, NEW.smile)
+		INSERT VALUES 
+		(
+			NEW.faceUID, 
+			NEW.age, NEW.gender, NEW.smile
+		)
 	WHEN MATCHED THEN
-		UPDATE SET age = NEW.age, gender = NEW.gender, smile = NEW.smile;
+		UPDATE SET 
+			age = NEW.age, 
+			gender = NEW.gender, 
+			smile = NEW.smile;
 
 	-- FACIAL_HAIR
-	MERGE FacialHair
+	MERGE FacialHair ORG
 		USING
 		(
 			SELECT
-				T.C.value(
+				T.C.value('parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				T.C.value('@mustache', 'REAL') mustache,
+				T.C.value('@beard', 'REAL') beard,
+				T.C.value('@sideburns', 'REAL') sideburns
+			FROM @xml.nodes('picture/face/attributes/facialHair') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID,
+			NEW.mustache, NEW.beard, NEW.sideburns
 		)
-
+	WHEN MATCHED THEN
+		UPDATE SET 
+			mustache = NEW.mustache, 
+			beard = NEW.beard, 
+			sideburns = NEW.sideburns;
+			
 	-- HEAD_POSE
-
+	MERGE HeadPose ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				T.C.value('@roll', 'REAL') roll,
+				T.C.value('@pitch', 'REAL') pitch,
+				T.C.value('@yaw', 'REAL') yaw
+			FROM @xml.nodes('picture/face/attributes/facialHair') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID,
+			NEW.roll, NEW.pitch, NEW.yaw
+		)
+	WHEN MATCHED THEN
+		UPDATE SET 
+			roll = NEW.roll, 
+			pitch = NEW.pitch, 
+			yaw = NEW.yaw;
 
 	-----------------------------------------
 	-- MERGE LANDMARKS
 	-----------------------------------------
-	
+	-- FACE_LANDMARKS
+	MERGE FaceLandmarks ORG
+		USING
+		(
+			SELECT T.C.value('@uid', 'BIGINT') faceUID
+			FROM @xml.nodes('picture/face') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN
+		INSERT VALUES (NEW.faceUID);
 
+	-- EYEBROW
+	MERGE Eyebrow ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				1 AS direction,
+				T.C.value('inner[1]/@x', 'REAL') innerX,
+				T.C.value('inner[1]/@y', 'REAL') innerY,
+				T.C.value('outer[1]/@x', 'REAL') outerX,
+				T.C.value('outer[1]/@y', 'REAL') outerY
+			FROM @xml.nodes('picture/face/landmarks/eyebrows/left') AS T(C)
+
+			UNION ALL
+
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				2 AS direction,
+				T.C.value('inner[1]/@x', 'REAL') innerX,
+				T.C.value('inner[1]/@y', 'REAL') innerY,
+				T.C.value('outer[1]/@x', 'REAL') outerX,
+				T.C.value('outer[1]/@y', 'REAL') outerY
+			FROM @xml.nodes('picture/face/landmarks/eyebrows/right') AS T(C)
+
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID, NEW.direction, 
+			NEW.innerX, NEW.innerY,
+			NEW.outerX, NEW.outerY
+		)
+	WHEN MATCHED THEN
+		UPDATE SET
+			innerX = NEW.innerX, innerY = NEW.innerY,
+			outerX = NEW.outerX, outerY = NEW.outerY;
+
+	-- EYE
+	MERGE Eye ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				1 AS direction,
+				T.C.value('top[1]/@x', 'REAL') topX,
+				T.C.value('top[1]/@y', 'REAL') topY,
+				T.C.value('bottom[1]/@x', 'REAL') bottomX,
+				T.C.value('bottom[1]/@y', 'REAL') bottomY,
+				T.C.value('inner[1]/@x', 'REAL') innerX,
+				T.C.value('inner[1]/@y', 'REAL') innerY,
+				T.C.value('outer[1]/@x', 'REAL') outerX,
+				T.C.value('outer[1]/@y', 'REAL') outerY
+			FROM @xml.nodes('picture/face/landmarks/eye/left') AS T(C)
+
+			UNION ALL
+
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				2 AS direction,
+				T.C.value('top[1]/@x', 'REAL') topX,
+				T.C.value('top[1]/@y', 'REAL') topY,
+				T.C.value('bottom[1]/@x', 'REAL') bottomX,
+				T.C.value('bottom[1]/@y', 'REAL') bottomY,
+				T.C.value('inner[1]/@x', 'REAL') innerX,
+				T.C.value('inner[1]/@y', 'REAL') innerY,
+				T.C.value('outer[1]/@x', 'REAL') outerX,
+				T.C.value('outer[1]/@y', 'REAL') outerY
+			FROM @xml.nodes('picture/face/landmarks/eye/right') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID, NEW.direction, 
+			NEW.topX, NEW.topY,
+			NEW.bottomX, NEW.bottomY,
+			NEW.innerX, NEW.innerY,
+			NEW.outerX, NEW.outerY
+		)
+	WHEN MATCHED THEN
+		UPDATE SET
+			topX = NEW.innerX, topY = NEW.topY,
+			bottomX = NEW.innerX, bottomY = NEW.bottomY,
+			innerX = NEW.innerX, innerY = NEW.innerY,
+			outerX = NEW.outerX, outerY = NEW.outerY;
+
+	-- PUPIL
+	MERGE Pupil ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				1 AS direction,
+				T.C.value('@x', 'REAL') x,
+				T.C.value('@y', 'REAL') y
+			FROM @xml.nodes('picture/face/landmarks/eye/left/pupil') AS T(C)
+
+			UNION ALL
+
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				1 AS direction,
+				T.C.value('@x', 'REAL') x,
+				T.C.value('@y', 'REAL') y
+			FROM @xml.nodes('picture/face/landmarks/eye/right/pupil') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID, NEW.direction, 
+			NEW.x, NEW.y
+		)
+	WHEN MATCHED THEN
+		UPDATE SET
+			x = NEW.x, y = NEW.y;
+
+	-- NOSE
+	MERGE Nose ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/@uid', 'BIGINT') faceUID,
+
+				T.C.value('leftRoot[1]/@x', 'REAL') leftRootX,
+				T.C.value('leftRoot[1]/@y', 'REAL') leftRootY,
+				T.C.value('leftAlarTop[1]/@x', 'REAL') leftAlarTopX,
+				T.C.value('leftAlarTop[1]/@y', 'REAL') leftAlarTopY,
+				T.C.value('leftAlarOutTip[1]/@x', 'REAL') leftAlarOutTipX,
+				T.C.value('leftAlarOutTip[1]/@y', 'REAL') leftAlarOutTipY,
+
+				T.C.value('rightRoot[1]/@x', 'REAL') rightRootX,
+				T.C.value('rightRoot[1]/@y', 'REAL') rightRootY,
+				T.C.value('rightAlarTop[1]/@x', 'REAL') rightAlarTopX,
+				T.C.value('rightAlarTop[1]/@y', 'REAL') rightAlarTopY,
+				T.C.value('rightAlarOutTip[1]/@x', 'REAL') rightAlarOutTipX,
+				T.C.value('rightAlarOutTip[1]/@y', 'REAL') rightAlarOutTipY
+			FROM @xml.nodes('picture/face/landmarks/nose') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID,
+
+			NEW.leftRootX, NEW.leftRootY,
+			NEW.leftAlarTopX, NEW.leftAlarTopY,
+			NEW.leftAlarOutTipX, NEW.leftAlarOutTipY,
+
+			NEW.rightRootX, NEW.rightRootY,
+			NEW.rightAlarTopX, NEW.rightAlarTopY,
+			NEW.rightAlarOutTipX, NEW.rightAlarOutTipY
+		)
+	WHEN MATCHED THEN
+		UPDATE SET 
+			leftRootX = NEW.leftRootX, leftRootY = NEW.leftRootY,
+			leftAlarTopX = NEW.leftAlarTopX, leftAlarTopY = NEW.leftAlarTopY,
+			leftAlarOutTipX = NEW.leftAlarOutTipX, leftAlarOutTipY = NEW.leftAlarOutTipY,
+
+			rightRootX = NEW.rightRootX, rightRootY = NEW.rightRootY,
+			rightAlarTopX = NEW.rightAlarTopX, rightAlarTopY = NEW.rightAlarTopY,
+			rightAlarOutTipX = NEW.rightAlarOutTipX, rightAlarOutTipY = NEW.rightAlarOutTipY;
+	
+	-- MOUTH
+	MERGE Mouth ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				T.C.value('left[1]/@x', 'REAL') leftX,
+				T.C.value('left[1]/@y', 'REAL') leftY,
+				T.C.value('right[1]/@x', 'REAL') rightX,
+				T.C.value('right[1]/@y', 'REAL') rightY
+			FROM @xml.nodes('picture/face/landmarks/mouth') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID,
+			NEW.leftX, NEW.leftY,
+			NEW.rightX, NEW.rightY
+		)
+	WHEN MATCHED THEN
+		UPDATE SET 
+			leftX = NEW.leftX,
+			leftY = NEW.leftY,
+			rightX = NEW.rightX,
+			rightY = NEW.rightY;
+	
+	-- LIP
+	MERGE Lip ORG
+		USING
+		(
+			SELECT
+				T.C.value('parent::*/parent::*/parent::*/@uid', 'BIGINT') faceUID,
+				T.C.value('upperTop[1]/@x', 'REAL') upperTopX,
+				T.C.value('upperTop[1]/@y', 'REAL') upperTopY,
+				T.C.value('upperBottom[1]/@x', 'REAL') upperBottomX,
+				T.C.value('upperBottom[1]/@y', 'REAL') upperBottomY,
+				T.C.value('underTop[1]/@x', 'REAL') underTopX,
+				T.C.value('underTop[1]/@y', 'REAL') underTopY,
+				T.C.value('underBottom[1]/@x', 'REAL') underBottomX,
+				T.C.value('underBottom[1]/@y', 'REAL') underBottomY
+			FROM @xml.nodes('picture/face/landmarks/mouth/lip') AS T(C)
+		) NEW
+			ON ORG.faceUID = NEW.faceUID
+	WHEN NOT MATCHED THEN 
+		INSERT VALUES
+		(
+			NEW.faceUID,
+			NEW.upperTopX, NEW.upperTopY,
+			NEW.upperBottomX, NEW.upperBottomY,
+			NEW.underTopX, NEW.underTopY,
+			NEW.underBottomX, NEW.underBottomY
+		)
+	WHEN MATCHED THEN
+		UPDATE SET
+			upperTopX = NEW.upperTopX,
+			upperTopY = NEW.upperTopY,
+			upperBottomX = NEW.upperBottomX,
+			upperBottomY = NEW.upperBottomY,
+			underTopX = NEW.underTopX,
+			underTopY = NEW.underTopY,
+			underBottomX = NEW.underBottomX,
+			underBottomY = NEW.underBottomY;
 GO
 
 CREATE PROCEDURE private_merge_picture
-	@xml XML
+	@xml XML OUTPUT
 AS
 	DECLARE @uid_table ISSUED_UID_TABLE
 
@@ -516,10 +752,10 @@ AS
 		USING
 		(
 			SELECT 
-				T.C.value('uid', 'BIGINT') uid,
-				T.C.value('name', 'NVARCHAR(100)') name,
-				T.C.value('url', 'NVARCHAR(1000)') url
-			FROM @xml.nodes('pictureArray/picture') AS T(C)
+				T.C.value('@uid', 'BIGINT') uid,
+				T.C.value('@name', 'NVARCHAR(100)') name,
+				T.C.value('@url', 'NVARCHAR(1000)') url
+			FROM @xml.nodes('*/picture') AS T(C)
 		) NEW
 		ON ORG.uid = NEW.uid
 	WHEN MATCHED THEN
@@ -532,9 +768,9 @@ AS
 	-- ALLOCATE NEWLY ISSUED UID
 	-----------------------------------------
 	DECLARE @i INT = 1
-	DECLARE @size INT = @xml.value('count(pictureArray/picture)', 'INT')
+	DECLARE @size INT = @xml.value('count(*/picture)', 'INT')
 
-	DECLARE @pictureXML XML
+	DECLARE @rowXML XML
 	DECLARE @uid BIGINT
 
 	-- CONSTRUCT CURSOR
@@ -547,36 +783,75 @@ AS
 	-- ITERATE
 	WHILE (@i <= @size)
 	BEGIN
-		SET @pictureXML = @xml.query('pictureArray/picture[sql:variable("@i")]')
+		SET @rowXML = @xml.query('*/picture[sql:variable("@i")]')
 		
 		-- GET UID, IF NOT THEN FETCH FROM NEWLY ISSUEDS.
-		SET @uid = @pictureXML.value('@uid', 'BIGINT')
+		SET @uid = @rowXML.value('(*/@uid)[1]', 'BIGINT')
 		
 		IF (@uid IS NULL)
 		BEGIN
 			FETCH NEXT FROM @cursor INTO @uid
-			SET @pictureXML.modify('insert sql:variable("@uid") into (/Picture)[1]')
+			SET @rowXML.modify('insert attribute uid {sql:variable("@uid")} into /*[1]')
 		END
 
 		-- MERGE FACES
-		EXEC private_merge_face pictureXML
+		EXEC private_merge_face @rowXML OUT
+
+		-- SWAP
+		SET @xml.modify('insert sql:variable("@rowXML") before (*/picture[sql:variable("@i")])[1]')
+		SET @xml.modify('delete */picture[sql:variable("@i") + 1]')
+
+		SET @i = @i + 1
 	END
 GO
 
 CREATE PROCEDURE mergePersonGroup
 	@xml XML
 AS
-	
+	EXEC private_merge_person_group @xml OUT
+
+	SELECT @xml;
 GO
 CREATE PROCEDURE mergePerson
 	@xml XML
 AS
+	EXEC private_merge_person @xml OUT
+
+	SELECT @xml;
+GO
+
+CREATE PROCEDURE mergePicture
+	@xml XML
+AS
+	EXEC private_merge_picture @xml OUT
+
+	SELECT @xml;
+GO
+CREATE PROCEDURE mergeFace
+	@xml XML
+AS
+	EXEC private_merge_face @xml OUT
+
+	SELECT @xml;
 GO
 
 CREATE PROCEDURE mergeFaceAPI
 	@xml XML
 AS
+	DECLARE @personGroupArray XML = @xml.query('faceAPI/personGroupArray')
+	DECLARE @pictureArray XML = @xml.query('faceAPI/pictureArray')
 
+	EXEC private_merge_person_group @personGroupArray OUT
+	EXEC private_merge_picture @pictureArray OUT
+
+	-- SWAP
+	SET @xml.modify('delete */personGroupArray[1]')
+	SET @xml.modify('delete */pictureArray[1]')
+
+	SET @xml.modify('insert sql:variable("@personGroupArray") into *[1]')
+	SET @xml.modify('insert sql:variable("@pictureArray") into *[1]')
+
+	SELECT @xml;
 GO
 
 /* ======================================================================
@@ -703,5 +978,3 @@ AS
 
 	EXEC getFaceAPI
 GO
-
-EXEC test
