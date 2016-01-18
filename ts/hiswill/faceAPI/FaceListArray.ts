@@ -11,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceListArray
-        extends protocol.EntityArray<FaceList>
+        extends samchon.protocol.EntityArray<FaceList>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -33,7 +33,7 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
-        protected createChild(xml: library.XML): FaceList
+        protected createChild(xml: samchon.library.XML): FaceList
         {
             return new FaceList(this, xml.getProperty("name"));
         }

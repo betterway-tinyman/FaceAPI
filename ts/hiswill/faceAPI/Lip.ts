@@ -15,7 +15,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class Lip
-        extends protocol.Entity
+        extends samchon.protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -123,9 +123,9 @@ namespace hiswill.faceapi
             return "lip";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.push
             (
                 this.upperTop.toXML(),

@@ -9,7 +9,7 @@
 namespace hiswill.faceapi
 {
     export class SimilarFaceGroupArray
-        extends protocol.EntityArray<SimilarFaceGroup>
+        extends samchon.protocol.EntityArray<SimilarFaceGroup>
         implements IJSONEntity
     {
         protected api: FaceAPI;
@@ -46,7 +46,7 @@ namespace hiswill.faceapi
             }
         }
 
-        public construct(xml: library.XML): void
+        public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
 
@@ -83,7 +83,7 @@ namespace hiswill.faceapi
             this.messyGroup.constructByJSON(messyGroup);
         }
 
-        protected createChild(xml: library.XML): SimilarFaceGroup
+        protected createChild(xml: samchon.library.XML): SimilarFaceGroup
         {
             return new SimilarFaceGroup(this);
         }
@@ -130,9 +130,9 @@ namespace hiswill.faceapi
             return "similarFaceGroup";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.push(this.messyGroup.toXML());
 
             return xml;

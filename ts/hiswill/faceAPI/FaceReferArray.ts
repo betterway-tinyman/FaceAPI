@@ -6,7 +6,7 @@
 namespace hiswill.faceapi
 {
     export class FaceReferArray
-        extends protocol.EntityArray<Face>
+        extends samchon.protocol.EntityArray<Face>
     {
         /* --------------------------------------------------------
             CONSTRUCTOR
@@ -19,7 +19,7 @@ namespace hiswill.faceapi
             super();
         }
 
-        public construct(xml: library.XML): void
+        public construct(xml: samchon.library.XML): void
         {
             // CLEAR
             this.clear();
@@ -28,7 +28,7 @@ namespace hiswill.faceapi
                 return;
 
             // FIND CHILDREN
-            var xmlList: library.XMLList = xml.get(this.CHILD_TAG());
+            var xmlList: samchon.library.XMLList = xml.get(this.CHILD_TAG());
 
             for (var i: number = 0; i < xmlList.size(); i++)
             {
@@ -57,14 +57,14 @@ namespace hiswill.faceapi
             return "faceRefer";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = new library.XML();
+            var xml: samchon.library.XML = new samchon.library.XML();
             xml.setTag(this.TAG());
 
             for (var i: number = 0; i < this.size(); i++)
             {
-                var childXML: library.XML = new library.XML();
+                var childXML: samchon.library.XML = new samchon.library.XML();
                 childXML.setTag(this.CHILD_TAG());
 
                 childXML.setProperty("id", this.at(i).getID());

@@ -10,7 +10,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export interface IJSONEntity 
-        extends protocol.IEntity
+        extends samchon.protocol.IEntity
     {
         /**
          * Construct members from an JSON instance.

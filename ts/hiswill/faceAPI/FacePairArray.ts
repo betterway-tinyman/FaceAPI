@@ -19,8 +19,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FacePairArray
-        extends protocol.EntityArray<FaceRectangle>
-        implements IGroup<FaceRectangle>
+        extends AsyncEntityArray<FacePair>
     {
         /**
          * An identifier issued by FaceAPI Server.
@@ -54,97 +53,97 @@ namespace hiswill.faceapi
             this.registered = false;
         }
     
-        protected createChild(xml: library.XML): FaceRectangle
+        protected createChild(xml: samchon.library.XML): FacePair
         {
             return new FacePair(this);
         }
 
-        /* --------------------------------------------------------
-            OPERATORS
-        -------------------------------------------------------- */
-        public push(...items: FaceRectangle[]): number
-        {
-            if (this.isRegistered() == false)
-                this.insertToServer();
-
-            for (var i: number = 0; i < items.length; i++)
-            {
-                if (items[i] instanceof FacePair == false)
-                {
-                    var pair: FacePair = new FacePair(this);
-
-                    if (items[i] instanceof Face)
-                        pair.setFile(<Face>items[i]);
-                    else
-                        pair.setRectangle(items[i]);
-
-                    // 서버에 등록
-                    pair.insertToServer();
-                    
-                    // 대치
-                    items[i] = pair;
-                }
-            }
-
-            return super.push(...items);
-        }
-
-        //public splice(start: number, end?: number, ... items: FaceRectangle[]): FaceRectangle[]
-        //{
-        //    // Remove the elements from Face-API server.
-        //    for (var i: number = start;  i < Math.min(start + end, this.size()); i++)
-        //        (<FacePair>this.at(i)).eraseFromServer();
-
-        //    // To return
-        //    var output = super.splice(start, end);
-
-        //    this.push(...items);
-        //    return output;
-        //}
-
-        /* --------------------------------------------------------
-            INTERACTION WITH FACE API SERVER
-        -------------------------------------------------------- */
-        /**
-         * An abstract method to inserting the FacePairArray to the Face-API server.
-         */
-        public insertToServer(): void
-        {
-            // TO BE OVERRIDEN
-        }
-
-        /**
-         * An abstract method to removing the FacePairArray from the Face-API server.
-         */
-        public eraseFromServer(): void
-        {
-            // TO BE OVERRIDEN
-            // ...
-
-            this.registered = false;
-        }
-
-        /**
-         * An abstract method inserting the child FacePair instance to the Face-API server. 
-         *
-         * @param face A newly inserted FacePair object.
-         */
+        /* ========================================================
+            INSERTION METHODS
+                - CHILD FACE
+                - PREVIOUS
+                - REPLACEMENTS
+        ======================================================== */
+        /* ---------------------------------
+            PREVIOUS INSERTION METHODS
+        --------------------------------- */
         public insertFaceToServer(face: FacePair): void
         {
-            // TO BE OVERRIDEN
+            throw new std.AbstractMethodError("FacePair::insertFaceToServer() has to be overriden.");
         }
 
-        /**
-         * An abstract method removing the child FacePair instance from the Face-API server. 
-         *
-         * @param face A just removed FacePair object.
-         */
         public eraseFaceFromServer(face: FacePair): void
         {
-            // TO BE OVERRIDEN
-            // ...
+            throw new std.AbstractMethodError("FacePair::eraseFaceFromServer() has to be overriden.");
+        }
 
-            face.setID("");
+        /* ---------------------------------
+            PREVIOUS INSERTION METHODS
+        --------------------------------- */
+        /**
+         * @inheritdoc
+         */
+        public insert(position: std.Iterator<FacePair>, val: FacePair): std.Iterator<FacePair>;
+        
+        /**
+         * @inheritdoc
+         */
+        public insert(position: std.Iterator<FacePair>, size: number, val: FacePair): std.Iterator<FacePair>;
+        
+        /**
+         * @inheritdoc
+         */
+        public insert<U extends FacePair>
+            (
+                position: std.Iterator<FacePair>, 
+                begin: std.Iterator<U>, end: std.Iterator<U>
+            ): std.Iterator<FacePair>;
+
+        /* ---------------------------------
+            REPLACERS
+        --------------------------------- */
+        public insert(position: std.Iterator<FacePair>, val: FaceRectangle): std.Iterator<FaceRectangle>;
+        public insert(position: std.Iterator<FacePair>, size: number, val: FaceRectangle): std.Iterator<FaceRectangle>;
+        public insert<U extends FaceRectangle>
+            (
+                position: std.Iterator<FacePair>,
+                begin: std.Iterator<U>, end: std.Iterator<U>
+            ): std.Iterator<FacePair>;
+
+        public insert<U extends FacePair>(...args: any[]): any
+        {
+            var position: std.VectorIterator<FacePair> = args[0];
+
+            if (args.length == 2 && args[1] instanceof FaceRectangle)
+            {
+                var rectangle: FaceRectangle = args[1];
+
+                return super.insert(position, this.deductFacePair(rectangle));
+            }
+            else if (args.length == 3 && args[1] instanceof std.Iterator && args[2] instanceof std.Iterator)
+            {
+                var begin: std.Iterator<U> = args[1];
+                var end: std.Iterator<U> = args[2];
+                
+                var myChildren: std.List<FacePair> = new std.List<FacePair>();
+
+                for (var it = begin; it.equals(end) == false; it = it.next())
+                    myChildren.pushBack(this.deductFacePair(it.value));
+
+                return super.insert(position, myChildren.begin(), myChildren.end());
+            }
+            else
+                throw new std.InvalidArgument("invalid parameter(s).");
+        }
+
+        public push(...items: FaceRectangle[]): number
+        {
+            var newItems: Array<FacePair> = new Array<FacePair>();
+
+            for (var i: number = 0; i < items.length; i++)
+                newItems.push(this.deductFacePair(items[i]));
+
+            return super.push(...newItems);
         }
 
         /* --------------------------------------------------------
@@ -193,6 +192,24 @@ namespace hiswill.faceapi
         public setName(name: string): void
         {
             this.name = name;
+        }
+
+        protected deductFacePair(rectangle: FaceRectangle): FacePair
+        {
+            var facePair: FacePair;
+
+            if (rectangle instanceof FacePair)
+                facePair = <FacePair>rectangle;
+            else 
+            {
+                facePair = new FacePair(this);
+                facePair.setRectangle(rectangle);
+
+                if (rectangle instanceof Face)
+                    facePair.setFile(<Face>rectangle);
+            }
+
+            return facePair;
         }
 
         /* --------------------------------------------------------

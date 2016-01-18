@@ -4,10 +4,6 @@
 /// <reference path="FaceListArray.ts" />
 /// <reference path="PictureArray.ts" />
 
-import std = samchon.std;
-import library = samchon.library;
-import protocol = samchon.protocol;
-
 var trace = samchon.trace;
 
 namespace hiswill.faceapi
@@ -18,7 +14,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceAPI
-        extends protocol.Entity 
+        extends samchon.protocol.Entity 
     {
         /**
          * An array of PersonGroup.
@@ -124,9 +120,9 @@ namespace hiswill.faceapi
             return "faceAPI";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.push
             (
                 this.personGroupArray.toXML(),
@@ -144,7 +140,7 @@ namespace hiswill.faceapi
          */
         private static get CERTIFICATION_KEY(): string 
         {
-            return "something";
+            return "b072c71311d144388ac2527a5f06ffca";
         }
 
         /**
@@ -157,7 +153,12 @@ namespace hiswill.faceapi
          * @param success A method to be processed after the sending query is succeded.
          * @param async Whether to send query asynchronously. Default is false (synchronous query).
          */
-        public static query(url: string, method:string, params: Object, data: Object, success:Function, async: boolean = false): void
+        public static query
+            (
+                url: string, method:string, 
+                params: Object, data: Object, 
+                success: Function, 
+                async: boolean = true): void
         {
             $.ajax
             ({
@@ -170,12 +171,13 @@ namespace hiswill.faceapi
                 },
                 type: method,
                 async: async,
+                timeout: 1000,
 
                 data: (data == null) ? "" : JSON.stringify(data),
-                success: function (data, textStatus, xhr)
+                success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any
                 {
                     if (success != null)
-                        success.apply(null, [data]);
+                        success.apply(null, [data, textStatus, jqXHR]);
                 },
                 error: function(jqXHR: JQueryXHR, textStatus: string, errorThrow: string): any
                 {
@@ -197,6 +199,44 @@ namespace hiswill.faceapi
         public static issueID(prefix: string): string
         {
             return prefix + "_hiswill_" + new Date().getTime() + "_" + (++FaceAPI.sequence);
+        }
+
+        public static main(): void
+        {
+            var faceAPI: FaceAPI = new FaceAPI();
+
+            var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
+            picture.detect();
+
+            trace("Detected");
+    
+            //var faceList = faceAPI.createFaceList("other_group");
+            var personGroup = faceAPI.createPersonGroup("others");
+
+            for (var i: number = 0; i < picture.size(); i++)
+            {
+                var face = picture.at(i);
+
+                //faceList.push(face);
+
+                var person = new Person(personGroup, "my_name_" + (i+1));
+                personGroup.push(person);
+                person.push(face);
+
+                trace(i + "th person is constructoed");
+            }
+
+            trace("Registered");
+
+            personGroup.addEventListener("complete",
+                function(ev: Event): void
+                {
+                    trace("Trained");
+                    
+                }
+            );
+
+            personGroup.train();
         }
     }
 }

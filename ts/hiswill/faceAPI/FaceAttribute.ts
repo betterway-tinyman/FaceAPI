@@ -13,7 +13,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class FaceAttribute
-        extends protocol.Entity
+        extends samchon.protocol.Entity
         implements IJSONEntity
     {
         /**

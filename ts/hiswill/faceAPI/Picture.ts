@@ -3,6 +3,9 @@
 /// <reference path="../../samchon/protocol/EntityArray.ts" />
 ///     <reference path="Face.ts" />
 /// <reference path="IJSONEntity.ts" />
+/// <reference path="../../samchon/library/IEventDispatcher.ts" />
+
+/// <reference path="../../samchon/library/EventDispatcher.ts" />
 
 /// <reference path="PictureArray.ts" />
 
@@ -14,8 +17,9 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class Picture 
-        extends protocol.EntityArray<Face>
-        implements IJSONEntity
+        extends samchon.protocol.EntityArray<Face>
+        implements IJSONEntity, 
+                   samchon.library.IEventDispatcher
     {
         /**
          * An array and parent of Picture entities.
@@ -27,6 +31,11 @@ namespace hiswill.faceapi
          */
         protected url: string;
 
+        /**
+         * A chain instance of takeing responsibility of event dispatching.
+         */
+        protected eventDispatcher: samchon.library.EventDispatcher;
+        
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
@@ -41,7 +50,8 @@ namespace hiswill.faceapi
             super();
 
             this.pictureArray = pictureArray;
-            this.url = url;
+            
+            this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
     
         public constructByJSON(val: any): void
@@ -59,7 +69,7 @@ namespace hiswill.faceapi
             }
         }
 
-        protected createChild(xml: library.XML): Face
+        protected createChild(xml: samchon.library.XML): Face
         {
             return new Face(this);
         }
@@ -98,7 +108,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236 </li>
          * </ul>
          */
-        public detect(): void 
+        public detect(): void
         {
             // REMOVE ALL
             this.clear();
@@ -114,14 +124,50 @@ namespace hiswill.faceapi
                     "returnFaceLandmarks": "true",
                     "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
                 }, 
-
                 { "url": this.url }, 
 
-                function (data) 
+                function (data: any, textStatus: string, jqXHR: JQueryXHR): any
                 {
                     this_.constructByJSON(data);
+                    
+                    this.dispatchEvent(new FaceEvent(FaceEvent.DETECT));
                 }
             );
+        }
+
+        /* --------------------------------------------------------
+            METHODS OF EVENT_DISPATCHER
+        -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
+        public hasEventListener(type: string): boolean
+        {
+            return this.eventDispatcher.hasEventListener(type);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public dispatchEvent(event: Event): boolean
+        {
+            return this.eventDispatcher.dispatchEvent(event);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public addEventListener(type: string, listener: EventListener, thisArg: Object = null): void
+        {
+            this.eventDispatcher.addEventListener(type, listener, thisArg);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public removeEventListener(type: string, listener: EventListener, thisArg: Object = null): void
+        {
+            this.removeEventListener(type, listener, thisArg);
         }
 
         /* --------------------------------------------------------

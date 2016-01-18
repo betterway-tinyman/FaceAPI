@@ -27,8 +27,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class PersonGroup
-        extends protocol.EntityArray<Person>
-        implements IGroup<Person>, library.IEventDispatcher
+        extends AsyncEntityArray<Person>
     {
         /**
          * An array and parent of the PersonGroup.
@@ -58,7 +57,7 @@ namespace hiswill.faceapi
         /**
          * A group of pointers of event listener method.
          */
-        protected eventDispatcher: library.EventDispatcher;
+        protected eventDispatcher: samchon.library.EventDispatcher;
 
         /* --------------------------------------------------------
             CONTRUCTORS
@@ -76,44 +75,20 @@ namespace hiswill.faceapi
             this.groupArray = groupArray;
             this.id = "";
             this.name = name;
-
-            this.trained = false;
+            
             this.registered = false;
+            this.trained = false;
 
-            this.eventDispatcher = new library.EventDispatcher(this);
+            this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
     
-        protected createChild(xml: library.XML): Person
+        /**
+         * @inheritdoc
+         */
+        protected createChild(xml: samchon.library.XML): Person
         {
             return new Person(this, xml.getProperty("name"));
         }
-
-        /* --------------------------------------------------------
-            OPERATORS
-        -------------------------------------------------------- */
-        public push(...items: Person[]): number 
-        {
-            if (this.isRegistered() == false)
-                this.insertToServer();
-
-            for (var i: number = 0; i < items.length; i++)
-                items[i].insertToServer();
-
-            return super.push(...items);
-        }
-
-        //public splice(start: number, deleteCount?: number, ...items: Person[]): Person[] 
-        //{
-        //    var i: number;
-
-        //    for (i = start; i < Math.min(start + deleteCount, this.length); i++)
-        //        items[i].eraseFromServer();
-
-        //    for (i = 0; i < items.length; i++)
-        //        items[i].insertToServer();
-
-        //    return super.splice(start, deleteCount, ...items);
-        //}
 
         /* --------------------------------------------------------
             INTERACTION WITH FACE API
@@ -134,7 +109,7 @@ namespace hiswill.faceapi
         {
             // 등록을 먼저 수행
             if (this.isRegistered() == false)
-                this.insertToServer();
+                throw new std.LogicError("Must be registered on server.");
 
             // 학습 수행
             var this_: PersonGroup = this;
@@ -177,11 +152,13 @@ namespace hiswill.faceapi
 
                     if (status == "succeeded")
                     {
+                        // SUCCESS
                         this_.trained = true;
-                        this_.dispatchEvent(new Event("complete"));
+                        this_.dispatchEvent(new FaceEvent(FaceEvent.TRAIN));
                     }
                     else if (status == "failed")
                     {
+                        // FAILED
                         var errorEvent: ErrorEvent = new ErrorEvent();
                         errorEvent.message = data["message"];
 
@@ -192,8 +169,7 @@ namespace hiswill.faceapi
                         // 50ms 후에 재 확인
                         setTimeout(PersonGroup.checkTrainStatus, 50, this_);
                     }
-                },
-                false // ASYNCHRONOUSLY
+                }
             );
         }
 
@@ -212,11 +188,11 @@ namespace hiswill.faceapi
          *
          * @return Candidates of the owner with conformaility degrees.
          */
-        public identify(face: Face, maxCandidates: number = 1): CandidatePersonArray
+        public identify(face: Face, maxCandidates: number = 1): void
         {
             // Have to be trained.
             if (this.isTrained() == false)
-                throw new Error("Not trained.");
+                throw new std.LogicError("Must be trained as a pre-process.");
 
             var this_: PersonGroup = this;
             var candidatePersonArray: CandidatePersonArray = new CandidatePersonArray(face, this);
@@ -238,10 +214,10 @@ namespace hiswill.faceapi
                 function (data) 
                 {
                     candidatePersonArray.constructByJSON(data);
+
+                    this_.dispatchEvent(new IdentifyEvent(this_, face, candidatePersonArray));
                 }
             );
-            
-            return candidatePersonArray;
         }
 
         /**
@@ -253,7 +229,7 @@ namespace hiswill.faceapi
          */
         public insertToServer(): void
         {
-            // 식별자 번호 발급
+            // Issue an unique identifier.
             if (this.id == "")
                 this.id = FaceAPI.issueID("person_group");
 
@@ -261,7 +237,7 @@ namespace hiswill.faceapi
 
             trace("PersonGroup::insertToServer");
 
-            // 서버에 등록
+            // Register to server.
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
@@ -273,6 +249,8 @@ namespace hiswill.faceapi
                 function (data)
                 {
                     this_.registered = true;
+
+                    this_.dispatchRegisterEvent();
                 }
             );
         }
@@ -286,6 +264,8 @@ namespace hiswill.faceapi
          */
         public eraseFromServer(): void
         {
+            var this_ = this;
+
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
@@ -294,39 +274,22 @@ namespace hiswill.faceapi
                 { "personGroupId": this.id },
                 null,
 
-                null
+                function (data)
+                {
+                    this_.trained = false;
+                    this_.registered = false;
+
+                    this_.dispathUnregisterEvent();
+                }
             );
-
-            this.trained = false;
-            this.registered = false;
-        }
-
-        /* --------------------------------------------------------
-            EVENT LISTENERS
-        -------------------------------------------------------- */
-        public hasEventListener(type: string): boolean
-        {
-            return this.eventDispatcher.hasEventListener(type);
-        }
-
-        public dispatchEvent(event: Event): boolean
-        {
-            return this.eventDispatcher.dispatchEvent(event);
-        }
-        
-        public addEventListener(type: string, listener:EventListener): void
-        {
-            this.eventDispatcher.addEventListener(type, listener);
-        }
-
-        public removeEventListener(type: string, listener: EventListener): void
-        {
-            this.eventDispatcher.removeEventListener(type, listener);
         }
 
         /* --------------------------------------------------------
             GETTERS & SETTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public key(): any
         {
             return this.id;
@@ -356,6 +319,9 @@ namespace hiswill.faceapi
             return this.name;
         }
         
+        /**
+         * @inheritdoc
+         */
         public isRegistered(): boolean
         {
             return this.registered;;
@@ -397,10 +363,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string
         {
             return "personGroup";
         }
+
+        /**
+         * @inheritdoc
+         */
         public CHILD_TAG(): string
         {
             return "person";

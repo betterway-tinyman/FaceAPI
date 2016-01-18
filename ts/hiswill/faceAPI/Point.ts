@@ -11,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class Point
-        extends protocol.Entity
+        extends samchon.protocol.Entity
         implements IJSONEntity 
     {
         /**
@@ -76,9 +76,9 @@ namespace hiswill.faceapi
             return this.tag;
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.eraseProperty("tag");
 
             return xml;

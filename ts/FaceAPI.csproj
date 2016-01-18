@@ -22,16 +22,19 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="hiswill\faceapi\AsyncEntity.ts" />
+    <TypeScriptCompile Include="hiswill\faceapi\AsyncEntityArray.ts" />
+    <TypeScriptCompile Include="hiswill\faceapi\FaceEvent.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\CandidatePerson.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\CandidatePersonArray.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\FaceGroup.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\FaceReferArray.ts" />
+    <TypeScriptCompile Include="hiswill\faceapi\IAsyncEntity.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\MessyFaceGroup.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\SimilarFace.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\SimilarFaceArray.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\SimilarFaceGroup.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\SimilarFaceGroupArray.ts" />
-    <TypeScriptCompile Include="main.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Eye.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Eyebrow.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Eyebrows.ts" />
@@ -63,7 +66,9 @@
     <TypeScriptCompile Include="hiswill\faceapi\PictureArray.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Point.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Pupil.ts" />
+    <TypeScriptCompile Include="samchon.ts" />
     <TypeScriptCompile Include="samchon\API.ts" />
+    <TypeScriptCompile Include="samchon\example\container\container.ts" />
     <TypeScriptCompile Include="samchon\example\entity\entity.ts" />
     <TypeScriptCompile Include="samchon\example\packer\Instance.ts" />
     <TypeScriptCompile Include="samchon\example\packer\Packer.ts" />
@@ -100,23 +105,24 @@
     <TypeScriptCompile Include="samchon\protocol\service\SubMovie.ts" />
     <TypeScriptCompile Include="samchon\protocol\slave.ts" />
     <TypeScriptCompile Include="samchon\protocol\slave\SlaveSystem.ts" />
-    <TypeScriptCompile Include="samchon\std.ts" />
-    <TypeScriptCompile Include="samchon\std\Container.ts" />
-    <TypeScriptCompile Include="samchon\std\Dictionary.ts" />
-    <TypeScriptCompile Include="samchon\std\Exception.ts" />
-    <TypeScriptCompile Include="samchon\std\IDictionary.ts" />
-    <TypeScriptCompile Include="samchon\std\IMap.ts" />
-    <TypeScriptCompile Include="samchon\std\Iterator.ts" />
-    <TypeScriptCompile Include="samchon\std\List.ts" />
-    <TypeScriptCompile Include="samchon\std\Map.ts" />
-    <TypeScriptCompile Include="samchon\std\Pair.ts" />
-    <TypeScriptCompile Include="samchon\std\Set.ts" />
-    <TypeScriptCompile Include="samchon\std\TreeNode.ts" />
-    <TypeScriptCompile Include="samchon\std\UnorderedMap.ts" />
-    <TypeScriptCompile Include="samchon\std\UnorderedSet.ts" />
-    <TypeScriptCompile Include="samchon\std\Vector.ts" />
     <TypeScriptCompile Include="Scripts\typings\fabricjs\fabricjs.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="std.ts" />
+    <TypeScriptCompile Include="std\Bind.ts" />
+    <TypeScriptCompile Include="std\Container.ts" />
+    <TypeScriptCompile Include="std\Dictionary.ts" />
+    <TypeScriptCompile Include="std\Exception.ts" />
+    <TypeScriptCompile Include="std\IDictionary.ts" />
+    <TypeScriptCompile Include="std\IMap.ts" />
+    <TypeScriptCompile Include="std\Iterator.ts" />
+    <TypeScriptCompile Include="std\List.ts" />
+    <TypeScriptCompile Include="std\Map.ts" />
+    <TypeScriptCompile Include="std\Pair.ts" />
+    <TypeScriptCompile Include="std\Set.ts" />
+    <TypeScriptCompile Include="std\TreeNode.ts" />
+    <TypeScriptCompile Include="std\UnorderedMap.ts" />
+    <TypeScriptCompile Include="std\UnorderedSet.ts" />
+    <TypeScriptCompile Include="std\Vector.ts" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />

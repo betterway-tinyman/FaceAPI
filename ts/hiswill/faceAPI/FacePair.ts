@@ -20,7 +20,7 @@ namespace hiswill.faceapi
      */
     export class FacePair
         extends FaceRectangle
-        implements IFaceAPI
+        implements IAsyncEntity
     {
         /**
          * An array and parent of the FacePair.
@@ -46,6 +46,11 @@ namespace hiswill.faceapi
         protected face: Face;
 
         /**
+         * A chain instance of takeing responsibility of event dispatching.
+         */
+        protected eventDispatcher: samchon.library.EventDispatcher;
+
+        /**
          * Whether the instance is registered on the Face-API server.
          */
         protected registered: boolean;
@@ -66,11 +71,13 @@ namespace hiswill.faceapi
 
             this.id = "";
             this.pictureURL = "";
-            this.registered = false;
             this.face = null;
+
+            this.eventDispatcher = new samchon.library.EventDispatcher(this);
+            this.registered = false;
         }
 
-        public construct(xml: library.XML): void
+        public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
 
@@ -189,6 +196,41 @@ namespace hiswill.faceapi
         }
 
         /* --------------------------------------------------------
+            METHODS OF EVENT_DISPATCHER
+        -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
+        public hasEventListener(type: string): boolean
+        {
+            return this.eventDispatcher.hasEventListener(type);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public dispatchEvent(event: Event): boolean
+        {
+            return this.eventDispatcher.dispatchEvent(event);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public addEventListener(type: string, listener: EventListener, thisArg: Object = null): void
+        {
+            this.eventDispatcher.addEventListener(type, listener, thisArg);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public removeEventListener(type: string, listener: EventListener, thisArg: Object = null): void
+        {
+            this.removeEventListener(type, listener, thisArg);
+        }
+
+        /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
         public TAG(): string
@@ -196,9 +238,9 @@ namespace hiswill.faceapi
             return "facePair";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             if (this.face != null)
                 xml.setProperty("faceID", this.face.getID());
 

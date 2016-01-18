@@ -11,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class PictureArray
-        extends protocol.EntityArray<Picture>
+        extends samchon.protocol.EntityArray<Picture>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -33,7 +33,7 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
-        protected createChild(xml: library.XML): Picture 
+        protected createChild(xml: samchon.library.XML): Picture 
         {
             return new Picture(this, xml.getProperty("url"));
         }

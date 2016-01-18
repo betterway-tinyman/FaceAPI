@@ -1,6 +1,6 @@
-﻿/// <reference path="../std/Vector.ts" />
+﻿/// <reference path="../../std/Vector.ts" />
 ///     <reference path="IEntity.ts" />
-/// <reference path="../std/IMap.ts" />
+/// <reference path="../../std/IMap.ts" />
 
 /// <reference path="../library/XML.ts" />
 
@@ -114,7 +114,7 @@ namespace samchon.protocol
         }
 
         /**
-         * inheritdoc
+         * @inheritdoc
          */
         public has(key: any): boolean
         {
@@ -137,7 +137,7 @@ namespace samchon.protocol
         }
 
         /**
-         * inheritdoc
+         * @inheritdoc
          */
         public get(key: string): Ety
         {

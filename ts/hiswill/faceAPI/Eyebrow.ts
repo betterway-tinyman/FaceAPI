@@ -15,7 +15,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class Eyebrow 
-        extends protocol.Entity
+        extends samchon.protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -121,9 +121,9 @@ namespace hiswill.faceapi
                 return "right";
         }
 
-        public toXML(): library.XML 
+        public toXML(): samchon.library.XML 
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.eraseProperty("direction");
 
             xml.push

@@ -24,7 +24,8 @@ namespace hiswill.faceapi
 {
     export class Face
         extends FaceRectangle 
-        implements IJSONEntity
+        implements IJSONEntity,
+                   samchon.library.IEventDispatcher
     {
         /**
          * A picture contaning the Face.
@@ -51,6 +52,11 @@ namespace hiswill.faceapi
          */
         protected attributes: FaceAttributes;
 
+        /**
+         * A chain instance of takeing responsibility of event dispatching.
+         */
+        protected eventDispatcher: samchon.library.EventDispatcher;
+
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
@@ -70,9 +76,11 @@ namespace hiswill.faceapi
 
             this.landmarks = new FaceLandmarks(this);
             this.attributes = new FaceAttributes(this);
+
+            this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
     
-        public construct(xml: library.XML): void
+        public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
 
@@ -81,7 +89,7 @@ namespace hiswill.faceapi
             if (xml.has("person") == false)
                 return;
 
-            var person: library.XML = xml.get("person").at(0);
+            var person: samchon.library.XML = xml.get("person").at(0);
             var personName: string = person.getProperty("name");
             var personGroupID: string = person.getProperty("groupID");
         }
@@ -113,9 +121,23 @@ namespace hiswill.faceapi
          *
          * @return Candidates of the owner with conformaility degrees.
          */
-        public identify(personGroup: PersonGroup, maxCandidates: number = 1): CandidatePersonArray
+        public identify(personGroup: PersonGroup, maxCandidates: number = 1): void
         {
-            return personGroup.identify(this, maxCandidates);
+            if (personGroup.isTrained() == false)
+                personGroup.addEventListener(FaceEvent.TRAIN, this.dispatchTrainEvent, this);
+
+            personGroup.addEventListener(IdentifyEvent.IDENTIFY, this.dispatchIdentityEvent, this);
+
+            personGroup.identify(this, maxCandidates);
+        }
+
+        private dispatchTrainEvent(event: FaceEvent): void
+        {   
+            this.dispatchEvent(event);
+        }
+        private dispatchIdentityEvent(event: IdentifyEvent): void
+        {
+            this.dispatchEvent(event);
         }
 
         /**
@@ -261,6 +283,41 @@ namespace hiswill.faceapi
         }
 
         /* --------------------------------------------------------
+            METHODS OF EVENT_DISPATCHER
+        -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
+        public hasEventListener(type: string): boolean
+        {
+            return this.eventDispatcher.hasEventListener(type);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public dispatchEvent(event: Event): boolean
+        {
+            return this.eventDispatcher.dispatchEvent(event);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public addEventListener(type: string, listener: EventListener, thisArg: Object = null): void
+        {
+            this.eventDispatcher.addEventListener(type, listener, thisArg);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public removeEventListener(type: string, listener: EventListener, thisArg: Object = null): void
+        {
+            this.removeEventListener(type, listener, thisArg);
+        }
+
+        /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
         public TAG(): string
@@ -268,9 +325,9 @@ namespace hiswill.faceapi
             return "face";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.push
             (
                 this.landmarks.toXML(),

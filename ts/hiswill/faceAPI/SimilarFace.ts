@@ -9,7 +9,7 @@
 namespace hiswill.faceapi
 {
     export class SimilarFace
-        extends protocol.Entity
+        extends samchon.protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -36,7 +36,7 @@ namespace hiswill.faceapi
             this.faceArray = faceArray;
         }
 
-        public construct(xml: library.XML): void
+        public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
             this.facePair = null;
@@ -100,9 +100,9 @@ namespace hiswill.faceapi
             return "similarFace";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             
             if (this.facePair != null)
                 xml.setProperty("facePairID", this.facePair.getID());

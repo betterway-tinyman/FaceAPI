@@ -88,9 +88,9 @@ namespace hiswill.faceapi
             return "mouth";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             xml.push
             (
                 this.lip.toXML(),

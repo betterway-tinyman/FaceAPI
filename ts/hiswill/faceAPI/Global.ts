@@ -19,7 +19,7 @@ namespace hiswill.faceapi
          * @param entity A target entity to construct member data.
          * @param json JSON object containing member data.
          */
-        public static fetch(entity: protocol.IEntity, json: Object): void
+        public static fetch(entity: samchon.protocol.IEntity, json: Object): void
         {
             for (var key in json)
             {
@@ -28,7 +28,7 @@ namespace hiswill.faceapi
 
                 if (typeof entity[key] == "number" || typeof entity[key] == "string")
                     entity[key] = json[key];
-                else if (entity[key] instanceof protocol.Entity || entity[key] instanceof protocol.EntityArray)
+                else if (entity[key] instanceof samchon.protocol.Entity || entity[key] instanceof samchon.protocol.EntityArray)
                 {
                     var json_entity: IJSONEntity = <IJSONEntity>entity[key];
                     json_entity.constructByJSON(json[key]);

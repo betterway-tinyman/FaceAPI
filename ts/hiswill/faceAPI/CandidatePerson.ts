@@ -19,7 +19,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class CandidatePerson
-        extends protocol.Entity
+        extends samchon.protocol.Entity
         implements IJSONEntity
     {
         /**
@@ -52,7 +52,7 @@ namespace hiswill.faceapi
             this.personArray = personArray;
         }
 
-        public construct(xml: library.XML): void
+        public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
             this.person = null;
@@ -116,9 +116,9 @@ namespace hiswill.faceapi
             return "candidatePerson";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
 
             if (this.person != null)
                 xml.setProperty("personID", this.person.getID());

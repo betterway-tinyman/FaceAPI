@@ -10,7 +10,7 @@
 namespace hiswill.faceapi
 {
     export class SimilarFaceArray
-        extends protocol.EntityArray<SimilarFace>
+        extends samchon.protocol.EntityArray<SimilarFace>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -65,7 +65,7 @@ namespace hiswill.faceapi
             }
         }
 
-        public construt(xml: library.XML): void
+        public construt(xml: samchon.library.XML): void
         {
             
             this.faceList = null;
@@ -117,7 +117,7 @@ namespace hiswill.faceapi
             }
         }
 
-        protected createChild(xml: library.XML): SimilarFace
+        protected createChild(xml: samchon.library.XML): SimilarFace
         {
             return new SimilarFace(this);
         }
@@ -151,9 +151,9 @@ namespace hiswill.faceapi
             return "similarFace";
         }
 
-        public toXML(): library.XML
+        public toXML(): samchon.library.XML
         {
-            var xml: library.XML = super.toXML();
+            var xml: samchon.library.XML = super.toXML();
             
             if (this.face != null)
                 xml.setProperty("faceID", this.face.getID());

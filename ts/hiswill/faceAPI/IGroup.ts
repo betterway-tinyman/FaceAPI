@@ -11,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export interface IGroup<_Ty>
-        extends IFaceAPI, protocol.IEntity
+        extends IFaceAPI, samchon.protocol.IEntity
     {
         push(...items: _Ty[]): number;
         //{
