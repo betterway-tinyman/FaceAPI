@@ -53,8 +53,6 @@
     <TypeScriptCompile Include="hiswill\faceapi\FacialHair.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Global.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\HeadPose.ts" />
-    <TypeScriptCompile Include="hiswill\faceapi\IFaceAPI.ts" />
-    <TypeScriptCompile Include="hiswill\faceapi\IGroup.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\IJSONEntity.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Lip.ts" />
     <TypeScriptCompile Include="hiswill\faceapi\Mouth.ts" />

@@ -1,7 +1,7 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
 /// <reference path="FaceRectangle.ts" />
-/// <reference path="IFaceAPI.ts" />
+/// <reference path="IAsyncEntity.ts" />
 
 /// <reference path="FacePairArray.ts" />
 

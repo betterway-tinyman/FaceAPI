@@ -73,7 +73,8 @@ namespace hiswill.faceapi
                 function (data)
                 {
                     this_.id = data["personId"];
-                    this_.registered = true;
+                    
+                    this_.dispatchRegisterEvent();
                 }
             );
         }
@@ -87,6 +88,8 @@ namespace hiswill.faceapi
          */
         public eraseFromServer(): void
         {
+            var this_ = this;
+
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id,
@@ -98,11 +101,13 @@ namespace hiswill.faceapi
                 },
                 null,
 
-                null // NOTHING TO DO ESPECIALLY
+                function (data)
+                {
+                    this_.id = "";
+                    
+                    this_.dispatchUnregisterEvent();
+                }
             );
-
-            this.id = "";
-            super.eraseFromServer();
         }
         
         /**
@@ -114,6 +119,8 @@ namespace hiswill.faceapi
          */
         public insertFaceToServer(face: FacePair): void
         {
+            var this_ = this;
+
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces",
@@ -132,6 +139,8 @@ namespace hiswill.faceapi
                 function (data): void
                 {
                     face.setID( data["persistedFaceId"] );
+
+                    face.dispatchEvent(new FaceEvent(FaceEvent.REGISTER));
                 }
             );
         }
@@ -145,6 +154,8 @@ namespace hiswill.faceapi
          */
         public eraseFaceFromServer(face: FacePair): void
         {
+            var this_ = this;
+
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(),
@@ -157,10 +168,13 @@ namespace hiswill.faceapi
                 },
                 null,
 
-                null
-            );
+                function (data): void
+                {
+                    face.setID("");
 
-            super.eraseFaceFromServer(face);
+                    face.dispatchEvent(new FaceEvent(FaceEvent.UNREGISTER));
+                }
+            );
         }
 
         /* --------------------------------------------------------
@@ -204,7 +218,8 @@ namespace hiswill.faceapi
                 function (data)
                 {
                     this_.name = name;
-                }
+                },
+                false
             );
         }
 

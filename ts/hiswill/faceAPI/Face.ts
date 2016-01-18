@@ -127,17 +127,7 @@ namespace hiswill.faceapi
                 personGroup.addEventListener(FaceEvent.TRAIN, this.dispatchTrainEvent, this);
 
             personGroup.addEventListener(IdentifyEvent.IDENTIFY, this.dispatchIdentityEvent, this);
-
             personGroup.identify(this, maxCandidates);
-        }
-
-        private dispatchTrainEvent(event: FaceEvent): void
-        {   
-            this.dispatchEvent(event);
-        }
-        private dispatchIdentityEvent(event: IdentifyEvent): void
-        {
-            this.dispatchEvent(event);
         }
 
         /**
@@ -152,9 +142,11 @@ namespace hiswill.faceapi
          *
          * @return Similar faces being looked similar.
          */
-        public findSimilar(faceList: FaceList, maxCandidates: number): SimilarFaceArray
+        public findSimilars(faceList: FaceList, maxCandidates: number): void
         {
-            return faceList.findSimilar(this, maxCandidates);
+            faceList.addEventListener(FindSimilarEvent.FIND, this.dispatchFindSimilarEvent, this);
+
+            faceList.findSimilars(this, maxCandidates);
         }
 
         /**
@@ -167,15 +159,17 @@ namespace hiswill.faceapi
          * @param faces Candidate faces.
          * @return Grouped faces by similarity.
          */
-        public static group(...faces: Face[]): SimilarFaceGroupArray
+        public findSimilarGroups(faceAarray: Array<Face>): void
         {
+            var this_ = this;
+
             var faceArray: FaceReferArray = new FaceReferArray();
             var faceIDArray: Array<string> = new Array<string>();
 
-            for (var i: number = 0; i < faces.length; i++)
+            for (var i: number = 0; i < faceArray.length; i++)
             {
-                faceArray.push(faces[i]);
-                faceIDArray.push(faces[i].getID());
+                faceArray.push(faceArray[i]);
+                faceIDArray.push(faceArray[i].getID());
             }
 
             var similarFaceGroupArray: SimilarFaceGroupArray = new SimilarFaceGroupArray(faceArray);
@@ -191,10 +185,23 @@ namespace hiswill.faceapi
                 function (data)
                 {
                     similarFaceGroupArray.constructByJSON(data);
+
+                    this_.dispatchEvent(new FindSimilarGroupEvent(faceArray, similarFaceGroupArray));
                 }
             );
+        }
 
-            return similarFaceGroupArray;
+        private dispatchTrainEvent(event: FaceEvent): void
+        {   
+            this.dispatchEvent(event);
+        }
+        private dispatchIdentityEvent(event: IdentifyEvent): void
+        {
+            this.dispatchEvent(event);
+        }
+        private dispatchFindSimilarEvent(event: FindSimilarEvent): void
+        {
+            this.dispatchEvent(event);
         }
 
         /**
@@ -237,6 +244,9 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             GETTERS & SETTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public key(): any
         {
             return this.id;
@@ -320,11 +330,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string
         {
             return "face";
         }
 
+        /**
+         * @inheritdoc
+         */
         public toXML(): samchon.library.XML
         {
             var xml: samchon.library.XML = super.toXML();

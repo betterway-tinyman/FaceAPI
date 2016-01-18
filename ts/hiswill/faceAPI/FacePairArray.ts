@@ -1,9 +1,9 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="../../samchon/protocol/EntityArray.ts" />
-///     <reference path="FaceRectangle.ts" />
+/// <reference path="AsyncEntityArray.ts" />
 ///     <reference path="FacePair.ts" />
-/// <reference path="IGroup.ts" />
+
+/// <reference path="FaceRectangle.ts" />
 
 namespace hiswill.faceapi
 {
@@ -149,6 +149,9 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             GETTERS & SETTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public key(): any
         {
             return this.id;
@@ -179,6 +182,9 @@ namespace hiswill.faceapi
             return this.name;
         }
 
+        /**
+         * @inheritdoc
+         */
         public isRegistered(): boolean
         {
             return this.registered;

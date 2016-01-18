@@ -61,8 +61,9 @@ namespace hiswill.faceapi
          *
          * @return Similar faces being looked similar.
          */
-        public findSimilar(face: Face, maxCandidates: number): SimilarFaceArray
+        public findSimilars(face: Face, maxCandidates: number): void
         {
+            var this_ = this;
             var similarFaceArray: SimilarFaceArray = new SimilarFaceArray(face, this);
 
             FaceAPI.query
@@ -80,10 +81,10 @@ namespace hiswill.faceapi
                 function (data)
                 {
                     similarFaceArray.constructByJSON(data);
+
+                    this_.dispatchEvent(new FindSimilarEvent(this_, face, maxCandidates, similarFaceArray));
                 }
             );
-
-            return similarFaceArray;
         }
 
         /**
@@ -114,7 +115,7 @@ namespace hiswill.faceapi
 
             var success: Function = function(data)
             {
-                this_.registered = true;
+                this_.dispatchRegisterEvent();
             }
 
             // SEND
@@ -130,15 +131,20 @@ namespace hiswill.faceapi
          */
         public eraseFromServer(): void
         {
+            var this_ = this;
+
             // READY
             var url: string = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
             var method: string = "DELETE";
             var params: Object = { "faceListId": this.id };
         
-            // SEND
-            FaceAPI.query(url, method, params, null, null);
+            var func: Function = function(data)
+            {
+                this_.dispatchUnregisterEvent();
+            }
 
-            super.eraseFromServer();
+            // SEND
+            FaceAPI.query(url, method, params, null, func);
         }
 
         /**

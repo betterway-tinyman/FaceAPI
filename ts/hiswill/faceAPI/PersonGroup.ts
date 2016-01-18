@@ -1,15 +1,11 @@
 ﻿/// <reference path="FaceAPI.ts" />
 
-/// <reference path="../../samchon/protocol/EntityArray.ts" />
+/// <reference path="AsyncEntityArray.ts" />
 ///     <reference path="Person.ts" />
-/// <reference path="IGroup.ts" />
-/// <reference path="../../samchon/library/IEventDispatcher.ts" />
 
 /// <reference path="CandidatePersonArray.ts" />
 
 /// <reference path="PersonGroupArray.ts" />
-// 
-/// <reference path="../../samchon/library/EventDispatcher.ts" />
 
 namespace hiswill.faceapi 
 {
@@ -215,7 +211,7 @@ namespace hiswill.faceapi
                 {
                     candidatePersonArray.constructByJSON(data);
 
-                    this_.dispatchEvent(new IdentifyEvent(this_, face, candidatePersonArray));
+                    this_.dispatchEvent(new IdentifyEvent(this_, face, maxCandidates, candidatePersonArray));
                 }
             );
         }
@@ -279,7 +275,7 @@ namespace hiswill.faceapi
                     this_.trained = false;
                     this_.registered = false;
 
-                    this_.dispathUnregisterEvent();
+                    this_.dispatchUnregisterEvent();
                 }
             );
         }

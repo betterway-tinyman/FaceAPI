@@ -30,15 +30,54 @@ namespace hiswill.faceapi
 
             this.eventDispatcher = new samchon.library.EventDispatcher(this);
             this.queueingList = new std.List<T>();
+            this.registered = false;
         }
 
-        /* --------------------------------------------------------
+        /* ========================================================
             ELEMENTS I/O
+                - OVERRIDINGS
+                - INSERTION / DELETION HANDLERS
+                - SEQUENCE OF EVENTS
+        ===========================================================
+            OVERRIDINGS
         -------------------------------------------------------- */
         /**
          * @inheritdoc
          */
-        protected inserted(it: std.Iterator<T>): void
+        public insert(position: std.Iterator<T>, val: T): std.Iterator<T>;
+        
+        /**
+         * @inheritdoc
+         */
+        public insert(position: std.Iterator<T>, size: number, val: T): std.Iterator<T>;
+        
+        /**
+         * @inheritdoc
+         */
+        public insert<U extends T>
+            (
+                position: std.Iterator<T>, 
+                begin: std.Iterator<U>, end: std.Iterator<U>
+            ): std.Iterator<T>;
+
+        public insert(...args: any[]): any
+        {
+            var position: std.VectorIterator<T> = args[0];
+
+            var index: number = position.getIndex();
+            var prevSize: number = this.size();
+
+            var res: std.Iterator<T> = super.insert.apply(this, args);
+            var insertedSize: number = this.size() - prevSize;
+
+            for (var i: number = index; i < index + insertedSize; i++)
+                this.inserted(new std.VectorIterator(this, i));
+        }
+
+        /* --------------------------------------------------------
+            INSERTION & DELETION HANDLERS
+        -------------------------------------------------------- */
+        private inserted(it: std.Iterator<T>): void
         {
             var child: T = it.value;
             
@@ -50,10 +89,7 @@ namespace hiswill.faceapi
                 child.insertToServer();
         }
 
-        /**
-         * @inheritdoc
-         */
-        protected erased(it: std.Iterator<T>): void
+        private erased(it: std.Iterator<T>): void
         {
             var child: T = it.value;
 
@@ -70,15 +106,23 @@ namespace hiswill.faceapi
                 it.value.eraseFromServer();
         }
 
+        /* --------------------------------------------------------
+            SEQUENCE OF EVENTS
+        -------------------------------------------------------- */
         protected dispatchRegisterEvent(): void
         {
+            this.registered = true;
+
             if (this.queueingList.empty() == false)
                 this.queueingList.front().insertToServer();
 
             this.dispatchEvent(new FaceEvent(FaceEvent.REGISTER));
         }
-        protected dispathUnregisterEvent(): void
+        
+        protected dispatchUnregisterEvent(): void
         {
+            this.registered = false;
+
             this.dispatchEvent(new FaceEvent(FaceEvent.UNREGISTER));
         }
 
