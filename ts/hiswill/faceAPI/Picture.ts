@@ -50,6 +50,7 @@ namespace hiswill.faceapi
             super();
 
             this.pictureArray = pictureArray;
+            this.url = url;
             
             this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
@@ -69,6 +70,9 @@ namespace hiswill.faceapi
             }
         }
 
+        /**
+         * @inheritdoc
+         */
         protected createChild(xml: samchon.library.XML): Face
         {
             return new Face(this);
@@ -77,6 +81,9 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             GETTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public key(): any
         {
             return this.url;
@@ -126,11 +133,12 @@ namespace hiswill.faceapi
                 }, 
                 { "url": this.url }, 
 
-                function (data: any, textStatus: string, jqXHR: JQueryXHR): any
+                function (data: any): any
                 {
+                    samchon.trace("Detected in inline function");
                     this_.constructByJSON(data);
                     
-                    this.dispatchEvent(new FaceEvent(FaceEvent.DETECT));
+                    this_.dispatchEvent(new FaceEvent(FaceEvent.DETECT));
                 }
             );
         }
@@ -151,6 +159,8 @@ namespace hiswill.faceapi
          */
         public dispatchEvent(event: Event): boolean
         {
+            samchon.trace("dispatchEvent in Picture", event.type, this.eventDispatcher.hasEventListener(event.type));
+
             return this.eventDispatcher.dispatchEvent(event);
         }
 
@@ -173,10 +183,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string 
         {
             return "person";
         }
+
+        /**
+         * @inheritdoc
+         */
         public CHILD_TAG(): string
         {
             return "face";

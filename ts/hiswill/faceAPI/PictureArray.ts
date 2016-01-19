@@ -33,6 +33,9 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
+        /**
+         * @inheritdoc
+         */
         protected createChild(xml: samchon.library.XML): Picture 
         {
             return new Picture(this, xml.getProperty("url"));
@@ -81,10 +84,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string 
         {
             return "pictureArray";
         }
+
+        /**
+         * @inheritdoc
+         */
         public CHILD_TAG(): string 
         {
             return "picture";

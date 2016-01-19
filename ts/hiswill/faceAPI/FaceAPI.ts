@@ -115,11 +115,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string 
         {
             return "faceAPI";
         }
 
+        /**
+         * @inheritdoc
+         */
         public toXML(): samchon.library.XML
         {
             var xml: samchon.library.XML = super.toXML();
@@ -140,7 +146,9 @@ namespace hiswill.faceapi
          */
         private static get CERTIFICATION_KEY(): string 
         {
-            return "b072c71311d144388ac2527a5f06ffca";
+            // return "e107bcd678f64de3ae238095f7a57661";
+            // return "b072c71311d144388ac2527a5f06ffca";
+            return "cbb239951be6454481fd7988b825f4a4";
         }
 
         /**
@@ -171,7 +179,7 @@ namespace hiswill.faceapi
                 },
                 type: method,
                 async: async,
-                timeout: 1000,
+                //timeout: 1000,
 
                 data: (data == null) ? "" : JSON.stringify(data),
                 success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any
@@ -181,7 +189,7 @@ namespace hiswill.faceapi
                 },
                 error: function(jqXHR: JQueryXHR, textStatus: string, errorThrow: string): any
                 {
-                    trace(JSON.stringify(jqXHR), url);
+                    samchon.trace(JSON.stringify(jqXHR), url);
                 }
             });
         }
@@ -203,12 +211,22 @@ namespace hiswill.faceapi
 
         public static main(): void
         {
-            var faceAPI: FaceAPI = new FaceAPI();
+            var event: Event = new FaceEvent(FaceEvent.DETECT);
 
-            var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
-            picture.detect();
+            //var faceAPI: FaceAPI = new FaceAPI();
 
-            trace("Detected");
+            //var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
+            //picture.addEventListener
+            //(
+            //    FaceEvent.DETECT, 
+            //    function (event: FaceEvent): void
+            //    {
+            //        samchon.trace("Detected");
+            //    }
+            //);
+            //picture.detect();
+
+            /*trace("Detected");
     
             //var faceList = faceAPI.createFaceList("other_group");
             var personGroup = faceAPI.createPersonGroup("others");
@@ -232,11 +250,11 @@ namespace hiswill.faceapi
                 function(ev: Event): void
                 {
                     trace("Trained");
-                    
                 }
             );
 
             personGroup.train();
+            trace(personGroup.toXML());*/
         }
     }
 }

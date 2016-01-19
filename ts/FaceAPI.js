@@ -257,129 +257,6 @@ var std;
     })(RuntimeError);
     std.SystemError = SystemError;
 })(std || (std = {}));
-/// <reference path="Container.ts" />
-/// <reference path="Exception.ts" />
-var std;
-(function (std) {
-    var Iterator = (function () {
-        /* ---------------------------------------------------------
-            CONSTRUCTORS
-        --------------------------------------------------------- */
-        /**
-         * Construct from the source Container.
-         *
-         * @param source The source Container.
-         */
-        function Iterator(source) {
-            this.source = source;
-        }
-        /* ---------------------------------------------------------
-            MOVERS
-        --------------------------------------------------------- */
-        /**
-         * Get iterator to previous element.
-         */
-        Iterator.prototype.prev = function () {
-            throw new std.AbstractMethodError("Have to be overriden.");
-        };
-        /**
-         * Return an Iterator.
-         */
-        Iterator.prototype.next = function () {
-            throw new std.AbstractMethodError("Have to be overriden.");
-        };
-        /**
-         * Advances the Iterator by n element positions.
-         *
-         * @param n Number of element positions to advance.
-         * @return An advanced Iterator.
-         */
-        Iterator.prototype.advance = function (n) {
-            throw new std.AbstractMethodError("Have to be overriden.");
-        };
-        /* ---------------------------------------------------------
-            ACCESSORS
-        --------------------------------------------------------- */
-        Iterator.prototype.equals = function (obj) {
-            return this.source == obj.source;
-        };
-        /**
-         * Get source.
-         */
-        Iterator.prototype.getSource = function () {
-            return this.source;
-        };
-        Object.defineProperty(Iterator.prototype, "value", {
-            /**
-             * Get value.
-             */
-            get: function () {
-                throw new std.AbstractMethodError("Have to be overriden.");
-            },
-            /**
-             * Set value.
-             */
-            set: function (val) {
-                throw new std.AbstractMethodError("Have to be overriden.");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Iterator;
-    })();
-    std.Iterator = Iterator;
-    var PairIterator = (function (_super) {
-        __extends(PairIterator, _super);
-        /* ---------------------------------------------------------
-            CONSTRUCTORS
-        --------------------------------------------------------- */
-        /**
-         * Construct from the source PairContainer.
-         *
-         * @param source The source PairContainer.
-         */
-        function PairIterator(source) {
-            _super.call(this, source);
-        }
-        /* ---------------------------------------------------------
-            MOVERS
-        --------------------------------------------------------- */
-        PairIterator.prototype.prev = function () {
-            throw new std.AbstractMethodError("Have to be overriden.");
-        };
-        PairIterator.prototype.next = function () {
-            throw new std.AbstractMethodError("Have to be overriden.");
-        };
-        /* ---------------------------------------------------------
-            ACCESSORS
-        --------------------------------------------------------- */
-        PairIterator.prototype.equals = function (obj) {
-            return this.source == obj.source;
-        };
-        Object.defineProperty(PairIterator.prototype, "first", {
-            get: function () {
-                throw new std.AbstractMethodError("Have to be overriden.");
-            },
-            set: function (val) {
-                throw new std.AbstractMethodError("Have to be overriden.");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(PairIterator.prototype, "second", {
-            get: function () {
-                throw new std.AbstractMethodError("Have to be overriden.");
-            },
-            set: function (val) {
-                throw new std.AbstractMethodError("Have to be overriden.");
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return PairIterator;
-    })(Iterator);
-    std.PairIterator = PairIterator;
-})(std || (std = {}));
 /// <reference path="Iterator.ts" />
 /// <reference path="Exception.ts" />
 var std;
@@ -545,6 +422,129 @@ var std;
         return PairContainer;
     })(Container);
     std.PairContainer = PairContainer;
+})(std || (std = {}));
+/// <reference path="Container.ts" />
+/// <reference path="Exception.ts" />
+var std;
+(function (std) {
+    var Iterator = (function () {
+        /* ---------------------------------------------------------
+            CONSTRUCTORS
+        --------------------------------------------------------- */
+        /**
+         * Construct from the source Container.
+         *
+         * @param source The source Container.
+         */
+        function Iterator(source) {
+            this.source = source;
+        }
+        /* ---------------------------------------------------------
+            MOVERS
+        --------------------------------------------------------- */
+        /**
+         * Get iterator to previous element.
+         */
+        Iterator.prototype.prev = function () {
+            throw new std.AbstractMethodError("Have to be overriden.");
+        };
+        /**
+         * Return an Iterator.
+         */
+        Iterator.prototype.next = function () {
+            throw new std.AbstractMethodError("Have to be overriden.");
+        };
+        /**
+         * Advances the Iterator by n element positions.
+         *
+         * @param n Number of element positions to advance.
+         * @return An advanced Iterator.
+         */
+        Iterator.prototype.advance = function (n) {
+            throw new std.AbstractMethodError("Have to be overriden.");
+        };
+        /* ---------------------------------------------------------
+            ACCESSORS
+        --------------------------------------------------------- */
+        Iterator.prototype.equals = function (obj) {
+            return this.source == obj.source;
+        };
+        /**
+         * Get source.
+         */
+        Iterator.prototype.getSource = function () {
+            return this.source;
+        };
+        Object.defineProperty(Iterator.prototype, "value", {
+            /**
+             * Get value.
+             */
+            get: function () {
+                throw new std.AbstractMethodError("Have to be overriden.");
+            },
+            /**
+             * Set value.
+             */
+            set: function (val) {
+                throw new std.AbstractMethodError("Have to be overriden.");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Iterator;
+    })();
+    std.Iterator = Iterator;
+    var PairIterator = (function (_super) {
+        __extends(PairIterator, _super);
+        /* ---------------------------------------------------------
+            CONSTRUCTORS
+        --------------------------------------------------------- */
+        /**
+         * Construct from the source PairContainer.
+         *
+         * @param source The source PairContainer.
+         */
+        function PairIterator(source) {
+            _super.call(this, source);
+        }
+        /* ---------------------------------------------------------
+            MOVERS
+        --------------------------------------------------------- */
+        PairIterator.prototype.prev = function () {
+            throw new std.AbstractMethodError("Have to be overriden.");
+        };
+        PairIterator.prototype.next = function () {
+            throw new std.AbstractMethodError("Have to be overriden.");
+        };
+        /* ---------------------------------------------------------
+            ACCESSORS
+        --------------------------------------------------------- */
+        PairIterator.prototype.equals = function (obj) {
+            return this.source == obj.source;
+        };
+        Object.defineProperty(PairIterator.prototype, "first", {
+            get: function () {
+                throw new std.AbstractMethodError("Have to be overriden.");
+            },
+            set: function (val) {
+                throw new std.AbstractMethodError("Have to be overriden.");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(PairIterator.prototype, "second", {
+            get: function () {
+                throw new std.AbstractMethodError("Have to be overriden.");
+            },
+            set: function (val) {
+                throw new std.AbstractMethodError("Have to be overriden.");
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return PairIterator;
+    })(Iterator);
+    std.PairIterator = PairIterator;
 })(std || (std = {}));
 /// <reference path="Container.ts" />
 /// <reference path="Iterator.ts" />
@@ -728,13 +728,6 @@ var std;
         /* ---------------------------------------------------------
             ELEMENTS I/O
         --------------------------------------------------------- */
-        Vector.prototype.push = function () {
-            var items = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                items[_i - 0] = arguments[_i];
-            }
-            return this.push.apply(this, items);
-        };
         Vector.prototype.pushBack = function (element) {
             this.push(element);
         };
@@ -1060,6 +1053,7 @@ var std;
             this.data_ = new std.Vector();
         }
         UnorderedMap.prototype.assign = function (begin, end) {
+            this.data_.assign(begin, end);
         };
         UnorderedMap.prototype.clear = function () {
             this.data_.clear();
@@ -1249,30 +1243,6 @@ var std;
                     return false;
             return true;
         };
-        /* ---------------------------------------------------------
-            EXPORT
-        --------------------------------------------------------- */
-        /**
-         * <p> Returns a string representation of the Map. </p>
-         *
-         * <p> The returned string will follow the form of JSonObject </p>
-         * <ul>
-         *	<li> {{"key": "???", "value": ???}, {"key": "?", "value": ?}, ...} </li>
-         * </ul>
-         */
-        UnorderedMap.prototype.toString = function () {
-            var str = "{";
-            for (var i = 0; i < this.data_.size(); i++) {
-                var pair = this.data_.at(i);
-                var key = "\"" + pair.first + "\"";
-                var value = (typeof pair.second == "string")
-                    ? "\"" + pair.second + "\""
-                    : String(pair.second);
-                str += "{\"key\": " + key + ": value: " + value + "}";
-            }
-            str += "}";
-            return str;
-        };
         return UnorderedMap;
     })(std.PairContainer);
     std.UnorderedMap = UnorderedMap;
@@ -1396,54 +1366,6 @@ var std;
     })(std.PairIterator);
     std.UnorderedMapIterator = UnorderedMapIterator;
 })(std || (std = {}));
-/// <reference path="../../std/Vector.ts" />
-///     <reference path="XML.ts" />
-var samchon;
-(function (samchon) {
-    var library;
-    (function (library) {
-        /**
-         * <p> List of XML(s) having same tag. </p>
-         *
-         * @author Jeongho Nam
-         */
-        var XMLList = (function (_super) {
-            __extends(XMLList, _super);
-            /**
-             * <p> Default Constructor. </p>
-             */
-            function XMLList() {
-                _super.call(this);
-            }
-            /**
-             * <p> Convert XMLList to string. </p>
-             *
-             * @param level Level(depth) of the XMLList.
-             */
-            XMLList.prototype.toString = function (level) {
-                if (level === void 0) { level = 0; }
-                var str = "";
-                for (var i = 0; i < this.size(); i++)
-                    str += this.at(i).toString(level) + "\n";
-                return str;
-            };
-            /**
-             * <p> Convert XMLList to HTML string. </p>
-             *
-             * @param level Level(depth) of the XMLList.
-             */
-            XMLList.prototype.toHTML = function (level) {
-                if (level === void 0) { level = 0; }
-                var str = "";
-                for (var i = 0; i < this.size(); i++)
-                    str += this.at(i).toHTML(level) + "<br>\n";
-                return str;
-            };
-            return XMLList;
-        })(std.Vector);
-        library.XMLList = XMLList;
-    })(library = samchon.library || (samchon.library = {}));
-})(samchon || (samchon = {}));
 var samchon;
 (function (samchon) {
     var library;
@@ -2091,6 +2013,54 @@ var samchon;
         library.XML = XML;
     })(library = samchon.library || (samchon.library = {}));
 })(samchon || (samchon = {}));
+/// <reference path="../../std/Vector.ts" />
+///     <reference path="XML.ts" />
+var samchon;
+(function (samchon) {
+    var library;
+    (function (library) {
+        /**
+         * <p> List of XML(s) having same tag. </p>
+         *
+         * @author Jeongho Nam
+         */
+        var XMLList = (function (_super) {
+            __extends(XMLList, _super);
+            /**
+             * <p> Default Constructor. </p>
+             */
+            function XMLList() {
+                _super.call(this);
+            }
+            /**
+             * <p> Convert XMLList to string. </p>
+             *
+             * @param level Level(depth) of the XMLList.
+             */
+            XMLList.prototype.toString = function (level) {
+                if (level === void 0) { level = 0; }
+                var str = "";
+                for (var i = 0; i < this.size(); i++)
+                    str += this.at(i).toString(level) + "\n";
+                return str;
+            };
+            /**
+             * <p> Convert XMLList to HTML string. </p>
+             *
+             * @param level Level(depth) of the XMLList.
+             */
+            XMLList.prototype.toHTML = function (level) {
+                if (level === void 0) { level = 0; }
+                var str = "";
+                for (var i = 0; i < this.size(); i++)
+                    str += this.at(i).toHTML(level) + "<br>\n";
+                return str;
+            };
+            return XMLList;
+        })(std.Vector);
+        library.XMLList = XMLList;
+    })(library = samchon.library || (samchon.library = {}));
+})(samchon || (samchon = {}));
 /// <reference path="../library/XML.ts" />
 /// <reference path="../../std/Vector.ts" />
 ///     <reference path="IEntity.ts" />
@@ -2272,9 +2242,6 @@ var samchon;
         protocol.EntityArray = EntityArray;
     })(protocol = samchon.protocol || (samchon.protocol = {}));
 })(samchon || (samchon = {}));
-/// <reference path="FaceAPI.ts" />
-/// <reference path="../../samchon/protocol/IEntity.ts" />
-/// <reference path="../../samchon/library/IEventDispatcher.ts" />
 /// <reference path="IAsyncEntity.ts" />
 var hiswill;
 (function (hiswill) {
@@ -4137,12 +4104,15 @@ var samchon;
              * @inheritdoc
              */
             EventDispatcher.prototype.dispatchEvent = function (event) {
+                samchon.trace("dispatchEvent", this.listeners.has(event.type));
                 event.target = this.target;
                 if (this.listeners.has(event.type) == false)
                     return false;
                 var listenerSet = this.listeners.get(event.type);
-                for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next())
+                for (var it = listenerSet.begin(); it.equals(listenerSet.end()) == false; it = it.next()) {
+                    samchon.trace("apply in dispatchEvent");
                     it.value.apply();
+                }
                 return true;
             };
             /**
@@ -4205,6 +4175,9 @@ var hiswill;
                 _super.call(this);
                 this.api = api;
             }
+            /**
+             * @inheritdoc
+             */
             PictureArray.prototype.createChild = function (xml) {
                 return new faceapi.Picture(this, xml.getProperty("url"));
             };
@@ -4243,9 +4216,15 @@ var hiswill;
             /* --------------------------------------------------------
                 EXPORTERS
             -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
             PictureArray.prototype.TAG = function () {
                 return "pictureArray";
             };
+            /**
+             * @inheritdoc
+             */
             PictureArray.prototype.CHILD_TAG = function () {
                 return "picture";
             };
@@ -4285,6 +4264,7 @@ var hiswill;
                 if (url === void 0) { url = ""; }
                 _super.call(this);
                 this.pictureArray = pictureArray;
+                this.url = url;
                 this.eventDispatcher = new samchon.library.EventDispatcher(this);
             }
             Picture.prototype.constructByJSON = function (val) {
@@ -4296,12 +4276,18 @@ var hiswill;
                     this.push(face);
                 }
             };
+            /**
+             * @inheritdoc
+             */
             Picture.prototype.createChild = function (xml) {
                 return new faceapi.Face(this);
             };
             /* --------------------------------------------------------
                 GETTERS
             -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
             Picture.prototype.key = function () {
                 return this.url;
             };
@@ -4336,9 +4322,10 @@ var hiswill;
                     "returnFaceId": "true",
                     "returnFaceLandmarks": "true",
                     "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
-                }, { "url": this.url }, function (data, textStatus, jqXHR) {
+                }, { "url": this.url }, function (data) {
+                    samchon.trace("Detected in inline function");
                     this_.constructByJSON(data);
-                    this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.DETECT));
+                    this_.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.DETECT));
                 });
             };
             /* --------------------------------------------------------
@@ -4354,6 +4341,7 @@ var hiswill;
              * @inheritdoc
              */
             Picture.prototype.dispatchEvent = function (event) {
+                samchon.trace("dispatchEvent in Picture", event.type, this.eventDispatcher.hasEventListener(event.type));
                 return this.eventDispatcher.dispatchEvent(event);
             };
             /**
@@ -4373,9 +4361,15 @@ var hiswill;
             /* --------------------------------------------------------
                 EXPORTERS
             -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
             Picture.prototype.TAG = function () {
                 return "person";
             };
+            /**
+             * @inheritdoc
+             */
             Picture.prototype.CHILD_TAG = function () {
                 return "face";
             };
@@ -5173,9 +5167,15 @@ var hiswill;
             /* --------------------------------------------------------
                 EXPORTERS
             -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
             FaceAPI.prototype.TAG = function () {
                 return "faceAPI";
             };
+            /**
+             * @inheritdoc
+             */
             FaceAPI.prototype.toXML = function () {
                 var xml = _super.prototype.toXML.call(this);
                 xml.push(this.personGroupArray.toXML(), this.pictureArray.toXML());
@@ -5189,7 +5189,9 @@ var hiswill;
                  * Certification key for Face-API server.
                  */
                 get: function () {
-                    return "b072c71311d144388ac2527a5f06ffca";
+                    // return "e107bcd678f64de3ae238095f7a57661";
+                    // return "b072c71311d144388ac2527a5f06ffca";
+                    return "cbb239951be6454481fd7988b825f4a4";
                 },
                 enumerable: true,
                 configurable: true
@@ -5215,14 +5217,14 @@ var hiswill;
                     },
                     type: method,
                     async: async,
-                    timeout: 1000,
+                    //timeout: 1000,
                     data: (data == null) ? "" : JSON.stringify(data),
                     success: function (data, textStatus, jqXHR) {
                         if (success != null)
                             success.apply(null, [data, textStatus, jqXHR]);
                     },
                     error: function (jqXHR, textStatus, errorThrow) {
-                        trace(JSON.stringify(jqXHR), url);
+                        samchon.trace(JSON.stringify(jqXHR), url);
                     }
                 });
             };
@@ -5235,25 +5237,47 @@ var hiswill;
                 return prefix + "_hiswill_" + new Date().getTime() + "_" + (++FaceAPI.sequence);
             };
             FaceAPI.main = function () {
-                var faceAPI = new FaceAPI();
-                var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
-                picture.detect();
-                trace("Detected");
+                var event = new faceapi.FaceEvent(faceapi.FaceEvent.DETECT);
+                //var faceAPI: FaceAPI = new FaceAPI();
+                //var picture = faceAPI.createPicture("http://samchon.org/download/group_others2.jpg");
+                //picture.addEventListener
+                //(
+                //    FaceEvent.DETECT, 
+                //    function (event: FaceEvent): void
+                //    {
+                //        samchon.trace("Detected");
+                //    }
+                //);
+                //picture.detect();
+                /*trace("Detected");
+        
                 //var faceList = faceAPI.createFaceList("other_group");
                 var personGroup = faceAPI.createPersonGroup("others");
-                for (var i = 0; i < picture.size(); i++) {
+    
+                for (var i: number = 0; i < picture.size(); i++)
+                {
                     var face = picture.at(i);
+    
                     //faceList.push(face);
-                    var person = new faceapi.Person(personGroup, "my_name_" + (i + 1));
+    
+                    var person = new Person(personGroup, "my_name_" + (i+1));
                     personGroup.push(person);
                     person.push(face);
+    
                     trace(i + "th person is constructoed");
                 }
+    
                 trace("Registered");
-                personGroup.addEventListener("complete", function (ev) {
-                    trace("Trained");
-                });
+    
+                personGroup.addEventListener("complete",
+                    function(ev: Event): void
+                    {
+                        trace("Trained");
+                    }
+                );
+    
                 personGroup.train();
+                trace(personGroup.toXML());*/
             };
             /**
              * A automatically increasing sequence number used on issuing unique identifier code. </p>?
@@ -5264,6 +5288,9 @@ var hiswill;
         faceapi.FaceAPI = FaceAPI;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="../../samchon/protocol/IEntity.ts" />
+/// <reference path="../../samchon/library/IEventDispatcher.ts" />
 /// <reference path="FaceAPI.ts" />
 var hiswill;
 (function (hiswill) {
@@ -5345,158 +5372,6 @@ var hiswill;
         faceapi.AsyncEntity = AsyncEntity;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var FaceEvent = (function (_super) {
-            __extends(FaceEvent, _super);
-            function FaceEvent(type) {
-                _super.call(this, type);
-            }
-            Object.defineProperty(FaceEvent, "REGISTER", {
-                get: function () { return "register"; },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FaceEvent, "UNREGISTER", {
-                get: function () { return "unregister"; },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FaceEvent, "DETECT", {
-                get: function () { return "detect"; },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FaceEvent, "TRAIN", {
-                get: function () { return "train"; },
-                enumerable: true,
-                configurable: true
-            });
-            return FaceEvent;
-        })(Event);
-        faceapi.FaceEvent = FaceEvent;
-        var IdentifyEvent = (function (_super) {
-            __extends(IdentifyEvent, _super);
-            function IdentifyEvent(personGroup, face, maxCandidates, candidates) {
-                _super.call(this, IdentifyEvent.IDENTIFY);
-                this.face_ = face;
-                this.personGroup_ = personGroup;
-                this.maxCandidates_ = maxCandidates;
-                this.candidates_ = candidates;
-            }
-            Object.defineProperty(IdentifyEvent, "IDENTIFY", {
-                get: function () { return "identify"; },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(IdentifyEvent.prototype, "personGroup", {
-                get: function () {
-                    return this.personGroup_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(IdentifyEvent.prototype, "face", {
-                get: function () {
-                    return this.face_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(IdentifyEvent.prototype, "maxCandidates", {
-                get: function () {
-                    return this.maxCandidates_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(IdentifyEvent.prototype, "candidates", {
-                get: function () {
-                    return this.candidates_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return IdentifyEvent;
-        })(FaceEvent);
-        faceapi.IdentifyEvent = IdentifyEvent;
-        var FindSimilarEvent = (function (_super) {
-            __extends(FindSimilarEvent, _super);
-            function FindSimilarEvent(faceList, face, maxCandidates, similars) {
-                _super.call(this, FindSimilarEvent.FIND);
-                this.faceList_ = faceList;
-                this.face_ = face;
-                this.maxCandidates_ = maxCandidates;
-                this.similars_ = similars;
-            }
-            Object.defineProperty(FindSimilarEvent, "FIND", {
-                get: function () { return "find_similar"; },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FindSimilarEvent.prototype, "faceList", {
-                get: function () {
-                    return this.faceList_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FindSimilarEvent.prototype, "face", {
-                get: function () {
-                    return this.face_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FindSimilarEvent.prototype, "maxCandidates", {
-                get: function () {
-                    return this.maxCandidates_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FindSimilarEvent.prototype, "similars", {
-                get: function () {
-                    return this.similars_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return FindSimilarEvent;
-        })(FaceEvent);
-        faceapi.FindSimilarEvent = FindSimilarEvent;
-        var FindSimilarGroupEvent = (function (_super) {
-            __extends(FindSimilarGroupEvent, _super);
-            function FindSimilarGroupEvent(faceArray, similarGroups) {
-                _super.call(this, FindSimilarGroupEvent.FIND);
-                this.similarGroups_ = similarGroups;
-            }
-            Object.defineProperty(FindSimilarGroupEvent, "FIND", {
-                get: function () { return "find_similar_group"; },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FindSimilarGroupEvent.prototype, "faceArray", {
-                get: function () {
-                    return this.faceArray_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            Object.defineProperty(FindSimilarGroupEvent.prototype, "similarGroups", {
-                get: function () {
-                    return this.similarGroups_;
-                },
-                enumerable: true,
-                configurable: true
-            });
-            return FindSimilarGroupEvent;
-        })(FaceEvent);
-        faceapi.FindSimilarGroupEvent = FindSimilarGroupEvent;
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
 /// <reference path="../../samchon/protocol/Entity.ts" />
 /// <reference path="IJSonEntity.ts" />
@@ -5538,68 +5413,6 @@ var hiswill;
             return FaceLandmark;
         })(samchon.protocol.Entity);
         faceapi.FaceLandmark = FaceLandmark;
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="FaceAPI.ts" />
-/// <reference path="FaceLandmark.ts" />
-/// <reference path="Eye.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        /**
-         * A FaceLandmark representing eyes.
-         *
-         * @author Jeongho Nam
-         */
-        var Eyes = (function (_super) {
-            __extends(Eyes, _super);
-            /* --------------------------------------------------------
-                CONSTRUCTORS
-            -------------------------------------------------------- */
-            /**
-             * Construct from a FaceLandmarks.
-             *
-             * @param landmarks A group and parent of the FaceLandmark.
-             */
-            function Eyes(landmarks) {
-                _super.call(this, landmarks);
-                this.left = new faceapi.Eye(this, faceapi.Direction.LEFT);
-                this.right = new faceapi.Eye(this, faceapi.Direction.RIGHT);
-            }
-            Eyes.prototype.constructByJSON = function (obj) {
-                this.left.constructByJSON(obj);
-                this.right.constructByJSON(obj);
-            };
-            /* --------------------------------------------------------
-                GETTERS
-            -------------------------------------------------------- */
-            /**
-             * Get left.
-             */
-            Eyes.prototype.getLeft = function () {
-                return this.left;
-            };
-            /**
-             * Get right.
-             */
-            Eyes.prototype.getRight = function () {
-                return this.right;
-            };
-            /* --------------------------------------------------------
-                EXPORTERS
-            -------------------------------------------------------- */
-            Eyes.prototype.TAG = function () {
-                return "eyes";
-            };
-            Eyes.prototype.toXML = function () {
-                var xml = _super.prototype.toXML.call(this);
-                xml.push(this.left.toXML(), this.right.toXML());
-                return xml;
-            };
-            return Eyes;
-        })(faceapi.FaceLandmark);
-        faceapi.Eyes = Eyes;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
@@ -5723,18 +5536,18 @@ var hiswill;
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
 /// <reference path="FaceLandmark.ts" />
-/// <reference path="Eyebrow.ts" />
+/// <reference path="Eye.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
         /**
-         * A FaceLandmark representing eyebrows.
+         * A FaceLandmark representing eyes.
          *
          * @author Jeongho Nam
          */
-        var Eyebrows = (function (_super) {
-            __extends(Eyebrows, _super);
+        var Eyes = (function (_super) {
+            __extends(Eyes, _super);
             /* --------------------------------------------------------
                 CONSTRUCTORS
             -------------------------------------------------------- */
@@ -5743,12 +5556,12 @@ var hiswill;
              *
              * @param landmarks A group and parent of the FaceLandmark.
              */
-            function Eyebrows(landmarks) {
+            function Eyes(landmarks) {
                 _super.call(this, landmarks);
-                this.left = new faceapi.Eyebrow(this, faceapi.Direction.LEFT);
-                this.right = new faceapi.Eyebrow(this, faceapi.Direction.RIGHT);
+                this.left = new faceapi.Eye(this, faceapi.Direction.LEFT);
+                this.right = new faceapi.Eye(this, faceapi.Direction.RIGHT);
             }
-            Eyebrows.prototype.constructByJSON = function (obj) {
+            Eyes.prototype.constructByJSON = function (obj) {
                 this.left.constructByJSON(obj);
                 this.right.constructByJSON(obj);
             };
@@ -5758,29 +5571,29 @@ var hiswill;
             /**
              * Get left.
              */
-            Eyebrows.prototype.getLeft = function () {
+            Eyes.prototype.getLeft = function () {
                 return this.left;
             };
             /**
              * Get right.
              */
-            Eyebrows.prototype.getRight = function () {
+            Eyes.prototype.getRight = function () {
                 return this.right;
             };
             /* --------------------------------------------------------
                 EXPORTERS
             -------------------------------------------------------- */
-            Eyebrows.prototype.TAG = function () {
-                return "eyeBrows";
+            Eyes.prototype.TAG = function () {
+                return "eyes";
             };
-            Eyebrows.prototype.toXML = function () {
+            Eyes.prototype.toXML = function () {
                 var xml = _super.prototype.toXML.call(this);
                 xml.push(this.left.toXML(), this.right.toXML());
                 return xml;
             };
-            return Eyebrows;
+            return Eyes;
         })(faceapi.FaceLandmark);
-        faceapi.Eyebrows = Eyebrows;
+        faceapi.Eyes = Eyes;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
@@ -5876,6 +5689,302 @@ var hiswill;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
+/// <reference path="FaceLandmark.ts" />
+/// <reference path="Eyebrow.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * A FaceLandmark representing eyebrows.
+         *
+         * @author Jeongho Nam
+         */
+        var Eyebrows = (function (_super) {
+            __extends(Eyebrows, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function Eyebrows(landmarks) {
+                _super.call(this, landmarks);
+                this.left = new faceapi.Eyebrow(this, faceapi.Direction.LEFT);
+                this.right = new faceapi.Eyebrow(this, faceapi.Direction.RIGHT);
+            }
+            Eyebrows.prototype.constructByJSON = function (obj) {
+                this.left.constructByJSON(obj);
+                this.right.constructByJSON(obj);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get left.
+             */
+            Eyebrows.prototype.getLeft = function () {
+                return this.left;
+            };
+            /**
+             * Get right.
+             */
+            Eyebrows.prototype.getRight = function () {
+                return this.right;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Eyebrows.prototype.TAG = function () {
+                return "eyeBrows";
+            };
+            Eyebrows.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.left.toXML(), this.right.toXML());
+                return xml;
+            };
+            return Eyebrows;
+        })(faceapi.FaceLandmark);
+        faceapi.Eyebrows = Eyebrows;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        var FaceEvent = (function () {
+            //protected event: Event;
+            function FaceEvent(type) {
+                //this.event = new Event(type, { "bubbles": true, "cancelable": false });
+            }
+            Object.defineProperty(FaceEvent, "REGISTER", {
+                get: function () { return "register"; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent, "UNREGISTER", {
+                get: function () { return "unregister"; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent, "DETECT", {
+                get: function () { return "detect"; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent, "TRAIN", {
+                get: function () { return "train"; },
+                enumerable: true,
+                configurable: true
+            });
+            FaceEvent.prototype.initEvent = function (eventTypeArg, canBubbleArg, cancelableArg) { };
+            FaceEvent.prototype.preventDefault = function () { };
+            FaceEvent.prototype.stopImmediatePropagation = function () { };
+            FaceEvent.prototype.stopPropagation = function () { };
+            Object.defineProperty(FaceEvent.prototype, "bubbles", {
+                //public get AT_TARGET(): number { return -1; }
+                //public get BUBBLING_PHASE(): number { return -1; }
+                //public get CAPTURING_PHASE(): number { return -1; }
+                get: function () { return false; },
+                //public set AT_TARGET(val: number) { }
+                //public set BUBBLING_PHASE(val: number) { }
+                //public set CAPTURING_PHASE(val: number) { }
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "cancelBubble", {
+                get: function () { return false; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "cancelable", {
+                get: function () { return false; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "currentTarget", {
+                get: function () { return null; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "defaultPrevented", {
+                get: function () { return false; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "eventPhase", {
+                get: function () { return -1; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "isTrusted", {
+                get: function () { return false; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "returnValue", {
+                get: function () { return false; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "srcElement", {
+                get: function () { return null; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "target", {
+                get: function () { return null; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "timeStamp", {
+                get: function () { return -1; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FaceEvent.prototype, "type", {
+                get: function () { return ""; },
+                set: function (val) { },
+                enumerable: true,
+                configurable: true
+            });
+            return FaceEvent;
+        })();
+        faceapi.FaceEvent = FaceEvent;
+        var IdentifyEvent = (function (_super) {
+            __extends(IdentifyEvent, _super);
+            function IdentifyEvent(personGroup, face, maxCandidates, candidates) {
+                _super.call(this, IdentifyEvent.IDENTIFY);
+                this.face_ = face;
+                this.personGroup_ = personGroup;
+                this.maxCandidates_ = maxCandidates;
+                this.candidates_ = candidates;
+            }
+            Object.defineProperty(IdentifyEvent, "IDENTIFY", {
+                get: function () { return "identify"; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(IdentifyEvent.prototype, "personGroup", {
+                get: function () {
+                    return this.personGroup_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(IdentifyEvent.prototype, "face", {
+                get: function () {
+                    return this.face_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(IdentifyEvent.prototype, "maxCandidates", {
+                get: function () {
+                    return this.maxCandidates_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(IdentifyEvent.prototype, "candidates", {
+                get: function () {
+                    return this.candidates_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return IdentifyEvent;
+        })(FaceEvent);
+        faceapi.IdentifyEvent = IdentifyEvent;
+        var FindSimilarEvent = (function (_super) {
+            __extends(FindSimilarEvent, _super);
+            function FindSimilarEvent(faceList, face, maxCandidates, similars) {
+                _super.call(this, FindSimilarEvent.FIND);
+                this.faceList_ = faceList;
+                this.face_ = face;
+                this.maxCandidates_ = maxCandidates;
+                this.similars_ = similars;
+            }
+            Object.defineProperty(FindSimilarEvent, "FIND", {
+                get: function () { return "find_similar"; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FindSimilarEvent.prototype, "faceList", {
+                get: function () {
+                    return this.faceList_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FindSimilarEvent.prototype, "face", {
+                get: function () {
+                    return this.face_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FindSimilarEvent.prototype, "maxCandidates", {
+                get: function () {
+                    return this.maxCandidates_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FindSimilarEvent.prototype, "similars", {
+                get: function () {
+                    return this.similars_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return FindSimilarEvent;
+        })(FaceEvent);
+        faceapi.FindSimilarEvent = FindSimilarEvent;
+        var FindSimilarGroupEvent = (function (_super) {
+            __extends(FindSimilarGroupEvent, _super);
+            function FindSimilarGroupEvent(faceArray, similarGroups) {
+                _super.call(this, FindSimilarGroupEvent.FIND);
+                this.similarGroups_ = similarGroups;
+            }
+            Object.defineProperty(FindSimilarGroupEvent, "FIND", {
+                get: function () { return "find_similar_group"; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FindSimilarGroupEvent.prototype, "faceArray", {
+                get: function () {
+                    return this.faceArray_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(FindSimilarGroupEvent.prototype, "similarGroups", {
+                get: function () {
+                    return this.similarGroups_;
+                },
+                enumerable: true,
+                configurable: true
+            });
+            return FindSimilarGroupEvent;
+        })(FaceEvent);
+        faceapi.FindSimilarGroupEvent = FindSimilarGroupEvent;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
 /// <reference path="IJSONEntity.ts" />
 /// <reference path="../../samchon/protocol/Entity.ts" />
 /// <reference path="../../samchon/protocol/EntityArray.ts" />
@@ -5941,75 +6050,6 @@ var hiswill;
             return Direction;
         })();
         faceapi.Direction = Direction;
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
-/// <reference path="FaceAPI.ts" />
-/// <reference path="FaceLandmark.ts" />
-/// <reference path="Lip.ts" />
-/// <reference path="Point.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        /**
-         * A FaceLandmark representing a mouth.
-         */
-        var Mouth = (function (_super) {
-            __extends(Mouth, _super);
-            /* --------------------------------------------------------
-                CONTRUCTORS
-            -------------------------------------------------------- */
-            /**
-             * Construct from a FaceLandmarks.
-             *
-             * @param landmarks A group and parent of the FaceLandmark.
-             */
-            function Mouth(landmarks) {
-                _super.call(this, landmarks);
-                this.lip = new faceapi.Lip(this);
-                this.left = new faceapi.Point("left");
-                this.right = new faceapi.Point("right");
-            }
-            Mouth.prototype.constructByJSON = function (obj) {
-                this.lip.constructByJSON(obj);
-                this.left.constructByJSON(obj["mouthLeft"]);
-                this.right.constructByJSON(obj["mouthRight"]);
-            };
-            /* --------------------------------------------------------
-                GETTERS
-            -------------------------------------------------------- */
-            /**
-             * Get lip.
-             */
-            Mouth.prototype.getLip = function () {
-                return this.lip;
-            };
-            /**
-             * Get left.
-             */
-            Mouth.prototype.getLeft = function () {
-                return this.left;
-            };
-            /**
-             * Get right.
-             */
-            Mouth.prototype.getRight = function () {
-                return this.right;
-            };
-            /* --------------------------------------------------------
-                EXPORTERS
-            -------------------------------------------------------- */
-            Mouth.prototype.TAG = function () {
-                return "mouth";
-            };
-            Mouth.prototype.toXML = function () {
-                var xml = _super.prototype.toXML.call(this);
-                xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
-                return xml;
-            };
-            return Mouth;
-        })(faceapi.FaceLandmark);
-        faceapi.Mouth = Mouth;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
@@ -6097,6 +6137,75 @@ var hiswill;
             return Lip;
         })(samchon.protocol.Entity);
         faceapi.Lip = Lip;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="FaceAPI.ts" />
+/// <reference path="FaceLandmark.ts" />
+/// <reference path="Lip.ts" />
+/// <reference path="Point.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * A FaceLandmark representing a mouth.
+         */
+        var Mouth = (function (_super) {
+            __extends(Mouth, _super);
+            /* --------------------------------------------------------
+                CONTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Construct from a FaceLandmarks.
+             *
+             * @param landmarks A group and parent of the FaceLandmark.
+             */
+            function Mouth(landmarks) {
+                _super.call(this, landmarks);
+                this.lip = new faceapi.Lip(this);
+                this.left = new faceapi.Point("left");
+                this.right = new faceapi.Point("right");
+            }
+            Mouth.prototype.constructByJSON = function (obj) {
+                this.lip.constructByJSON(obj);
+                this.left.constructByJSON(obj["mouthLeft"]);
+                this.right.constructByJSON(obj["mouthRight"]);
+            };
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * Get lip.
+             */
+            Mouth.prototype.getLip = function () {
+                return this.lip;
+            };
+            /**
+             * Get left.
+             */
+            Mouth.prototype.getLeft = function () {
+                return this.left;
+            };
+            /**
+             * Get right.
+             */
+            Mouth.prototype.getRight = function () {
+                return this.right;
+            };
+            /* --------------------------------------------------------
+                EXPORTERS
+            -------------------------------------------------------- */
+            Mouth.prototype.TAG = function () {
+                return "mouth";
+            };
+            Mouth.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                xml.push(this.lip.toXML(), this.left.toXML(), this.right.toXML());
+                return xml;
+            };
+            return Mouth;
+        })(faceapi.FaceLandmark);
+        faceapi.Mouth = Mouth;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
@@ -6247,10 +6356,6 @@ var hiswill;
         faceapi.Pupil = Pupil;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
-/// <referecen path="samchon/API.ts" />
-/// <referecen path="samchon/std.ts" />
-/// <referecen path="samchon/library.ts" />
-/// <referecen path="samchon/protocol.ts" /> 
 var samchon;
 (function (samchon) {
     /**
@@ -7078,16 +7183,17 @@ var samchon;
     })();
     samchon.Global = Global;
 })(samchon || (samchon = {}));
-var uid_ = 0;
-Object.prototype["__getUID"] = function () {
-    if (this.hasOwnProperty("uid__") == true)
-        return this["uid__"];
-    else {
-        this["uid__"] = ++uid_;
-        return this["uid__"];
-    }
-};
-/// <reference path="API.ts" />
+//var uid_: number = 0;
+//Object.prototype["__getUID"] = function () 
+//{
+//    if (this.hasOwnProperty("uid__") == true)
+//        return this["uid__"];
+//    else 
+//    {
+//        this["uid__"] = ++uid_;
+//        return this["uid__"];
+//    }
+//} 
 /// <reference path="../API.ts" />
 /// <reference path="../../std/Exception.ts" />
 var samchon;
@@ -7276,6 +7382,7 @@ var samchon;
         library.FactorialGenerator = FactorialGenerator;
     })(library = samchon.library || (samchon.library = {}));
 })(samchon || (samchon = {}));
+/// <reference path="API.ts" />
 /// <reference path="Entity.ts" />
 var samchon;
 (function (samchon) {
@@ -7756,84 +7863,6 @@ var std;
     })(std.Iterator);
     std.UnorderedSetIterator = UnorderedSetIterator;
 })(std || (std = {}));
-/// <reference path="../API.ts" />
-/// <reference path="IProtocol.ts" />
-/// <reference path="ExternalSystem.ts" />
-/// <reference path="../../std/UnorderedSet.ts" />
-var samchon;
-(function (samchon) {
-    var protocol;
-    (function (protocol) {
-        /**
-         * <p> A role belongs to an external system. </p>
-         *
-         * <p> ExternalSystemRole is a 'control' class groupping methods, handling Invoke messages
-         * interacting with an external system that the ExternalSystemRole is belonged to, by a subject or
-         * unit of a module. <p>
-         *
-         * <p> ExternalSystemRole can be a "logical proxy" for an ExternalSystem which is containing the
-         * ExternalSystemRole. Of course, the ExternalSystemRole is belonged to an ExternalSystem. However,
-         * if you access an ExternalSystemRole from an ExternalSystemArray directly, not passing by a
-         * belonged ExternalSystem, and send an Invoke message even you're not knowing which ExternalSystem
-         * is related in, the ExternalSystemRole acted a role of proxy. </p>
-         *
-         * <p> It's called as "Proxy pattern". With the pattern, you can only concentrate on
-         * ExternalSystemRole itself, what to do with Invoke message, irrespective of the ExternalSystemRole
-         * is belonged to which ExternalSystem. </p>
-         *
-         * @author Jeongho Nam
-         */
-        var ExternalSystemRole = (function (_super) {
-            __extends(ExternalSystemRole, _super);
-            /* ------------------------------------------------------------------
-                CONSTRUCTORS
-            ------------------------------------------------------------------ */
-            /**
-             * <p> Construct from external system driver. </p>
-             *
-             * @param system A driver of external system the ExternalSystemRole is belonged to.
-             */
-            function ExternalSystemRole(system) {
-                _super.call(this);
-                this.system = system;
-                this.sendListeners = new std.UnorderedSet();
-            }
-            ExternalSystemRole.prototype.construct = function (xml) {
-                _super.prototype.construct.call(this, xml);
-            };
-            /* ------------------------------------------------------------------
-                GETTERS
-            ------------------------------------------------------------------ */
-            ExternalSystemRole.prototype.getName = function () {
-                return this.name;
-            };
-            ExternalSystemRole.prototype.hasSendListener = function (key) {
-                return this.sendListeners.has(key);
-            };
-            /* ------------------------------------------------------------------
-                CHAIN OF INVOKE MESSAGE
-            ------------------------------------------------------------------ */
-            ExternalSystemRole.prototype.sendData = function (invoke) {
-                this.system.sendData(invoke);
-            };
-            ExternalSystemRole.prototype.replyData = function (invoke) {
-                invoke.apply(this);
-            };
-            /* ------------------------------------------------------------------
-                EXPORTERS
-            ------------------------------------------------------------------ */
-            ExternalSystemRole.prototype.TAG = function () {
-                return "role";
-            };
-            ExternalSystemRole.prototype.toXML = function () {
-                var xml = _super.prototype.toXML.call(this);
-                return xml;
-            };
-            return ExternalSystemRole;
-        })(protocol.Entity);
-        protocol.ExternalSystemRole = ExternalSystemRole;
-    })(protocol = samchon.protocol || (samchon.protocol = {}));
-})(samchon || (samchon = {}));
 /// <reference path="IProtocol.ts" />
 /// <reference path="Invoke.ts" />
 /// <reference path="../library/StringUtil.ts" />
@@ -8090,6 +8119,84 @@ var samchon;
     })(protocol = samchon.protocol || (samchon.protocol = {}));
 })(samchon || (samchon = {}));
 /// <reference path="../API.ts" />
+/// <reference path="IProtocol.ts" />
+/// <reference path="ExternalSystem.ts" />
+/// <reference path="../../std/UnorderedSet.ts" />
+var samchon;
+(function (samchon) {
+    var protocol;
+    (function (protocol) {
+        /**
+         * <p> A role belongs to an external system. </p>
+         *
+         * <p> ExternalSystemRole is a 'control' class groupping methods, handling Invoke messages
+         * interacting with an external system that the ExternalSystemRole is belonged to, by a subject or
+         * unit of a module. <p>
+         *
+         * <p> ExternalSystemRole can be a "logical proxy" for an ExternalSystem which is containing the
+         * ExternalSystemRole. Of course, the ExternalSystemRole is belonged to an ExternalSystem. However,
+         * if you access an ExternalSystemRole from an ExternalSystemArray directly, not passing by a
+         * belonged ExternalSystem, and send an Invoke message even you're not knowing which ExternalSystem
+         * is related in, the ExternalSystemRole acted a role of proxy. </p>
+         *
+         * <p> It's called as "Proxy pattern". With the pattern, you can only concentrate on
+         * ExternalSystemRole itself, what to do with Invoke message, irrespective of the ExternalSystemRole
+         * is belonged to which ExternalSystem. </p>
+         *
+         * @author Jeongho Nam
+         */
+        var ExternalSystemRole = (function (_super) {
+            __extends(ExternalSystemRole, _super);
+            /* ------------------------------------------------------------------
+                CONSTRUCTORS
+            ------------------------------------------------------------------ */
+            /**
+             * <p> Construct from external system driver. </p>
+             *
+             * @param system A driver of external system the ExternalSystemRole is belonged to.
+             */
+            function ExternalSystemRole(system) {
+                _super.call(this);
+                this.system = system;
+                this.sendListeners = new std.UnorderedSet();
+            }
+            ExternalSystemRole.prototype.construct = function (xml) {
+                _super.prototype.construct.call(this, xml);
+            };
+            /* ------------------------------------------------------------------
+                GETTERS
+            ------------------------------------------------------------------ */
+            ExternalSystemRole.prototype.getName = function () {
+                return this.name;
+            };
+            ExternalSystemRole.prototype.hasSendListener = function (key) {
+                return this.sendListeners.has(key);
+            };
+            /* ------------------------------------------------------------------
+                CHAIN OF INVOKE MESSAGE
+            ------------------------------------------------------------------ */
+            ExternalSystemRole.prototype.sendData = function (invoke) {
+                this.system.sendData(invoke);
+            };
+            ExternalSystemRole.prototype.replyData = function (invoke) {
+                invoke.apply(this);
+            };
+            /* ------------------------------------------------------------------
+                EXPORTERS
+            ------------------------------------------------------------------ */
+            ExternalSystemRole.prototype.TAG = function () {
+                return "role";
+            };
+            ExternalSystemRole.prototype.toXML = function () {
+                var xml = _super.prototype.toXML.call(this);
+                return xml;
+            };
+            return ExternalSystemRole;
+        })(protocol.Entity);
+        protocol.ExternalSystemRole = ExternalSystemRole;
+    })(protocol = samchon.protocol || (samchon.protocol = {}));
+})(samchon || (samchon = {}));
+/// <reference path="../API.ts" />
 /// <reference path="EntityArray.ts" />
 ///     <reference path="ExternalSystem.ts" />
 /// <reference path="IProtocol.ts" />
@@ -8280,39 +8387,6 @@ var samchon;
 })(samchon || (samchon = {}));
 /// <reference path="../../API.ts" />
 /// <reference path="../IProtocol.ts" />
-/// <reference path="Application.ts" />
-var samchon;
-(function (samchon) {
-    var protocol;
-    (function (protocol) {
-        var service;
-        (function (service) {
-            /**
-             * A movie belonged to an Application.
-             */
-            var Movie = (function () {
-                function Movie() {
-                }
-                /**
-                 * Handle replied data.
-                 */
-                Movie.prototype.replyData = function (invoke) {
-                    invoke.apply(this) == false;
-                };
-                /**
-                 * Send data to server.
-                 */
-                Movie.prototype.sendData = function (invoke) {
-                    this.application.sendData(invoke);
-                };
-                return Movie;
-            })();
-            service.Movie = Movie;
-        })(service = protocol.service || (protocol.service = {}));
-    })(protocol = samchon.protocol || (samchon.protocol = {}));
-})(samchon || (samchon = {}));
-/// <reference path="../../API.ts" />
-/// <reference path="../IProtocol.ts" />
 /// <reference path="Movie.ts" />
 /// <reference path="../ServerConnector.ts" />
 var samchon;
@@ -8394,6 +8468,39 @@ var samchon;
 })(samchon || (samchon = {}));
 /// <reference path="../../API.ts" />
 /// <reference path="../IProtocol.ts" />
+/// <reference path="Application.ts" />
+var samchon;
+(function (samchon) {
+    var protocol;
+    (function (protocol) {
+        var service;
+        (function (service) {
+            /**
+             * A movie belonged to an Application.
+             */
+            var Movie = (function () {
+                function Movie() {
+                }
+                /**
+                 * Handle replied data.
+                 */
+                Movie.prototype.replyData = function (invoke) {
+                    invoke.apply(this) == false;
+                };
+                /**
+                 * Send data to server.
+                 */
+                Movie.prototype.sendData = function (invoke) {
+                    this.application.sendData(invoke);
+                };
+                return Movie;
+            })();
+            service.Movie = Movie;
+        })(service = protocol.service || (protocol.service = {}));
+    })(protocol = samchon.protocol || (samchon.protocol = {}));
+})(samchon || (samchon = {}));
+/// <reference path="../../API.ts" />
+/// <reference path="../IProtocol.ts" />
 var samchon;
 (function (samchon) {
     var protocol;
@@ -8464,6 +8571,10 @@ var samchon;
         })(slave = protocol.slave || (protocol.slave = {}));
     })(protocol = samchon.protocol || (samchon.protocol = {}));
 })(samchon || (samchon = {}));
+/// <referecen path="samchon/API.ts" />
+/// <referecen path="samchon/std.ts" />
+/// <referecen path="samchon/library.ts" />
+/// <referecen path="samchon/protocol.ts" /> 
 /// <reference path="IMap.ts" />
 /// <reference path="Container.ts" />
 /// <reference path="Iterator.ts" />
