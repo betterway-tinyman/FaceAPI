@@ -1,7 +1,7 @@
 ﻿namespace hiswill.faceapi
 {
     export class FaceEvent
-        implements Event
+        extends samchon.library.BasicEvent
     {
         public static get REGISTER(): string { return "register"; }
         public static get UNREGISTER(): string { return "unregister"; }
@@ -9,55 +9,10 @@
         public static get DETECT(): string { return "detect"; }
         public static get TRAIN(): string { return "train"; }
 
-        //protected event: Event;
-
-        public constructor(type: string)
+        public constructor(type: string, currentTarget: EventTarget)
         {
-            //this.event = new Event(type, { "bubbles": true, "cancelable": false });
+            super(type, currentTarget);
         }
-
-        public initEvent(eventTypeArg: string, canBubbleArg: boolean, cancelableArg: boolean): void { }
-        public preventDefault(): void { }
-        public stopImmediatePropagation(): void { }
-        public stopPropagation(): void { }
-
-        public AT_TARGET: number;
-        public BUBBLING_PHASE: number;
-        public CAPTURING_PHASE: number;
-
-        //public get AT_TARGET(): number { return -1; }
-        //public get BUBBLING_PHASE(): number { return -1; }
-        //public get CAPTURING_PHASE(): number { return -1; }
-
-        public get bubbles(): boolean { return false; }
-        public get cancelBubble(): boolean { return false; }
-        public get cancelable(): boolean { return false; }
-        public get currentTarget(): EventTarget { return null; }
-        public get defaultPrevented(): boolean { return false; }
-        public get eventPhase(): number { return -1; }
-        public get isTrusted(): boolean { return false; }
-        public get returnValue(): boolean { return false; }
-        public get srcElement(): Element { return null; }
-        public get target(): EventTarget { return null; }
-        public get timeStamp(): number { return -1; }
-        public get type(): string { return ""; }
-
-        //public set AT_TARGET(val: number) { }
-        //public set BUBBLING_PHASE(val: number) { }
-        //public set CAPTURING_PHASE(val: number) { }
-
-        public set bubbles(val: boolean) { }
-        public set cancelBubble(val: boolean) { }
-        public set cancelable(val: boolean) { }
-        public set currentTarget(val: EventTarget) { }
-        public set defaultPrevented(val: boolean) { }
-        public set eventPhase(val: number) { }
-        public set isTrusted(val: boolean) { }
-        public set returnValue(val: boolean) { }
-        public set srcElement(val: Element) { }
-        public set target(val: EventTarget) { }
-        public set timeStamp(val: number) { }
-        public set type(val: string) { }
     }
 
     export class IdentifyEvent
@@ -71,9 +26,9 @@
 
         protected candidates_: CandidatePersonArray;
 
-        public constructor(personGroup: PersonGroup, face: Face, maxCandidates:number, candidates: CandidatePersonArray)
+        public constructor(currentTarget: EventTarget, personGroup: PersonGroup, face: Face, maxCandidates:number, candidates: CandidatePersonArray)
         {
-            super(IdentifyEvent.IDENTIFY);
+            super(IdentifyEvent.IDENTIFY, currentTarget);
             
             this.face_ = face;
             this.personGroup_ = personGroup;
@@ -112,9 +67,9 @@
 
         protected similars_: SimilarFaceArray;
 
-        public constructor(faceList: FaceList, face: Face, maxCandidates: number, similars: SimilarFaceArray)
+        public constructor(currentTarget: EventTarget, faceList: FaceList, face: Face, maxCandidates: number, similars: SimilarFaceArray)
         {
-            super(FindSimilarEvent.FIND);
+            super(FindSimilarEvent.FIND, currentTarget);
 
             this.faceList_ = faceList;
             this.face_ = face;
@@ -152,7 +107,7 @@
 
         public constructor(faceArray: Array<Face>, similarGroups: SimilarFaceGroupArray)
         {
-            super(FindSimilarGroupEvent.FIND);
+            super(FindSimilarGroupEvent.FIND, null);
 
             this.similarGroups_ = similarGroups;
         }
