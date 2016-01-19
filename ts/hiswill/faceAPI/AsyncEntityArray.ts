@@ -131,6 +131,7 @@ namespace hiswill.faceapi
             var child: T = <T>event.target;
 
             child.removeEventListener(FaceEvent.REGISTER, this.handleRegisteredChild, this);
+            this.dispatchEvent(new ContainerEvent(ContainerEvent.ADD, child));
 
             this.queueingList.popFront();
 
@@ -146,17 +147,38 @@ namespace hiswill.faceapi
          */
         public isRegistered(): boolean
         {
-            return this.registered && this.queueingList.empty() == true;
-        }
+            if (this.registered  == false || this.queueingList.empty() == false)
+                return false;
 
+            for (var i: number = 0; i < this.size(); i++)
+                if (this.at(i).isRegistered() == false)
+                    return false;
+
+            return true;
+        }
+        
+        /**
+         * @inheritdoc
+         */
         public insertToServer(): void
         {
             throw new std.AbstractMethodError("insertToServer is not overriden.");
         }
 
+        /**
+         * @inheritdoc
+         */
         public eraseFromServer(): void
         {
             throw new std.AbstractMethodError("insertToServer is not overriden.");
+        }
+
+        /* --------------------------------------------------------
+            GETTERS
+        -------------------------------------------------------- */
+        public getParent(): IAsyncEntity
+        {
+            return null;
         }
 
         /* --------------------------------------------------------
