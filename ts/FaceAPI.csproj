@@ -35,6 +35,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="hiswill\faceAPI\AsyncEntity.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\AsyncEntityArray.ts" />
+    <TypeScriptCompile Include="hiswill\faceAPI\AsyncEntityParent.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\CandidatePerson.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\CandidatePersonArray.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\ContainerEvent.ts" />

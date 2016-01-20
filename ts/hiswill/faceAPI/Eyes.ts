@@ -35,7 +35,7 @@ namespace hiswill.faceapi
         public constructor(landmarks: FaceLandmarks)
         {
             super(landmarks);
-        
+
             this.left = new Eye(this, Direction.LEFT);
             this.right = new Eye(this, Direction.RIGHT);
         }

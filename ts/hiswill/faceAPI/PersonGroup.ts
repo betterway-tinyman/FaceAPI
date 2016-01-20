@@ -50,11 +50,6 @@ namespace hiswill.faceapi
          */
         protected trained: boolean;
 
-        /**
-         * A group of pointers of event listener method.
-         */
-        protected eventDispatcher: samchon.library.EventDispatcher;
-
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
@@ -74,8 +69,6 @@ namespace hiswill.faceapi
             
             this.registered = false;
             this.trained = false;
-
-            this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
     
         /**

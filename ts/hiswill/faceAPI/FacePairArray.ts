@@ -136,7 +136,7 @@ namespace hiswill.faceapi
                 throw new std.InvalidArgument("invalid parameter(s).");
         }
 
-        public push(...items: FaceRectangle[]): number
+        public push(...items: FaceRectangle[]): number 
         {
             var newItems: Array<FacePair> = new Array<FacePair>();
 

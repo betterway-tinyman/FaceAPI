@@ -77,6 +77,9 @@ namespace hiswill.faceapi
             this.registered = false;
         }
 
+		/**
+		 * @inheritdoc
+		 */
         public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
@@ -97,11 +100,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             INTERACTION WITH FACE API SERVER
         -------------------------------------------------------- */
+		/**
+		 * @inheritdoc
+		 */
         public insertToServer(): void
         {
             this.pairArray.insertFaceToServer(this);
         }
 
+		/**
+		 * @inheritdoc
+		 */
         public eraseFromServer(): void
         {
             this.pairArray.eraseFaceFromServer(this);
@@ -126,8 +135,8 @@ namespace hiswill.faceapi
         }
 
         /**
-         * <p> Set rectangle data. 
-         * Constructs members of FaceRectangle, basic class of the FacePair. 
+         * <p> Set rectangle data. </p>
+         * <p>? Constructs members of FaceRectangle, basic class of the FacePair. </p>
          *
          * @param rectangle A FaceRentangle instance to copy.
          */
