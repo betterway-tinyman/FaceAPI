@@ -262,12 +262,19 @@ namespace hiswill.faceapi
             this.handleUnregister();
         }
 
+        /**
+         * @inheritdoc
+         */
         protected handleRegister(data: any): void
         {
             this.trained = false;
 
             super.handleRegister(data);
         }
+
+        /**
+         * @inheritdoc
+         */
         protected handleUnregister(): void
         {
             this.trained = false;

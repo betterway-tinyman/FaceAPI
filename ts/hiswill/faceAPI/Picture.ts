@@ -131,7 +131,7 @@ namespace hiswill.faceapi
                     "returnFaceLandmarks": "true",
                     "returnFaceAttributes": "age,gender,smile,facialHair,headPose",
                 }, 
-                { "url": this.url }, 
+                { "url": this.url },
 
                 function (data: any): any
                 {

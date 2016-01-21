@@ -89,17 +89,27 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             INSERTION & DELETION HANDLERS
         -------------------------------------------------------- */
+        /**
+         * Post-processing method of handling inserted item.
+         *
+         * @param item An inserted item.
+         */
         protected inserted(item: T): void
         {
             item.addEventListener(FaceEvent.REGISTER, this.handleRegisterChild, this);
             item.addEventListener(FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
 
-            this.queueingList.pushBack(item);
+            this.queueingList.push(item);
 
             if (this.queueingList.size() == 1)
                 item.register();
         }
 
+        /**
+         * Post-processing method of handling erased item. 
+         *
+         * @param item An item erased.
+         */
         protected erased(item: T): void
         {
             if (item.isRegistered() == false)
@@ -115,7 +125,17 @@ namespace hiswill.faceapi
                 item.unregister();
         }
 		
-		protected handleRegisterChild(event: Event): void
+        /**
+         * <p> An event handler listening child element's registration. </p>
+         *
+         * <p> <code>AsyncEntityParent.handleRegisterChild()</code> also dispatches the event to its
+         * listeners. When some children instances waiting for registration process are left, step to 
+         * the next registration. The process are repeated until all elements <code>queueingList</code>
+         * are truncated. </p>
+         *
+         * @param event An event instance containing inserted element.
+         */
+        protected handleRegisterChild(event: ContainerEvent): void
         {
             var child: T = <T>event.target;
 
@@ -128,7 +148,7 @@ namespace hiswill.faceapi
                 this.queueingList.front().register();
         }
 
-        protected handleUnregisterChild(event: Event): void
+        protected handleUnregisterChild(event: ContainerEvent): void
         {
             var child: T = <T>event.target;
 

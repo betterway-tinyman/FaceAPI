@@ -63,8 +63,6 @@ namespace hiswill.faceapi
          */
         public register(): void
         {
-            var this_ = this;
-
             trace("Person::insertToServer", this.name, this.group.getID());
 
             FaceAPI.query
@@ -88,8 +86,6 @@ namespace hiswill.faceapi
          */
         public unregister(): void
         {
-            var this_ = this;
-
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id,
@@ -110,10 +106,13 @@ namespace hiswill.faceapi
          */
         protected handleRegister(data: any): void
         {
+            trace("Person::handleRegister");
+
             if (data != null)
                 this.id = data["personId"];
 
             this.group["trained"] = false;
+
             super.handleRegister(data);
         }
 
@@ -123,6 +122,8 @@ namespace hiswill.faceapi
         protected handleUnregister(): void
         {
             this.group["trained"] = false;
+
+            super.handleUnregister();
         }
         
         /**
@@ -153,10 +154,11 @@ namespace hiswill.faceapi
 
                 function (data): void
                 {
+                    trace("A FacePair is registered in a Person");
+
                     this.group["trained"] = false;
-
+                    
                     face.setID( data["persistedFaceId"] );
-
                     face.dispatchEvent(new FaceEvent(FaceEvent.REGISTER));
                 }
             );

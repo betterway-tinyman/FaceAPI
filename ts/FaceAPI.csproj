@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <ProjectGuid>{40FF146E-C55F-40A3-86F6-BC3534EDA80D}</ProjectGuid>
+    <ProjectGuid>{00AF377C-E17C-4B10-8EB6-EAEFE2623BD9}</ProjectGuid>
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <OutputPath>bin</OutputPath>
@@ -23,14 +23,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="index.html" />
-    <Content Include="packages.config" />
-    <None Include="Scripts\jquery-1.8.0.intellisense.js" />
-    <Content Include="Scripts\jquery-1.8.0.js" />
-    <Content Include="Scripts\jquery-1.8.0.min.js" />
-    <None Include="Scripts\jquery.validate-vsdoc.js" />
-    <Content Include="Scripts\jquery.validate.js" />
-    <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="hiswill\faceAPI\AsyncEntityArray.ts" />
@@ -80,6 +82,7 @@
     <TypeScriptCompile Include="hiswill\faceAPI\SimilarFaceGroup.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\SimilarFaceGroupArray.ts" />
     <TypeScriptCompile Include="hiswill\faceAPI\TestUnit.ts" />
+    <TypeScriptCompile Include="samchon.ts" />
     <TypeScriptCompile Include="samchon\API.ts" />
     <TypeScriptCompile Include="samchon\example\container\container.ts" />
     <TypeScriptCompile Include="samchon\example\entity\entity.ts" />
@@ -120,8 +123,8 @@
     <TypeScriptCompile Include="samchon\protocol\service\SubMovie.ts" />
     <TypeScriptCompile Include="samchon\protocol\slave.ts" />
     <TypeScriptCompile Include="samchon\protocol\slave\SlaveSystem.ts" />
-    <TypeScriptCompile Include="Scripts\typings\fabricjs\fabricjs.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="std.ts" />
     <TypeScriptCompile Include="std\Bind.ts" />
     <TypeScriptCompile Include="std\Container.ts" />
     <TypeScriptCompile Include="std\Dictionary.ts" />
@@ -138,14 +141,6 @@
     <TypeScriptCompile Include="std\UnorderedSet.ts" />
     <TypeScriptCompile Include="std\Vector.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="web.Debug.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-    <None Include="web.Release.config">
-      <DependentUpon>web.config</DependentUpon>
-    </None>
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
   </PropertyGroup>
@@ -160,9 +155,9 @@
         <WebProjectProperties>
           <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>13897</DevelopmentServerPort>
+          <DevelopmentServerPort>51526</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:13897/</IISUrl>
+          <IISUrl>http://localhost:51526/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

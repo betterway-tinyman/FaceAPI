@@ -1,4 +1,6 @@
-﻿/// <reference path="AsyncEntityParent.ts" />
+﻿/// <referecen apth="FaceAPI.ts" />
+
+/// <reference path="AsyncEntityParent.ts" />
 /// <reference path="IAsyncEntity.ts" />
 
 namespace hiswill.faceapi
@@ -97,7 +99,7 @@ namespace hiswill.faceapi
             item.addEventListener(FaceEvent.REGISTER, this.handleRegisterChild, this);
             item.addEventListener(FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
 
-            this.queueingList.pushBack(item);
+            this.queueingList.push(item);
 
             if (this.registered == false || this.queueingList.size() != 1)
             {
@@ -108,16 +110,22 @@ namespace hiswill.faceapi
                 item.register();
         }
 		
+        /**
+         * @inheritdoc
+         */
         protected handleRegister(data: any): void
         {
             this.registered = true;
-
+            
             if (this.queueingList.empty() == false)
                 this.queueingList.front().register();
             else
                 this.dispatchEvent(new FaceEvent(FaceEvent.REGISTER));
         }
 
+        /**
+         * @inheritdoc
+         */
         protected handleUnregister(): void
         {
             this.registered = false;
@@ -128,7 +136,7 @@ namespace hiswill.faceapi
         /**
          * @inheritdoc
          */
-        protected handleRegisterChild(event: Event): void
+        protected handleRegisterChild(event: ContainerEvent): void
         {
             super.handleRegisterChild(event);
 
@@ -159,7 +167,7 @@ namespace hiswill.faceapi
          */
         public register(): void
         {
-            throw new std.AbstractMethodError("insertToServer is not overriden.");
+            throw new std.AbstractMethodError("AsyncEntityArray::register() is not overriden.");
         }
 
         /**
@@ -167,7 +175,7 @@ namespace hiswill.faceapi
          */
         public unregister(): void
         {
-            throw new std.AbstractMethodError("insertToServer is not overriden.");
+            throw new std.AbstractMethodError("AsyncEntityArray::unregister() is not overriden.");
         }
     }
 }

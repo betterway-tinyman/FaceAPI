@@ -10,7 +10,7 @@ namespace hiswill.faceapi
         {
             this.api = new FaceAPI();
             
-            this.constructPersonGroups(null);
+            this.detect();
         }
 
         /* --------------------------------------------------------
@@ -27,13 +27,18 @@ namespace hiswill.faceapi
         protected constructPersonGroups(picture: Picture): void
         {
             var personGroupArray: PersonGroupArray = this.api.getPersonGroupArray();
-            
+            personGroupArray.addEventListener
+            (
+                ContainerEvent.ADD, 
+                function(event: ContainerEvent): void
+                {
+                    samchon.trace("A personGroup is registered.");
+                }
+            );
+
             var personGroup: PersonGroup = this.api.createPersonGroup("other_group");
-            samchon.trace("person_group is registered: " + personGroup.isRegistered());
 
-            //this.api.getPersonGroupArray().popBack();
-
-            /*for (var i: number = 0; i < 3; i++)
+            for (var i: number = 0; i < picture.size(); i++)
             {
                 var person: Person = new Person(personGroup, (i+1) + " th person");
                 var face: Face = picture.at(i);
@@ -42,7 +47,7 @@ namespace hiswill.faceapi
 
                 personGroup.push(person);
                 person.push(face);
-            }*/
+            }
         }
 
         protected train(personGroup: PersonGroup): void
@@ -90,7 +95,7 @@ namespace hiswill.faceapi
             trace("A person group is trained.");
 
             var personGroup: PersonGroup = <PersonGroup>event.target;
-            var face: Face = personGroup.at(1 - 1).at(0).getFace();
+            var face: Face = personGroup.at(2 - 1).at(0).getFace();
 
             this.identify(face, personGroup);
         }

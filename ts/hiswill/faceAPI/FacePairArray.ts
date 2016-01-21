@@ -42,22 +42,27 @@ namespace hiswill.faceapi
             return new FacePair(this);
         }
 
-        private deductChild(rectangle: FaceRectangle): FacePair
+        /**
+         * Create a child FacePair instance from a FaceRectangle instance. 
+         *
+         * @param rect A FaceRectangle instance used to reference.
+         */
+        protected deductChild(rect: FaceRectangle): FacePair
         {
-            var facePair: FacePair;
+            var pair: FacePair;
 
-            if (rectangle instanceof FacePair)
-                facePair = <FacePair>rectangle;
+            if (rect instanceof FacePair)
+                pair = <FacePair>rect;
             else 
             {
-                facePair = new FacePair(this);
-                facePair.setRectangle(rectangle);
+                pair = new FacePair(this);
+                pair.setRectangle(rect);
 
-                if (rectangle instanceof Face)
-                    facePair.setFile(<Face>rectangle);
+                if (rect instanceof Face)
+                    pair.setFile(<Face>rect);
             }
 
-            return facePair;
+            return pair;
         }
 
         /* ========================================================
@@ -68,11 +73,21 @@ namespace hiswill.faceapi
         ===========================================================
             CHILD FACE
         --------------------------------- */
+        /**
+         * Register a FacePair to the Face-API server. 
+         *
+         * @param face A FacePair instance to register
+         */
         public registerFace(face: FacePair): void
         {
             throw new std.AbstractMethodError("FacePair::insertFaceToServer() has to be overriden.");
         }
 
+        /**
+         * Unregister a FacePair from the Face-API server.
+         *
+         * @param face Target instance to unregister.
+         */
         public unregisterFace(face: FacePair): void
         {
             throw new std.AbstractMethodError("FacePair::eraseFaceFromServer() has to be overriden.");

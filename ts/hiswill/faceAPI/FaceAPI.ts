@@ -149,10 +149,10 @@ namespace hiswill.faceapi
             // return "e107bcd678f64de3ae238095f7a57661";
             // return "b072c71311d144388ac2527a5f06ffca";
             // return "cbb239951be6454481fd7988b825f4a4";
-            return "b072c71311d144388ac2527a5f06ffca";
+            return "cbb239951be6454481fd7988b825f4a4";
         }
 
-        public static query(url: string, method: string, params: Object, data: Object);
+        public static query(url: string, method: string, params: Object, data: Object): boolean;
 
         /**
          * Query a formed-statement to Face-API server.
@@ -168,7 +168,7 @@ namespace hiswill.faceapi
                 url: string, method: string, 
                 params: Object, data: Object, 
                 success: Function
-            ): boolean;
+            ): void;
 
         /**
          * Query a formed-statement to Face-API server.
@@ -224,8 +224,10 @@ namespace hiswill.faceapi
                 //timeout: 10000,
 
                 data: (data == null) ? "" : JSON.stringify(data),
-                success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any
+                /*success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any
                 {
+                    trace("success in $.ajax");
+
                     if (success == null)
                         successFlag = true;
 
@@ -240,8 +242,31 @@ namespace hiswill.faceapi
                         successFlag = false;
 
                     samchon.trace(JSON.stringify(jqXHR), url);
-                }
-            });
+                }*/
+            }).done
+                (
+                    function (data: any, textStatus: string, jqXHR: JQueryXHR): any 
+                    {
+                        trace("success in $.ajax");
+
+                        if (success == null)
+                            successFlag = true;
+
+                        if (success instanceof Function)
+                            success.apply(null, [data]);
+                        else if (success instanceof std.Bind)
+                            success.apply(data);
+                    }
+                ).fail
+                (
+                    function(jqXHR: JQueryXHR, textStatus: string, errorThrow: string): any
+                    {
+                        if (success = null)
+                            successFlag = false;
+
+                        samchon.trace(JSON.stringify(jqXHR), url);
+                    }
+                );
 
             if (success == null && async == false)
                 return successFlag;
