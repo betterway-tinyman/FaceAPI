@@ -94,7 +94,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
          * </ul>
          */
-        public insertToServer(): void
+        public register(): void
         {
             // ISSUE ID
             if (this.id == "")
@@ -115,7 +115,7 @@ namespace hiswill.faceapi
 
             var success: Function = function(data)
             {
-                this_.dispatchRegisterEvent();
+                this_.handleRegister(data);
             }
 
             // SEND
@@ -129,7 +129,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
          * </ul>
          */
-        public eraseFromServer(): void
+        public unregister(): void
         {
             var this_ = this;
 
@@ -140,7 +140,7 @@ namespace hiswill.faceapi
         
             var func: Function = function(data)
             {
-                this_.dispatchUnregisterEvent();
+                this_.handleUnregister();
             }
 
             // SEND
@@ -154,10 +154,10 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
          * </ul>
          */
-        public insertFaceToServer(face: FacePair): void
+        public registerFace(face: FacePair): void
         {
             if (this.isRegistered() == false)
-                this.insertToServer();
+                this.register();
 
             FaceAPI.query
             (
@@ -187,7 +187,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
          * </ul>
          */
-        public eraseFaceFromServer(face: FacePair): void
+        public unregisterFace(face: FacePair): void
         {
             FaceAPI.query
             (
@@ -203,7 +203,7 @@ namespace hiswill.faceapi
                 null
             );
 
-            super.eraseFaceFromServer(face);
+            super.unregisterFace(face);
         }
         
         /* --------------------------------------------------------

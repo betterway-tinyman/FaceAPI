@@ -11,7 +11,7 @@ namespace hiswill.faceapi
      * @author Jeongho Nam
      */
     export class PersonGroupArray
-        extends samchon.protocol.EntityArray<PersonGroup>
+        extends AsyncEntityParent<PersonGroup>
     {
         /**
          * A facade controller and factory class for Face-API.
@@ -33,6 +33,9 @@ namespace hiswill.faceapi
             this.api = api;
         }
 
+        /**
+         * @inheritdoc
+         */
         protected createChild(xml: samchon.library.XML): PersonGroup
         {
             return new PersonGroup(this, xml.getProperty("name"));
@@ -52,10 +55,17 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string
         {
             return "personGroupArray";
         }
+
+        /**
+         * @inheritdoc
+         */
         public CHILD_TAG(): string
         {
             return "personGroup";

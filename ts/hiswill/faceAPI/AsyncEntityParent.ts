@@ -16,7 +16,7 @@ namespace hiswill.faceapi
 		/**
 		 * A list of children waiting for registration to the Face-API server.
 		 */
-        protected queueingList: std.List<T>;
+        protected queueingList: std.Vector<T>;
 		
 		/* --------------------------------------------------------
             CONSTRUCTORS
@@ -29,7 +29,7 @@ namespace hiswill.faceapi
 			super();
 
             this.eventDispatcher = new samchon.library.EventDispatcher(this);
-            this.queueingList = new std.List<T>();
+            this.queueingList = new std.Vector<T>();
 		}
 		
 		/* ========================================================
@@ -45,10 +45,9 @@ namespace hiswill.faceapi
 		 */
 		public push(...items: T[]): number
 		{
-			var prevSize: number  = this.size();
 			var size: number = super.push(...items);
 			
-			for (var i: number = prevSize; i < size; i++)
+			for (var i: number = 0; i < items.length; i++)
 				this.inserted(items[i]);
 			
 			return size;
@@ -92,12 +91,13 @@ namespace hiswill.faceapi
         -------------------------------------------------------- */
         protected inserted(item: T): void
         {
-            item.addEventListener(FaceEvent.REGISTER, this.handleRegisteredChild, this);
+            item.addEventListener(FaceEvent.REGISTER, this.handleRegisterChild, this);
+            item.addEventListener(FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
 
-            if (this.queueingList.empty() == false)
-                this.queueingList.pushBack(item);
-            else
-                item.insertToServer();
+            this.queueingList.pushBack(item);
+
+            if (this.queueingList.size() == 1)
+                item.register();
         }
 
         protected erased(item: T): void
@@ -112,20 +112,28 @@ namespace hiswill.faceapi
                     }
             }
             else
-                item.eraseFromServer();
+                item.unregister();
         }
 		
-		protected handleRegisteredChild(event: Event): void
+		protected handleRegisterChild(event: Event): void
         {
             var child: T = <T>event.target;
 
-            child.removeEventListener(FaceEvent.REGISTER, this.handleRegisteredChild, this);
+            //child.removeEventListener(FaceEvent.REGISTER, this.handleRegisterChild, this);
             this.dispatchEvent(new ContainerEvent(ContainerEvent.ADD, child));
 
-            this.queueingList.popFront();
+            this.queueingList.erase(this.queueingList.begin());
 
             if (this.queueingList.empty() == false)
-                this.queueingList.front().insertToServer();
+                this.queueingList.front().register();
+        }
+
+        protected handleUnregisterChild(event: Event): void
+        {
+            var child: T = <T>event.target;
+
+            child.removeEventListener(FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
+            this.dispatchEvent(new ContainerEvent(ContainerEvent.REMOVE, child));
         }
 		
 		/* --------------------------------------------------------

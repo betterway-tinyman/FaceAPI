@@ -148,8 +148,27 @@ namespace hiswill.faceapi
         {
             // return "e107bcd678f64de3ae238095f7a57661";
             // return "b072c71311d144388ac2527a5f06ffca";
-            return "cbb239951be6454481fd7988b825f4a4";
+            // return "cbb239951be6454481fd7988b825f4a4";
+            return "b072c71311d144388ac2527a5f06ffca";
         }
+
+        public static query(url: string, method: string, params: Object, data: Object);
+
+        /**
+         * Query a formed-statement to Face-API server.
+         *
+         * @param url https address to query
+         * @param method One of them (GET, POST, UPDATE, DELETE, PATCH)
+         * @param params A pre-parameter
+         * @param data A post-parameter (body)
+         * @param success A method to be processed after the sending query is succeded.
+         */
+        public static query
+            (
+                url: string, method: string, 
+                params: Object, data: Object, 
+                success: Function
+            ): boolean;
 
         /**
          * Query a formed-statement to Face-API server.
@@ -163,11 +182,34 @@ namespace hiswill.faceapi
          */
         public static query
             (
+                url: string, method: string, 
+                params: Object, data: Object, 
+                success: Function,
+                async: boolean
+            ): void;
+
+        public static query<T extends Object>
+            (
+                url: string, method: string,
+                params: Object, data: Object,
+                success: std.Bind<Function, T>
+            ): void;
+
+        public static query
+            (
                 url: string, method:string, 
                 params: Object, data: Object, 
-                success: Function, 
-                async: boolean = true): void
+                success: any = null,
+                async: boolean = true
+            ): any
         {
+            var successFlag: boolean = false;
+
+            if (success == null)
+                async = false;
+            else if (success instanceof std.Bind)
+                async = true;
+
             $.ajax
             ({
                 url: url + (params == null ? "" : "?" + $.param(params)),
@@ -179,19 +221,30 @@ namespace hiswill.faceapi
                 },
                 type: method,
                 async: async,
-                //timeout: 1000,
+                //timeout: 10000,
 
                 data: (data == null) ? "" : JSON.stringify(data),
                 success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any
                 {
-                    if (success != null)
-                        success.apply(null, [data, textStatus, jqXHR]);
+                    if (success == null)
+                        successFlag = true;
+
+                    if (success instanceof Function)
+                        success.apply(null, [data]);
+                    else if (success instanceof std.Bind)
+                        success.apply(data);
                 },
                 error: function(jqXHR: JQueryXHR, textStatus: string, errorThrow: string): any
                 {
+                    if (success = null)
+                        successFlag = false;
+
                     samchon.trace(JSON.stringify(jqXHR), url);
                 }
             });
+
+            if (success == null && async == false)
+                return successFlag;
         }
 
         /**

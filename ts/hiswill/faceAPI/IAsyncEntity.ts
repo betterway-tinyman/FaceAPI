@@ -17,11 +17,11 @@ namespace hiswill.faceapi
         /**
          * Insert the instance to the Face-API server.
          */
-        insertToServer(): void;
+        register(): void;
 
         /**
          * Remove the instance from the Face-API server.
          */
-        eraseFromServer(): void;
+        unregister(): void;
     }
 }

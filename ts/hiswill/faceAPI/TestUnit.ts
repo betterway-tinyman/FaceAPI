@@ -10,7 +10,7 @@ namespace hiswill.faceapi
         {
             this.api = new FaceAPI();
             
-            this.detect();
+            this.constructPersonGroups(null);
         }
 
         /* --------------------------------------------------------
@@ -26,18 +26,23 @@ namespace hiswill.faceapi
 
         protected constructPersonGroups(picture: Picture): void
         {
-            var personGroup: PersonGroup = this.api.createPersonGroup("other_group");
+            var personGroupArray: PersonGroupArray = this.api.getPersonGroupArray();
             
-            for (var i: number = 0; i < picture.size(); i++)
+            var personGroup: PersonGroup = this.api.createPersonGroup("other_group");
+            samchon.trace("person_group is registered: " + personGroup.isRegistered());
+
+            //this.api.getPersonGroupArray().popBack();
+
+            /*for (var i: number = 0; i < 3; i++)
             {
                 var person: Person = new Person(personGroup, (i+1) + " th person");
                 var face: Face = picture.at(i);
 
-                person.addEventListener(ContainerEvent.ADD, this.handleInsertion);
+                person.addEventListener(ContainerEvent.ADD, this.handleInsertion, this);
 
                 personGroup.push(person);
                 person.push(face);
-            }
+            }*/
         }
 
         protected train(personGroup: PersonGroup): void
@@ -51,7 +56,7 @@ namespace hiswill.faceapi
         {
             face.addEventListener(IdentifyEvent.IDENTIFY, this.handleIdentify);
             
-            face.identify(personGroup, 3);
+            face.identify(personGroup, 1);
         }
 
         /* --------------------------------------------------------
@@ -85,7 +90,7 @@ namespace hiswill.faceapi
             trace("A person group is trained.");
 
             var personGroup: PersonGroup = <PersonGroup>event.target;
-            var face: Face = personGroup.at(3 - 1).at(0).getFace();
+            var face: Face = personGroup.at(1 - 1).at(0).getFace();
 
             this.identify(face, personGroup);
         }

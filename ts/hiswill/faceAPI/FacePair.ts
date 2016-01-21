@@ -103,17 +103,19 @@ namespace hiswill.faceapi
 		/**
 		 * @inheritdoc
 		 */
-        public insertToServer(): void
+        public register(): void
         {
-            this.pairArray.insertFaceToServer(this);
+            trace("FacePair::insertToServer");
+
+            this.pairArray.registerFace(this);
         }
 
 		/**
 		 * @inheritdoc
 		 */
-        public eraseFromServer(): void
+        public unregister(): void
         {
-            this.pairArray.eraseFaceFromServer(this);
+            this.pairArray.unregisterFace(this);
 
             this.registered = false;
         }

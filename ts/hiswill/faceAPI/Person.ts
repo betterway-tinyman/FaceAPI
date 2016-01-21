@@ -43,6 +43,14 @@ namespace hiswill.faceapi
             this.name = name;
         }
 
+        /**
+         * @inheritdoc
+         */
+        public hasAsyncParent(): boolean
+        {
+            return true;
+        }
+
         /* --------------------------------------------------------
             INTERACTION WITH FACE API
         -------------------------------------------------------- */
@@ -53,11 +61,8 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
          * </ul>
          */
-        public insertToServer(): void
+        public register(): void
         {
-            if (this.group.isRegistered() == false)
-                this.group.insertToServer();
-
             var this_ = this;
 
             trace("Person::insertToServer", this.name, this.group.getID());
@@ -67,15 +72,10 @@ namespace hiswill.faceapi
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons",
                 "POST",
 
-                null, //{"personGroupId": this.group.getID()},
+                null,
                 {"name": this.name, "userData": ""},
 
-                function (data)
-                {
-                    this_.id = data["personId"];
-                    
-                    this_.dispatchRegisterEvent();
-                }
+                new std.Bind<Function, Person>(this.handleRegister, this)
             );
         }
 
@@ -86,7 +86,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523d </li>
          * </ul>
          */
-        public eraseFromServer(): void
+        public unregister(): void
         {
             var this_ = this;
 
@@ -99,15 +99,30 @@ namespace hiswill.faceapi
                     "personGroupId": this.group.getID(),
                     "personId": this.id
                 },
-                null,
-
-                function (data)
-                {
-                    this_.id = "";
-                    
-                    this_.dispatchUnregisterEvent();
-                }
+                null
             );
+
+            this.handleUnregister();
+        }
+
+        /**
+         * @inheritdoc
+         */
+        protected handleRegister(data: any): void
+        {
+            if (data != null)
+                this.id = data["personId"];
+
+            this.group["trained"] = false;
+            super.handleRegister(data);
+        }
+
+        /**
+         * @inheritdoc
+         */
+        protected handleUnregister(): void
+        {
+            this.group["trained"] = false;
         }
         
         /**
@@ -117,7 +132,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
          * </ul>
          */
-        public insertFaceToServer(face: FacePair): void
+        public registerFace(face: FacePair): void
         {
             var this_ = this;
 
@@ -138,6 +153,8 @@ namespace hiswill.faceapi
 
                 function (data): void
                 {
+                    this.group["trained"] = false;
+
                     face.setID( data["persistedFaceId"] );
 
                     face.dispatchEvent(new FaceEvent(FaceEvent.REGISTER));
@@ -152,7 +169,7 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523e </li>
          * </ul>
          */
-        public eraseFaceFromServer(face: FacePair): void
+        public unregisterFace(face: FacePair): void
         {
             var this_ = this;
 
@@ -170,6 +187,8 @@ namespace hiswill.faceapi
 
                 function (data): void
                 {
+                    this.group["trained"] = false;
+
                     face.setID("");
 
                     face.dispatchEvent(new FaceEvent(FaceEvent.UNREGISTER));
@@ -218,14 +237,16 @@ namespace hiswill.faceapi
                 function (data)
                 {
                     this_.name = name;
-                },
-                false
+                }, false
             );
         }
 
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public TAG(): string
         {
             return "person";

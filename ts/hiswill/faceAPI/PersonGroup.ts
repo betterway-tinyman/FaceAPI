@@ -113,6 +113,8 @@ namespace hiswill.faceapi
 
                 function (data)
                 {
+                    trace("handleRequestTrain");
+
                     setTimeout(PersonGroup.checkTrainStatus, 50, this_);
                 }
             );
@@ -216,32 +218,27 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
          * </ul>
          */
-        public insertToServer(): void
+        public register(): void
         {
             // Issue an unique identifier.
             if (this.id == "")
                 this.id = FaceAPI.issueID("person_group");
-
-            var this_: PersonGroup = this;
-
-            trace("PersonGroup::insertToServer");
+            
+            trace("PersonGroup::register");
 
             // Register to server.
-            FaceAPI.query
-            (
-                "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
-                "PUT",
+            var res: boolean = 
+                FaceAPI.query
+                (
+                    "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
+                    "PUT",
             
-                null,//{"personGroupId": this.id},
-                {"name": this.name, "userData": ""},
+                    {"personGroupId": this.id},
+                    {"name": this.name, "userData": ""}
+                );
             
-                function (data)
-                {
-                    this_.registered = true;
-
-                    this_.dispatchRegisterEvent();
-                }
-            );
+            if (res == true)
+                this.handleRegister(null);
         }
 
         /**
@@ -251,26 +248,31 @@ namespace hiswill.faceapi
          *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
          * </ul>
          */
-        public eraseFromServer(): void
+        public unregister(): void
         {
-            var this_ = this;
-
             FaceAPI.query
             (
                 "https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id,
                 "DELETE",
 
                 { "personGroupId": this.id },
-                null,
-
-                function (data)
-                {
-                    this_.trained = false;
-                    this_.registered = false;
-
-                    this_.dispatchUnregisterEvent();
-                }
+                null
             );
+            
+            this.handleUnregister();
+        }
+
+        protected handleRegister(data: any): void
+        {
+            this.trained = false;
+
+            super.handleRegister(data);
+        }
+        protected handleUnregister(): void
+        {
+            this.trained = false;
+
+            super.handleUnregister();
         }
 
         /* --------------------------------------------------------

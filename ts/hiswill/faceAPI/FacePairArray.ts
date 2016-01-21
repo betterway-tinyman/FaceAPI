@@ -21,21 +21,6 @@ namespace hiswill.faceapi
     export class FacePairArray
         extends AsyncEntityArray<FacePair>
     {
-        /**
-         * An identifier issued by FaceAPI Server.
-         */
-        protected id: string;
-
-        /**
-         * A name representing the instance.
-         */
-        protected name: string;
-
-        /**
-         * Whether the instance is registered on the Face-API server.
-         */
-        protected registered: boolean;
-
         /* --------------------------------------------------------
             CONTRUCTORS
         -------------------------------------------------------- */
@@ -46,16 +31,33 @@ namespace hiswill.faceapi
          */
         public constructor(name: string = "")
         {
-            super();
-
-            this.id = "";
-            this.name = name;
-            this.registered = false;
+            super(name);
         }
     
+        /**
+         * @inheritdoc
+         */
         protected createChild(xml: samchon.library.XML): FacePair
         {
             return new FacePair(this);
+        }
+
+        private deductChild(rectangle: FaceRectangle): FacePair
+        {
+            var facePair: FacePair;
+
+            if (rectangle instanceof FacePair)
+                facePair = <FacePair>rectangle;
+            else 
+            {
+                facePair = new FacePair(this);
+                facePair.setRectangle(rectangle);
+
+                if (rectangle instanceof Face)
+                    facePair.setFile(<Face>rectangle);
+            }
+
+            return facePair;
         }
 
         /* ========================================================
@@ -63,16 +65,15 @@ namespace hiswill.faceapi
                 - CHILD FACE
                 - PREVIOUS
                 - REPLACEMENTS
-        ======================================================== */
-        /* ---------------------------------
-            PREVIOUS INSERTION METHODS
+        ===========================================================
+            CHILD FACE
         --------------------------------- */
-        public insertFaceToServer(face: FacePair): void
+        public registerFace(face: FacePair): void
         {
             throw new std.AbstractMethodError("FacePair::insertFaceToServer() has to be overriden.");
         }
 
-        public eraseFaceFromServer(face: FacePair): void
+        public unregisterFace(face: FacePair): void
         {
             throw new std.AbstractMethodError("FacePair::eraseFaceFromServer() has to be overriden.");
         }
@@ -118,7 +119,7 @@ namespace hiswill.faceapi
             {
                 var rectangle: FaceRectangle = args[1];
 
-                return super.insert(position, this.deductFacePair(rectangle));
+                return super.insert(position, this.deductChild(rectangle));
             }
             else if (args.length == 3 && args[1] instanceof std.Iterator && args[2] instanceof std.Iterator)
             {
@@ -128,7 +129,7 @@ namespace hiswill.faceapi
                 var myChildren: std.List<FacePair> = new std.List<FacePair>();
 
                 for (var it = begin; it.equals(end) == false; it = it.next())
-                    myChildren.pushBack(this.deductFacePair(it.value));
+                    myChildren.pushBack(this.deductChild(it.value));
 
                 return super.insert(position, myChildren.begin(), myChildren.end());
             }
@@ -141,7 +142,7 @@ namespace hiswill.faceapi
             var newItems: Array<FacePair> = new Array<FacePair>();
 
             for (var i: number = 0; i < items.length; i++)
-                newItems.push(this.deductFacePair(items[i]));
+                newItems.push(this.deductChild(items[i]));
 
             return super.push(...newItems);
         }
@@ -164,58 +165,6 @@ namespace hiswill.faceapi
         {
             // TO BE OVERRIDEN
             return null;
-        }
-
-        /**
-         * Get id.
-         */
-        public getID(): string
-        {
-            return this.id;
-        }
-
-        /**
-         * Get name.
-         */
-        public getName(): string
-        {
-            return this.name;
-        }
-
-        /**
-         * @inheritdoc
-         */
-        public isRegistered(): boolean
-        {
-            return this.registered;
-        }
-
-        /**
-         * Set name and notify it to the Face-API server.
-         *
-         * @param name New name.
-         */
-        public setName(name: string): void
-        {
-            this.name = name;
-        }
-
-        protected deductFacePair(rectangle: FaceRectangle): FacePair
-        {
-            var facePair: FacePair;
-
-            if (rectangle instanceof FacePair)
-                facePair = <FacePair>rectangle;
-            else 
-            {
-                facePair = new FacePair(this);
-                facePair.setRectangle(rectangle);
-
-                if (rectangle instanceof Face)
-                    facePair.setFile(<Face>rectangle);
-            }
-
-            return facePair;
         }
 
         /* --------------------------------------------------------

@@ -1634,10 +1634,6 @@ var samchon;
              * properties by parsing the string. If there's children, then construct the
              * children XML, XMLList objects, too. </p>
              *
-             * <h4> Note </h4>
-             * <p> Throwing exceptions on parsing are not defined yet. If there's some problem on
-             * the string representing the XML object, error will be occured. </p>
-             *
              * @param str A string to be parsed
              */
             function XML(str) {
@@ -2352,152 +2348,6 @@ var samchon;
         protocol.EntityArray = EntityArray;
     })(protocol = samchon.protocol || (samchon.protocol = {}));
 })(samchon || (samchon = {}));
-/// <refercen path="../API.ts" />
-/// <reference path="FaceAPI.ts" />
-/// <reference path="../../samchon/protocol/IEntity.ts" />
-/// <reference path="../../samchon/library/IEventDispatcher.ts" />
-/// <reference path="IAsyncEntity.ts" />
-var hiswill;
-(function (hiswill) {
-    var faceapi;
-    (function (faceapi) {
-        var AsyncEntityArray = (function (_super) {
-            __extends(AsyncEntityArray, _super);
-            /* --------------------------------------------------------
-                CONSTRUCTORS
-            -------------------------------------------------------- */
-            /**
-             * Default Constructor.
-             */
-            function AsyncEntityArray() {
-                _super.call(this);
-                this.eventDispatcher = new samchon.library.EventDispatcher(this);
-                this.queueingList = new std.List();
-                this.registered = false;
-            }
-            AsyncEntityArray.prototype.insert = function () {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i - 0] = arguments[_i];
-                }
-                var position = args[0];
-                var index = position.getIndex();
-                var prevSize = this.size();
-                var res = _super.prototype.insert.apply(this, args);
-                var insertedSize = this.size() - prevSize;
-                for (var i = index; i < index + insertedSize; i++)
-                    this.inserted(new std.VectorIterator(this, i));
-            };
-            /* --------------------------------------------------------
-                INSERTION & DELETION HANDLERS
-            -------------------------------------------------------- */
-            AsyncEntityArray.prototype.inserted = function (it) {
-                var child = it.value;
-                child.addEventListener(faceapi.FaceEvent.REGISTER, this.handleRegisteredChild, this);
-                if (this.registered == false || this.queueingList.empty() == false)
-                    this.queueingList.pushBack(child);
-                else
-                    child.insertToServer();
-            };
-            AsyncEntityArray.prototype.erased = function (it) {
-                var child = it.value;
-                if (child.isRegistered() == false) {
-                    for (var q_it = this.queueingList.begin(); q_it.equals(this.queueingList.end()) == false; q_it = q_it.next())
-                        if (q_it.value == child) {
-                            this.queueingList.erase(q_it);
-                            break;
-                        }
-                }
-                else
-                    it.value.eraseFromServer();
-            };
-            /* --------------------------------------------------------
-                SEQUENCE OF EVENTS
-            -------------------------------------------------------- */
-            AsyncEntityArray.prototype.dispatchRegisterEvent = function () {
-                this.registered = true;
-                if (this.queueingList.empty() == false)
-                    this.queueingList.front().insertToServer();
-                this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.REGISTER));
-            };
-            AsyncEntityArray.prototype.dispatchUnregisterEvent = function () {
-                this.registered = false;
-                this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.UNREGISTER));
-            };
-            AsyncEntityArray.prototype.handleRegisteredChild = function (event) {
-                var child = event.target;
-                child.removeEventListener(faceapi.FaceEvent.REGISTER, this.handleRegisteredChild, this);
-                this.dispatchEvent(new faceapi.ContainerEvent(faceapi.ContainerEvent.ADD, child));
-                this.queueingList.popFront();
-                if (this.queueingList.empty() == false)
-                    this.queueingList.front().insertToServer();
-            };
-            /* --------------------------------------------------------
-                INTERACTION WITH FACE-API SERVER
-            -------------------------------------------------------- */
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.isRegistered = function () {
-                if (this.registered == false || this.queueingList.empty() == false)
-                    return false;
-                for (var i = 0; i < this.size(); i++)
-                    if (this.at(i).isRegistered() == false)
-                        return false;
-                return true;
-            };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.insertToServer = function () {
-                throw new std.AbstractMethodError("insertToServer is not overriden.");
-            };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.eraseFromServer = function () {
-                throw new std.AbstractMethodError("insertToServer is not overriden.");
-            };
-            /* --------------------------------------------------------
-                GETTERS
-            -------------------------------------------------------- */
-            AsyncEntityArray.prototype.getParent = function () {
-                return null;
-            };
-            /* --------------------------------------------------------
-                METHODS OF EVENT_DISPATCHER
-            -------------------------------------------------------- */
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.hasEventListener = function (type) {
-                return this.eventDispatcher.hasEventListener(type);
-            };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.dispatchEvent = function (event) {
-                return this.eventDispatcher.dispatchEvent(event);
-            };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.addEventListener = function (type, listener, thisArg) {
-                if (thisArg === void 0) { thisArg = null; }
-                this.eventDispatcher.addEventListener(type, listener, thisArg);
-            };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntityArray.prototype.removeEventListener = function (type, listener, thisArg) {
-                if (thisArg === void 0) { thisArg = null; }
-                this.removeEventListener(type, listener, thisArg);
-            };
-            return AsyncEntityArray;
-        })(samchon.protocol.EntityArray);
-        faceapi.AsyncEntityArray = AsyncEntityArray;
-    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
-})(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
 /// <reference path="../../samchon/protocol/IEntity.ts" />
 /// <reference path="FaceAPI.ts" />
@@ -2611,6 +2461,10 @@ var hiswill;
         faceapi.FaceRectangle = FaceRectangle;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
+/// <refercen path="../API.ts" />
+/// <reference path="FaceAPI.ts" />
+/// <reference path="../../samchon/protocol/IEntity.ts" />
+/// <reference path="../../samchon/library/IEventDispatcher.ts" />
 /// <reference path="FaceAPI.ts" />
 /// <reference path="FaceRectangle.ts" />
 /// <reference path="IAsyncEntity.ts" />
@@ -2649,6 +2503,9 @@ var hiswill;
                 this.eventDispatcher = new samchon.library.EventDispatcher(this);
                 this.registered = false;
             }
+            /**
+             * @inheritdoc
+             */
             FacePair.prototype.construct = function (xml) {
                 _super.prototype.construct.call(this, xml);
                 if (xml.hasProperty("faceID") == true) {
@@ -2664,11 +2521,18 @@ var hiswill;
             /* --------------------------------------------------------
                 INTERACTION WITH FACE API SERVER
             -------------------------------------------------------- */
-            FacePair.prototype.insertToServer = function () {
-                this.pairArray.insertFaceToServer(this);
+            /**
+             * @inheritdoc
+             */
+            FacePair.prototype.register = function () {
+                trace("FacePair::insertToServer");
+                this.pairArray.registerFace(this);
             };
-            FacePair.prototype.eraseFromServer = function () {
-                this.pairArray.eraseFaceFromServer(this);
+            /**
+             * @inheritdoc
+             */
+            FacePair.prototype.unregister = function () {
+                this.pairArray.unregisterFace(this);
                 this.registered = false;
             };
             /* --------------------------------------------------------
@@ -2685,8 +2549,8 @@ var hiswill;
                 this.setRectangle(face);
             };
             /**
-             * <p> Set rectangle data.
-             * Constructs members of FaceRectangle, basic class of the FacePair.
+             * <p> Set rectangle data. </p>
+             * <p>? Constructs members of FaceRectangle, basic class of the FacePair. </p>
              *
              * @param rectangle A FaceRentangle instance to copy.
              */
@@ -2814,27 +2678,38 @@ var hiswill;
              */
             function FacePairArray(name) {
                 if (name === void 0) { name = ""; }
-                _super.call(this);
-                this.id = "";
-                this.name = name;
-                this.registered = false;
+                _super.call(this, name);
             }
+            /**
+             * @inheritdoc
+             */
             FacePairArray.prototype.createChild = function (xml) {
                 return new faceapi.FacePair(this);
+            };
+            FacePairArray.prototype.deductChild = function (rectangle) {
+                var facePair;
+                if (rectangle instanceof faceapi.FacePair)
+                    facePair = rectangle;
+                else {
+                    facePair = new faceapi.FacePair(this);
+                    facePair.setRectangle(rectangle);
+                    if (rectangle instanceof faceapi.Face)
+                        facePair.setFile(rectangle);
+                }
+                return facePair;
             };
             /* ========================================================
                 INSERTION METHODS
                     - CHILD FACE
                     - PREVIOUS
                     - REPLACEMENTS
-            ======================================================== */
-            /* ---------------------------------
-                PREVIOUS INSERTION METHODS
+            ===========================================================
+                CHILD FACE
             --------------------------------- */
-            FacePairArray.prototype.insertFaceToServer = function (face) {
+            FacePairArray.prototype.registerFace = function (face) {
                 throw new std.AbstractMethodError("FacePair::insertFaceToServer() has to be overriden.");
             };
-            FacePairArray.prototype.eraseFaceFromServer = function (face) {
+            FacePairArray.prototype.unregisterFace = function (face) {
                 throw new std.AbstractMethodError("FacePair::eraseFaceFromServer() has to be overriden.");
             };
             FacePairArray.prototype.insert = function () {
@@ -2845,14 +2720,14 @@ var hiswill;
                 var position = args[0];
                 if (args.length == 2 && args[1] instanceof faceapi.FaceRectangle) {
                     var rectangle = args[1];
-                    return _super.prototype.insert.call(this, position, this.deductFacePair(rectangle));
+                    return _super.prototype.insert.call(this, position, this.deductChild(rectangle));
                 }
                 else if (args.length == 3 && args[1] instanceof std.Iterator && args[2] instanceof std.Iterator) {
                     var begin = args[1];
                     var end = args[2];
                     var myChildren = new std.List();
                     for (var it = begin; it.equals(end) == false; it = it.next())
-                        myChildren.pushBack(this.deductFacePair(it.value));
+                        myChildren.pushBack(this.deductChild(it.value));
                     return _super.prototype.insert.call(this, position, myChildren.begin(), myChildren.end());
                 }
                 else
@@ -2865,7 +2740,7 @@ var hiswill;
                 }
                 var newItems = new Array();
                 for (var i = 0; i < items.length; i++)
-                    newItems.push(this.deductFacePair(items[i]));
+                    newItems.push(this.deductChild(items[i]));
                 return _super.prototype.push.apply(this, newItems);
             };
             /* --------------------------------------------------------
@@ -2883,44 +2758,6 @@ var hiswill;
             FacePairArray.prototype.getFaceAPI = function () {
                 // TO BE OVERRIDEN
                 return null;
-            };
-            /**
-             * Get id.
-             */
-            FacePairArray.prototype.getID = function () {
-                return this.id;
-            };
-            /**
-             * Get name.
-             */
-            FacePairArray.prototype.getName = function () {
-                return this.name;
-            };
-            /**
-             * @inheritdoc
-             */
-            FacePairArray.prototype.isRegistered = function () {
-                return this.registered;
-            };
-            /**
-             * Set name and notify it to the Face-API server.
-             *
-             * @param name New name.
-             */
-            FacePairArray.prototype.setName = function (name) {
-                this.name = name;
-            };
-            FacePairArray.prototype.deductFacePair = function (rectangle) {
-                var facePair;
-                if (rectangle instanceof faceapi.FacePair)
-                    facePair = rectangle;
-                else {
-                    facePair = new faceapi.FacePair(this);
-                    facePair.setRectangle(rectangle);
-                    if (rectangle instanceof faceapi.Face)
-                        facePair.setFile(rectangle);
-                }
-                return facePair;
             };
             /* --------------------------------------------------------
                 EXPORTERS
@@ -2969,6 +2806,12 @@ var hiswill;
                 this.group = group;
                 this.name = name;
             }
+            /**
+             * @inheritdoc
+             */
+            Person.prototype.hasAsyncParent = function () {
+                return true;
+            };
             /* --------------------------------------------------------
                 INTERACTION WITH FACE API
             -------------------------------------------------------- */
@@ -2979,16 +2822,10 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c </li>
              * </ul>
              */
-            Person.prototype.insertToServer = function () {
-                if (this.group.isRegistered() == false)
-                    this.group.insertToServer();
+            Person.prototype.register = function () {
                 var this_ = this;
                 trace("Person::insertToServer", this.name, this.group.getID());
-                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, //{"personGroupId": this.group.getID()},
-                { "name": this.name, "userData": "" }, function (data) {
-                    this_.id = data["personId"];
-                    this_.dispatchRegisterEvent();
-                });
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons", "POST", null, { "name": this.name, "userData": "" }, new std.Bind(this.handleRegister, this));
             };
             /**
              * Remove the FaceList from the Face-API server.
@@ -2997,15 +2834,28 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523d </li>
              * </ul>
              */
-            Person.prototype.eraseFromServer = function () {
+            Person.prototype.unregister = function () {
                 var this_ = this;
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id, "DELETE", {
                     "personGroupId": this.group.getID(),
                     "personId": this.id
-                }, null, function (data) {
-                    this_.id = "";
-                    this_.dispatchUnregisterEvent();
-                });
+                }, null);
+                this.handleUnregister();
+            };
+            /**
+             * @inheritdoc
+             */
+            Person.prototype.handleRegister = function (data) {
+                if (data != null)
+                    this.id = data["personId"];
+                this.group["trained"] = false;
+                _super.prototype.handleRegister.call(this, data);
+            };
+            /**
+             * @inheritdoc
+             */
+            Person.prototype.handleUnregister = function () {
+                this.group["trained"] = false;
             };
             /**
              * Insert a child FacePair instance to the Face-API server
@@ -3014,7 +2864,7 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b </li>
              * </ul>
              */
-            Person.prototype.insertFaceToServer = function (face) {
+            Person.prototype.registerFace = function (face) {
                 var this_ = this;
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces", "POST", {
                     "personGroupId": this.group.getID(),
@@ -3024,6 +2874,7 @@ var hiswill;
                 }, {
                     "url": face.getPictureURL()
                 }, function (data) {
+                    this.group["trained"] = false;
                     face.setID(data["persistedFaceId"]);
                     face.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.REGISTER));
                 });
@@ -3035,13 +2886,14 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523e </li>
              * </ul>
              */
-            Person.prototype.eraseFaceFromServer = function (face) {
+            Person.prototype.unregisterFace = function (face) {
                 var this_ = this;
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.group.getID() + "/persons/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
                     "personGroupId": this.group.getID(),
                     "personId": this.id,
                     "persistedFaceId": face.getID()
                 }, null, function (data) {
+                    this.group["trained"] = false;
                     face.setID("");
                     face.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.UNREGISTER));
                 });
@@ -3079,6 +2931,9 @@ var hiswill;
             /* --------------------------------------------------------
                 EXPORTERS
             -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
             Person.prototype.TAG = function () {
                 return "person";
             };
@@ -3764,7 +3619,7 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
              * </ul>
              */
-            FaceList.prototype.insertToServer = function () {
+            FaceList.prototype.register = function () {
                 // ISSUE ID
                 if (this.id == "")
                     this.id = faceapi.FaceAPI.issueID("face_list");
@@ -3778,7 +3633,7 @@ var hiswill;
                     "userData": ""
                 };
                 var success = function (data) {
-                    this_.dispatchRegisterEvent();
+                    this_.handleRegister(data);
                 };
                 // SEND
                 faceapi.FaceAPI.query(url, method, params, data, success);
@@ -3790,14 +3645,14 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039524b </li>
              * </ul>
              */
-            FaceList.prototype.eraseFromServer = function () {
+            FaceList.prototype.unregister = function () {
                 var this_ = this;
                 // READY
                 var url = "https://api.projectoxford.ai/face/v1.0/facelists/" + this.id;
                 var method = "DELETE";
                 var params = { "faceListId": this.id };
                 var func = function (data) {
-                    this_.dispatchUnregisterEvent();
+                    this_.handleUnregister();
                 };
                 // SEND
                 faceapi.FaceAPI.query(url, method, params, null, func);
@@ -3809,9 +3664,9 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395250 </li>
              * </ul>
              */
-            FaceList.prototype.insertFaceToServer = function (face) {
+            FaceList.prototype.registerFace = function (face) {
                 if (this.isRegistered() == false)
-                    this.insertToServer();
+                    this.register();
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces", "POST", {
                     //"faceListId": this.id,
                     "userData": "",
@@ -3829,12 +3684,12 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395251 </li>
              * </ul>
              */
-            FaceList.prototype.eraseFaceFromServer = function (face) {
+            FaceList.prototype.unregisterFace = function (face) {
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/facelists/" + this.id + "/persistedFaces/" + face.getID(), "DELETE", {
                     "faceListId": this.id,
                     "persistedFaceId": face.getID()
                 }, null, null);
-                _super.prototype.eraseFaceFromServer.call(this, face);
+                _super.prototype.unregisterFace.call(this, face);
             };
             /* --------------------------------------------------------
                 GETTERS & SETTERS
@@ -4222,13 +4077,18 @@ var samchon;
                 this.cancelBubble_ = false;
                 this.timeStamp_ = new Date();
             }
-            Object.defineProperty(BasicEvent.prototype, "NONE", {
+            Object.defineProperty(BasicEvent, "NONE", {
                 /* -------------------------------------------------------------------
                     STATIC CONSTS
                 ------------------------------------------------------------------- */
                 /**
                  *  No event is being processed at this time.
                  */
+                get: function () { return 0; },
+                enumerable: true,
+                configurable: true
+            });
+            Object.defineProperty(BasicEvent.prototype, "NONE", {
                 get: function () { return 0; },
                 enumerable: true,
                 configurable: true
@@ -5212,7 +5072,6 @@ var hiswill;
                 this.name = name;
                 this.registered = false;
                 this.trained = false;
-                this.eventDispatcher = new samchon.library.EventDispatcher(this);
             }
             /**
              * @inheritdoc
@@ -5243,6 +5102,7 @@ var hiswill;
                 var this_ = this;
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id + "/train", "POST", null, //{"personGroupId": this.id},
                 null, function (data) {
+                    trace("handleRequestTrain");
                     setTimeout(PersonGroup.checkTrainStatus, 50, this_);
                 });
             };
@@ -5311,18 +5171,15 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244 </li>
              * </ul>
              */
-            PersonGroup.prototype.insertToServer = function () {
+            PersonGroup.prototype.register = function () {
                 // Issue an unique identifier.
                 if (this.id == "")
                     this.id = faceapi.FaceAPI.issueID("person_group");
-                var this_ = this;
-                trace("PersonGroup::insertToServer");
+                trace("PersonGroup::register");
                 // Register to server.
-                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", null, //{"personGroupId": this.id},
-                { "name": this.name, "userData": "" }, function (data) {
-                    this_.registered = true;
-                    this_.dispatchRegisterEvent();
-                });
+                var res = faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", { "personGroupId": this.id }, { "name": this.name, "userData": "" });
+                if (res == true)
+                    this.handleRegister(null);
             };
             /**
              * Remove the PersonGroup from the Face-API server.
@@ -5331,13 +5188,17 @@ var hiswill;
              *  <li> Reference: https://dev.projectoxford.ai/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395245 </li>
              * </ul>
              */
-            PersonGroup.prototype.eraseFromServer = function () {
-                var this_ = this;
-                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null, function (data) {
-                    this_.trained = false;
-                    this_.registered = false;
-                    this_.dispatchUnregisterEvent();
-                });
+            PersonGroup.prototype.unregister = function () {
+                faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "DELETE", { "personGroupId": this.id }, null);
+                this.handleUnregister();
+            };
+            PersonGroup.prototype.handleRegister = function (data) {
+                this.trained = false;
+                _super.prototype.handleRegister.call(this, data);
+            };
+            PersonGroup.prototype.handleUnregister = function () {
+                this.trained = false;
+                _super.prototype.handleUnregister.call(this);
             };
             /* --------------------------------------------------------
                 GETTERS & SETTERS
@@ -5438,6 +5299,9 @@ var hiswill;
                 _super.call(this);
                 this.api = api;
             }
+            /**
+             * @inheritdoc
+             */
             PersonGroupArray.prototype.createChild = function (xml) {
                 return new faceapi.PersonGroup(this, xml.getProperty("name"));
             };
@@ -5453,14 +5317,20 @@ var hiswill;
             /* --------------------------------------------------------
                 EXPORTERS
             -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
             PersonGroupArray.prototype.TAG = function () {
                 return "personGroupArray";
             };
+            /**
+             * @inheritdoc
+             */
             PersonGroupArray.prototype.CHILD_TAG = function () {
                 return "personGroup";
             };
             return PersonGroupArray;
-        })(samchon.protocol.EntityArray);
+        })(faceapi.AsyncEntityParent);
         faceapi.PersonGroupArray = PersonGroupArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
@@ -5622,23 +5492,20 @@ var hiswill;
                 get: function () {
                     // return "e107bcd678f64de3ae238095f7a57661";
                     // return "b072c71311d144388ac2527a5f06ffca";
-                    return "cbb239951be6454481fd7988b825f4a4";
+                    // return "cbb239951be6454481fd7988b825f4a4";
+                    return "b072c71311d144388ac2527a5f06ffca";
                 },
                 enumerable: true,
                 configurable: true
             });
-            /**
-             * Query a formed-statement to Face-API server.
-             *
-             * @param url https address to query
-             * @param method One of them (GET, POST, UPDATE, DELETE, PATCH)
-             * @param params A pre-parameter
-             * @param data A post-parameter (body)
-             * @param success A method to be processed after the sending query is succeded.
-             * @param async Whether to send query asynchronously. Default is true (synchronous query).
-             */
             FaceAPI.query = function (url, method, params, data, success, async) {
+                if (success === void 0) { success = null; }
                 if (async === void 0) { async = true; }
+                var successFlag = false;
+                if (success == null)
+                    async = false;
+                else if (success instanceof std.Bind)
+                    async = true;
                 $.ajax({
                     url: url + (params == null ? "" : "?" + $.param(params)),
                     beforeSend: function (xhrObj) {
@@ -5648,16 +5515,24 @@ var hiswill;
                     },
                     type: method,
                     async: async,
-                    //timeout: 1000,
+                    //timeout: 10000,
                     data: (data == null) ? "" : JSON.stringify(data),
                     success: function (data, textStatus, jqXHR) {
-                        if (success != null)
-                            success.apply(null, [data, textStatus, jqXHR]);
+                        if (success == null)
+                            successFlag = true;
+                        if (success instanceof Function)
+                            success.apply(null, [data]);
+                        else if (success instanceof std.Bind)
+                            success.apply(data);
                     },
                     error: function (jqXHR, textStatus, errorThrow) {
+                        if (success = null)
+                            successFlag = false;
                         samchon.trace(JSON.stringify(jqXHR), url);
                     }
                 });
+                if (success == null && async == false)
+                    return successFlag;
             };
             /**
              * Issue an unique identifier code.
@@ -5677,51 +5552,91 @@ var hiswill;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
+/// <reference path="IAsyncEntity.ts" />
 var hiswill;
 (function (hiswill) {
     var faceapi;
     (function (faceapi) {
-        var AsyncEntity = (function (_super) {
-            __extends(AsyncEntity, _super);
+        var AsyncEntityParent = (function (_super) {
+            __extends(AsyncEntityParent, _super);
             /* --------------------------------------------------------
                 CONSTRUCTORS
             -------------------------------------------------------- */
             /**
              * Default Constructor.
              */
-            function AsyncEntity() {
+            function AsyncEntityParent() {
                 _super.call(this);
                 this.eventDispatcher = new samchon.library.EventDispatcher(this);
-                this.registered = false;
+                this.queueingList = new std.Vector();
             }
+            /* ========================================================
+                ELEMENTS I/O EVENTS
+                    - OVERRIDINGS
+                    - INSERTION / DELETION HANDLERS
+                    - METHODS OF EVENT_DISPATCHER
+            ===========================================================
+                OVERRIDINGS
+            -------------------------------------------------------- */
             /**
              * @inheritdoc
              */
-            AsyncEntity.prototype.isRegistered = function () {
-                return this.registered;
+            AsyncEntityParent.prototype.push = function () {
+                var items = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    items[_i - 0] = arguments[_i];
+                }
+                var size = _super.prototype.push.apply(this, items);
+                for (var i = 0; i < items.length; i++)
+                    this.inserted(items[i]);
+                return size;
             };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntity.prototype.insertToServer = function () {
-                throw new std.AbstractMethodError("AsynEntity::insertToServer() is not overriden.");
-            };
-            /**
-             * @inheritdoc
-             */
-            AsyncEntity.prototype.eraseFromServer = function () {
-                throw new std.AbstractMethodError("AsyncEntity::EraseFromServer() is not overriden.");
+            AsyncEntityParent.prototype.insert = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i - 0] = arguments[_i];
+                }
+                var position = args[0];
+                var index = position.getIndex();
+                var prevSize = this.size();
+                var res = _super.prototype.insert.apply(this, args);
+                var insertedSize = this.size() - prevSize;
+                for (var i = index; i < index + insertedSize; i++)
+                    this.inserted(this[i]);
             };
             /* --------------------------------------------------------
-                SEQUENCE OF EVENTS
+                INSERTION & DELETION HANDLERS
             -------------------------------------------------------- */
-            AsyncEntity.prototype.dispatchRegisterEvent = function () {
-                this.registered = true;
-                this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.REGISTER));
+            AsyncEntityParent.prototype.inserted = function (item) {
+                item.addEventListener(faceapi.FaceEvent.REGISTER, this.handleRegisterChild, this);
+                item.addEventListener(faceapi.FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
+                this.queueingList.pushBack(item);
+                if (this.queueingList.size() == 1)
+                    item.register();
             };
-            AsyncEntity.prototype.dispatchUnregisterEvent = function () {
-                this.registered = false;
-                this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.UNREGISTER));
+            AsyncEntityParent.prototype.erased = function (item) {
+                if (item.isRegistered() == false) {
+                    for (var q_it = this.queueingList.begin(); q_it.equals(this.queueingList.end()) == false; q_it = q_it.next())
+                        if (q_it.value == item) {
+                            this.queueingList.erase(q_it);
+                            break;
+                        }
+                }
+                else
+                    item.unregister();
+            };
+            AsyncEntityParent.prototype.handleRegisterChild = function (event) {
+                var child = event.target;
+                //child.removeEventListener(FaceEvent.REGISTER, this.handleRegisterChild, this);
+                this.dispatchEvent(new faceapi.ContainerEvent(faceapi.ContainerEvent.ADD, child));
+                this.queueingList.erase(this.queueingList.begin());
+                if (this.queueingList.empty() == false)
+                    this.queueingList.front().register();
+            };
+            AsyncEntityParent.prototype.handleUnregisterChild = function (event) {
+                var child = event.target;
+                child.removeEventListener(faceapi.FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
+                this.dispatchEvent(new faceapi.ContainerEvent(faceapi.ContainerEvent.REMOVE, child));
             };
             /* --------------------------------------------------------
                 METHODS OF EVENT_DISPATCHER
@@ -5729,32 +5644,158 @@ var hiswill;
             /**
              * @inheritdoc
              */
-            AsyncEntity.prototype.hasEventListener = function (type) {
+            AsyncEntityParent.prototype.hasEventListener = function (type) {
                 return this.eventDispatcher.hasEventListener(type);
             };
             /**
              * @inheritdoc
              */
-            AsyncEntity.prototype.dispatchEvent = function (event) {
+            AsyncEntityParent.prototype.dispatchEvent = function (event) {
                 return this.eventDispatcher.dispatchEvent(event);
             };
             /**
              * @inheritdoc
              */
-            AsyncEntity.prototype.addEventListener = function (type, listener, thisArg) {
+            AsyncEntityParent.prototype.addEventListener = function (type, listener, thisArg) {
                 if (thisArg === void 0) { thisArg = null; }
                 this.eventDispatcher.addEventListener(type, listener, thisArg);
             };
             /**
              * @inheritdoc
              */
-            AsyncEntity.prototype.removeEventListener = function (type, listener, thisArg) {
+            AsyncEntityParent.prototype.removeEventListener = function (type, listener, thisArg) {
                 if (thisArg === void 0) { thisArg = null; }
                 this.removeEventListener(type, listener, thisArg);
             };
-            return AsyncEntity;
-        })(samchon.protocol.Entity);
-        faceapi.AsyncEntity = AsyncEntity;
+            return AsyncEntityParent;
+        })(samchon.protocol.EntityArray);
+        faceapi.AsyncEntityParent = AsyncEntityParent;
+    })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
+})(hiswill || (hiswill = {}));
+/// <reference path="AsyncEntityParent.ts" />
+/// <reference path="IAsyncEntity.ts" />
+var hiswill;
+(function (hiswill) {
+    var faceapi;
+    (function (faceapi) {
+        /**
+         * @author Jeongho Nam
+         */
+        var AsyncEntityArray = (function (_super) {
+            __extends(AsyncEntityArray, _super);
+            /* --------------------------------------------------------
+                CONSTRUCTORS
+            -------------------------------------------------------- */
+            /**
+             * Default Constructor.
+             */
+            function AsyncEntityArray(name) {
+                if (name === void 0) { name = ""; }
+                _super.call(this);
+                this.id = "";
+                this.name = name;
+                this.registered = false;
+            }
+            /* --------------------------------------------------------
+                GETTERS
+            -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
+            AsyncEntityArray.prototype.key = function () {
+                return this.id;
+            };
+            /**
+             * Whether this instance is belonged to another type of AsyncEntityArray.
+             */
+            AsyncEntityArray.prototype.hasAsyncParent = function () {
+                return false;
+            };
+            /**
+             * Get id.
+             */
+            AsyncEntityArray.prototype.getID = function () {
+                return this.id;
+            };
+            /**
+             * Get name.
+             */
+            AsyncEntityArray.prototype.getName = function () {
+                return this.name;
+            };
+            /**
+             * Set name and notify it to the Face-API server.
+             *
+             * @param name New name.
+             */
+            AsyncEntityArray.prototype.setName = function (name) {
+                this.name = name;
+            };
+            /* --------------------------------------------------------
+                INSERTION & DELETION HANDLERS
+            -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
+            AsyncEntityArray.prototype.inserted = function (item) {
+                item.addEventListener(faceapi.FaceEvent.REGISTER, this.handleRegisterChild, this);
+                item.addEventListener(faceapi.FaceEvent.UNREGISTER, this.handleUnregisterChild, this);
+                this.queueingList.pushBack(item);
+                if (this.registered == false || this.queueingList.size() != 1) {
+                    if (this.registered == false && this.hasAsyncParent() == false)
+                        this.register();
+                }
+                else
+                    item.register();
+            };
+            AsyncEntityArray.prototype.handleRegister = function (data) {
+                this.registered = true;
+                if (this.queueingList.empty() == false)
+                    this.queueingList.front().register();
+                else
+                    this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.REGISTER));
+            };
+            AsyncEntityArray.prototype.handleUnregister = function () {
+                this.registered = false;
+                this.dispatchEvent(new faceapi.FaceEvent(faceapi.FaceEvent.UNREGISTER));
+            };
+            /**
+             * @inheritdoc
+             */
+            AsyncEntityArray.prototype.handleRegisterChild = function (event) {
+                _super.prototype.handleRegisterChild.call(this, event);
+                if (this.queueingList.empty() == true)
+                    this.handleRegister(null);
+            };
+            /* --------------------------------------------------------
+                INTERACTION WITH FACE-API SERVER
+            -------------------------------------------------------- */
+            /**
+             * @inheritdoc
+             */
+            AsyncEntityArray.prototype.isRegistered = function () {
+                if (this.registered == false || this.queueingList.empty() == false)
+                    return false;
+                for (var i = 0; i < this.size(); i++)
+                    if (this.at(i).isRegistered() == false)
+                        return false;
+                return true;
+            };
+            /**
+             * @inheritdoc
+             */
+            AsyncEntityArray.prototype.register = function () {
+                throw new std.AbstractMethodError("insertToServer is not overriden.");
+            };
+            /**
+             * @inheritdoc
+             */
+            AsyncEntityArray.prototype.unregister = function () {
+                throw new std.AbstractMethodError("insertToServer is not overriden.");
+            };
+            return AsyncEntityArray;
+        })(faceapi.AsyncEntityParent);
+        faceapi.AsyncEntityArray = AsyncEntityArray;
     })(faceapi = hiswill.faceapi || (hiswill.faceapi = {}));
 })(hiswill || (hiswill = {}));
 /// <reference path="FaceAPI.ts" />
@@ -6726,7 +6767,7 @@ var hiswill;
         var TestUnit = (function () {
             function TestUnit() {
                 this.api = new faceapi.FaceAPI();
-                this.detect();
+                this.constructPersonGroups(null);
             }
             /* --------------------------------------------------------
                 COMMANDERS
@@ -6737,14 +6778,20 @@ var hiswill;
                 picture.detect();
             };
             TestUnit.prototype.constructPersonGroups = function (picture) {
+                var personGroupArray = this.api.getPersonGroupArray();
                 var personGroup = this.api.createPersonGroup("other_group");
-                for (var i = 0; i < picture.size(); i++) {
-                    var person = new faceapi.Person(personGroup, (i + 1) + " th person");
-                    var face = picture.at(i);
-                    person.addEventListener(faceapi.ContainerEvent.ADD, this.handleInsertion);
+                samchon.trace("person_group is registered: " + personGroup.isRegistered());
+                //this.api.getPersonGroupArray().popBack();
+                /*for (var i: number = 0; i < 3; i++)
+                {
+                    var person: Person = new Person(personGroup, (i+1) + " th person");
+                    var face: Face = picture.at(i);
+    
+                    person.addEventListener(ContainerEvent.ADD, this.handleInsertion, this);
+    
                     personGroup.push(person);
                     person.push(face);
-                }
+                }*/
             };
             TestUnit.prototype.train = function (personGroup) {
                 personGroup.addEventListener(faceapi.FaceEvent.DETECT, this.handleDetect, this);
@@ -6752,7 +6799,7 @@ var hiswill;
             };
             TestUnit.prototype.identify = function (face, personGroup) {
                 face.addEventListener(faceapi.IdentifyEvent.IDENTIFY, this.handleIdentify);
-                face.identify(personGroup, 3);
+                face.identify(personGroup, 1);
             };
             /* --------------------------------------------------------
                 EVENT HANDLERS
@@ -6774,7 +6821,7 @@ var hiswill;
             TestUnit.prototype.handleTrain = function (event) {
                 trace("A person group is trained.");
                 var personGroup = event.target;
-                var face = personGroup.at(3 - 1).at(0).getFace();
+                var face = personGroup.at(1 - 1).at(0).getFace();
                 this.identify(face, personGroup);
             };
             TestUnit.prototype.handleIdentify = function (event) {
@@ -7577,15 +7624,17 @@ var samchon;
     })();
     samchon.Global = Global;
 })(samchon || (samchon = {}));
-var uid_ = 0;
-Object.prototype["__getUID"] = function () {
-    if (this.hasOwnProperty("uid__") == true)
-        return this["uid__"];
-    else {
-        this["uid__"] = ++uid_;
-        return this["uid__"];
-    }
-};
+//var uid_: number = 0;
+//Object.prototype["__getUID"] = function () 
+//{
+//    if (this.hasOwnProperty("uid__") == true)
+//        return this["uid__"];
+//    else 
+//    {
+//        this["uid__"] = ++uid_;
+//        return this["uid__"];
+//    }
+//} 
 /// <reference path="API.ts" />
 /// <reference path="../API.ts" />
 /// <reference path="../../std/Exception.ts" />

@@ -94,10 +94,6 @@ namespace samchon.library
          * properties by parsing the string. If there's children, then construct the 
          * children XML, XMLList objects, too. </p>
          *
-         * <h4> Note </h4>
-         * <p> Throwing exceptions on parsing are not defined yet. If there's some problem on
-         * the string representing the XML object, error will be occured. </p>
-         *
          * @param str A string to be parsed
 	     */
 	    public constructor(str: string = "")
