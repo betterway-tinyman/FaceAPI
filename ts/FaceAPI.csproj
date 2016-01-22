@@ -23,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="fabric.min.js" />
+    <Content Include="fabric.require.js" />
     <Content Include="index.html" />
     <Content Include="web.config" />
   </ItemGroup>
