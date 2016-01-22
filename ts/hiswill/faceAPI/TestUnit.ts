@@ -4,8 +4,14 @@ namespace hiswill.faceapi
 {
     export class TestUnit
     {
+        /**
+         * A facade controller and factory class for Face-API.
+         */
         protected api: FaceAPI;
 
+        /**
+         * Default Constructor.
+         */
         public constructor()
         {
             this.api = new FaceAPI();
@@ -22,6 +28,14 @@ namespace hiswill.faceapi
 
             picture.addEventListener(FaceEvent.DETECT, this.handleDetect, this);
             picture.detect();
+        }
+
+        protected findSimilarGroups(picture: Picture): void
+        {
+            var face: Face = picture.at(0);
+            face.addEventListener(FindSimilarGroupEvent.FIND, this.handleSimilarGroups);
+
+            face.findSimilarGroups(picture);
         }
 
         protected constructPersonGroups(picture: Picture): void
@@ -70,11 +84,18 @@ namespace hiswill.faceapi
         protected handleDetect(event: FaceEvent): void
         {
             var picture: Picture = <Picture>event.target;
-
-            samchon.trace("A picture and faces are detected: #" + picture.size());
+            samchon.trace(picture.toXML().toString());
 
             // TO THE NEXT STEP
-            this.constructPersonGroups(picture);
+            this.findSimilarGroups(picture);
+            //this.constructPersonGroups(picture);
+        }
+
+        protected handleSimilarGroups(event: FindSimilarGroupEvent): void
+        {
+            var similarGroups = event.similarGroups;
+
+            samchon.trace(similarGroups.toXML().toString());
         }
 
         protected handleInsertion(event: ContainerEvent): void
@@ -82,7 +103,7 @@ namespace hiswill.faceapi
             var person: Person = <Person>event.target;
             var personGroup: PersonGroup = person.getGroup();
 
-            trace("A person is constructed clearly: " + person.getName());
+            samchon.trace("A person is constructed clearly: " + person.getName());
 
             if (personGroup.isRegistered() == false)
                 return;
@@ -92,7 +113,7 @@ namespace hiswill.faceapi
 
         protected handleTrain(event: FaceEvent): void
         {
-            trace("A person group is trained.");
+            samchon.trace("A person group is trained.");
 
             var personGroup: PersonGroup = <PersonGroup>event.target;
             var face: Face = personGroup.at(2 - 1).at(0).getFace();
@@ -104,7 +125,7 @@ namespace hiswill.faceapi
         {
             var candidatePersonArray: CandidatePersonArray = event.candidates;
 
-            trace("Some faces are identified as candidates: \n" + candidatePersonArray.toXML().toString());
+            samchon.trace("Some faces are identified as candidates: \n" + candidatePersonArray.toXML().toString());
 
             // THIS IS THE LAST STEP.
         }

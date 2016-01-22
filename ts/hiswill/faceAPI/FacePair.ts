@@ -105,7 +105,7 @@ namespace hiswill.faceapi
 		 */
         public register(): void
         {
-            trace("FacePair::insertToServer");
+            samchon.trace("FacePair::insertToServer");
 
             this.pairArray.registerFace(this);
         }

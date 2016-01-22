@@ -113,7 +113,7 @@ namespace hiswill.faceapi
 
                 function (data)
                 {
-                    trace("handleRequestTrain");
+                    samchon.trace("handleRequestTrain");
 
                     setTimeout(PersonGroup.checkTrainStatus, 50, this_);
                 }
@@ -139,7 +139,7 @@ namespace hiswill.faceapi
                 {
                     var status: string = data["status"];
 
-                    trace("on progress", status);
+                    samchon.trace("on progress", status);
 
                     if (status == "succeeded")
                     {
@@ -188,7 +188,7 @@ namespace hiswill.faceapi
             var this_: PersonGroup = this;
             var candidatePersonArray: CandidatePersonArray = new CandidatePersonArray(face, this);
 
-            trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
+            samchon.trace("PersonGroup::identify", this.id, face.getID(), maxCandidates);
 
             FaceAPI.query
             (
@@ -224,7 +224,7 @@ namespace hiswill.faceapi
             if (this.id == "")
                 this.id = FaceAPI.issueID("person_group");
             
-            trace("PersonGroup::register");
+            samchon.trace("PersonGroup::register");
 
             // Register to server.
             var res: boolean = 

@@ -126,7 +126,7 @@ namespace hiswill.faceapi
                 begin: std.Iterator<U>, end: std.Iterator<U>
             ): std.Iterator<FacePair>;
 
-        public insert<U extends FacePair>(...args: any[]): any
+        public insert<U extends FaceRectangle>(...args: any[]): any
         {
             var position: std.VectorIterator<FacePair> = args[0];
 
@@ -185,6 +185,9 @@ namespace hiswill.faceapi
         /* --------------------------------------------------------
             EXPORTERS
         -------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
         public CHILD_TAG(): string
         {
             return "facePair";

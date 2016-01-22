@@ -12,7 +12,7 @@
 namespace hiswill.faceapi
 {
     /**
-     * <p> A picture entity who containing Face entities. </p>
+     * A picture entity who containing Face entities.
      *
      * @author Jeongho Nam
      */
@@ -55,6 +55,9 @@ namespace hiswill.faceapi
             this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
     
+        /**
+         * @inheritdoc
+         */
         public constructByJSON(val: any): void
         {
             this.clear(); // CLEAR

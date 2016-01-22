@@ -4,8 +4,6 @@
 /// <reference path="FaceListArray.ts" />
 /// <reference path="PictureArray.ts" />
 
-var trace = samchon.trace;
-
 namespace hiswill.faceapi
 {
     /**
@@ -226,7 +224,7 @@ namespace hiswill.faceapi
                 data: (data == null) ? "" : JSON.stringify(data),
                 /*success: function (data: any, textStatus: string, jqXHR: JQueryXHR): any
                 {
-                    trace("success in $.ajax");
+                    samchon.trace("success in $.ajax");
 
                     if (success == null)
                         successFlag = true;
@@ -247,7 +245,7 @@ namespace hiswill.faceapi
                 (
                     function (data: any, textStatus: string, jqXHR: JQueryXHR): any 
                     {
-                        trace("success in $.ajax");
+                        samchon.trace("success in $.ajax");
 
                         if (success == null)
                             successFlag = true;

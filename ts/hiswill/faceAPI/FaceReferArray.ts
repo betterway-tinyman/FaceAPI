@@ -66,8 +66,10 @@ namespace hiswill.faceapi
             {
                 var childXML: samchon.library.XML = new samchon.library.XML();
                 childXML.setTag(this.CHILD_TAG());
-
                 childXML.setProperty("id", this.at(i).getID());
+
+                // INSERTS
+                xml.push(childXML);
             }
 
             return xml;

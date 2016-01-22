@@ -63,7 +63,7 @@ namespace hiswill.faceapi
          */
         public register(): void
         {
-            trace("Person::insertToServer", this.name, this.group.getID());
+            samchon.trace("Person::insertToServer", this.name, this.group.getID());
 
             FaceAPI.query
             (
@@ -106,7 +106,7 @@ namespace hiswill.faceapi
          */
         protected handleRegister(data: any): void
         {
-            trace("Person::handleRegister");
+            samchon.trace("Person::handleRegister");
 
             if (data != null)
                 this.id = data["personId"];
@@ -154,7 +154,7 @@ namespace hiswill.faceapi
 
                 function (data): void
                 {
-                    trace("A FacePair is registered in a Person");
+                    samchon.trace("A FacePair is registered in a Person");
 
                     this.group["trained"] = false;
                     

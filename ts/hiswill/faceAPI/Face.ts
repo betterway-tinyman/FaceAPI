@@ -15,13 +15,13 @@
 
 /// <reference path="Picture.ts" />
 
-/**
- * A face entity.
- *
- * @author Jeongho Nam
- */
 namespace hiswill.faceapi 
 {
+    /**
+     * A face entity.
+     *
+     * @author Jeongho Nam
+     */
     export class Face
         extends FaceRectangle 
         implements IJSONEntity,
@@ -80,6 +80,9 @@ namespace hiswill.faceapi
             this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
     
+        /**
+         * @inheritdoc
+         */
         public construct(xml: samchon.library.XML): void
         {
             super.construct(xml);
@@ -94,6 +97,9 @@ namespace hiswill.faceapi
             var personGroupID: string = person.getProperty("groupID");
         }
 
+        /**
+         * @inheritdoc
+         */
         public constructByJSON(obj: any): void
         {
             this.id = obj["faceId"];
@@ -124,9 +130,9 @@ namespace hiswill.faceapi
         public identify(personGroup: PersonGroup, maxCandidates: number = 1): void
         {
             if (personGroup.isTrained() == false)
-                personGroup.addEventListener(FaceEvent.TRAIN, this.dispatchTrainEvent, this);
+                personGroup.addEventListener(FaceEvent.TRAIN, this.handleTrain, this);
 
-            personGroup.addEventListener(IdentifyEvent.IDENTIFY, this.dispatchIdentityEvent, this);
+            personGroup.addEventListener(IdentifyEvent.IDENTIFY, this.handleIdentity, this);
             personGroup.identify(this, maxCandidates);
         }
 
@@ -144,7 +150,7 @@ namespace hiswill.faceapi
          */
         public findSimilars(faceList: FaceList, maxCandidates: number): void
         {
-            faceList.addEventListener(FindSimilarEvent.FIND, this.dispatchFindSimilarEvent, this);
+            faceList.addEventListener(FindSimilarEvent.FIND, this.handleFindSimilar, this);
 
             faceList.findSimilars(this, maxCandidates);
         }
@@ -159,20 +165,20 @@ namespace hiswill.faceapi
          * @param faces Candidate faces.
          * @return Grouped faces by similarity.
          */
-        public findSimilarGroups(faceAarray: Array<Face>): void
+        public findSimilarGroups(faceArray: Array<Face>): void
         {
             var this_ = this;
 
-            var faceArray: FaceReferArray = new FaceReferArray();
+            var faceReferArray: FaceReferArray = new FaceReferArray();
             var faceIDArray: Array<string> = new Array<string>();
 
             for (var i: number = 0; i < faceArray.length; i++)
             {
-                faceArray.push(faceArray[i]);
+                faceReferArray.push(faceArray[i]);
                 faceIDArray.push(faceArray[i].getID());
             }
 
-            var similarFaceGroupArray: SimilarFaceGroupArray = new SimilarFaceGroupArray(faceArray);
+            var similarFaceGroupArray: SimilarFaceGroupArray = new SimilarFaceGroupArray(faceReferArray);
 
             FaceAPI.query
             (
@@ -183,23 +189,22 @@ namespace hiswill.faceapi
                 {"faceIds": faceIDArray},
 
                 function (data)
-                {
-                    similarFaceGroupArray.constructByJSON(data);
+                {similarFaceGroupArray.constructByJSON(data);
 
-                    this_.dispatchEvent(new FindSimilarGroupEvent(faceArray, similarFaceGroupArray));
-                }
+                    this_.dispatchEvent(new FindSimilarGroupEvent(faceReferArray, similarFaceGroupArray));
+                }, false
             );
         }
 
-        private dispatchTrainEvent(event: FaceEvent): void
+        private handleTrain(event: FaceEvent): void
         {   
             this.dispatchEvent(event);
         }
-        private dispatchIdentityEvent(event: IdentifyEvent): void
+        private handleIdentity(event: IdentifyEvent): void
         {
             this.dispatchEvent(event);
         }
-        private dispatchFindSimilarEvent(event: FindSimilarEvent): void
+        private handleFindSimilar(event: FindSimilarEvent): void
         {
             this.dispatchEvent(event);
         }
