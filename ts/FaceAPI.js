@@ -3080,7 +3080,6 @@ var hiswill;
          * </ul>
          *
          * @author Jeongho Nam
-         * @inheritdoc
          */
         var Person = (function (_super) {
             __extends(Person, _super);
@@ -4852,6 +4851,8 @@ var hiswill;
                 _super.call(this);
                 this.pictureArray = pictureArray;
                 this.url = url;
+                //if (this.url != "")
+                //    this.constructSize();
                 this.eventDispatcher = new samchon.library.EventDispatcher(this);
             }
             /**
@@ -4871,6 +4872,14 @@ var hiswill;
              */
             Picture.prototype.createChild = function (xml) {
                 return new faceapi.Face(this);
+            };
+            Picture.prototype.constructSize = function () {
+                var image = new Image();
+                image.onload = function () {
+                    this.width = image.naturalWidth;
+                    this.height = image.naturalHeight;
+                };
+                image.src = this.url;
             };
             /* --------------------------------------------------------
                 GETTERS
@@ -4955,13 +4964,50 @@ var hiswill;
              * @inheritdoc
              */
             Picture.prototype.TAG = function () {
-                return "person";
+                return "picture";
             };
             /**
              * @inheritdoc
              */
             Picture.prototype.CHILD_TAG = function () {
                 return "face";
+            };
+            /**
+             * Get SVG element to print picture and face rentagles on the screen.
+             */
+            Picture.prototype.toSVG = function () {
+                // CONSTRUCT SVG ELEMENT
+                var svg = new samchon.library.XML();
+                svg.setTag("svg");
+                svg.setProperty("width", "auto");
+                svg.setProperty("height", "auto");
+                // CONSTRUCT IMAGE
+                var image = new samchon.library.XML();
+                image.setTag("image");
+                image.setProperty("xlink:href", this.url);
+                image.setProperty("width", this.width);
+                image.setProperty("height", this.height);
+                // INSERT IMAGE
+                svg.push(image);
+                // INSERT FACE RECTANGLES
+                for (var it = this.begin(); it.equals(this.end()) == false; it = it.next())
+                    svg.push(it.value.toSVG());
+                return svg;
+            };
+            /**
+             * Draw picture and face rectangles to the screen.
+             */
+            Picture.prototype.draw = function () {
+                var this_ = this;
+                var canvas = new fabric.Canvas("my_picture");
+                // CALL PICTURE
+                fabric.Image.fromURL(this.url, function (image) {
+                    // ADD IMAGE
+                    canvas.add(image);
+                    // ADD FACE RECTANGLES
+                    for (var it = this_.begin(); it.equals(this_.end()) == false; it = it.next())
+                        canvas.add(it.value.toRect());
+                });
             };
             return Picture;
         })(samchon.protocol.EntityArray);
@@ -5091,7 +5137,7 @@ var hiswill;
                 faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/group", "POST", null, { "faceIds": faceIDArray }, function (data) {
                     similarFaceGroupArray.constructByJSON(data);
                     this_.dispatchEvent(new faceapi.FindSimilarGroupEvent(faceReferArray, similarFaceGroupArray));
-                }, false);
+                });
             };
             Face.prototype.handleTrain = function (event) {
                 this.dispatchEvent(event);
@@ -5207,6 +5253,25 @@ var hiswill;
                 var xml = _super.prototype.toXML.call(this);
                 xml.push(this.landmarks.toXML(), this.attributes.toXML());
                 return xml;
+            };
+            Face.prototype.toSVG = function () {
+                var xml = new samchon.library.XML();
+                xml.setTag("rect");
+                xml.setProperty("x", this.x);
+                xml.setProperty("y", this.y);
+                xml.setProperty("width", this.width);
+                xml.setProperty("height", this.height);
+                xml.setProperty("style", "stroke: red; stroke-width: 5; fill: none;");
+                return xml;
+            };
+            Face.prototype.toRect = function () {
+                var rect = new fabric.Rect({
+                    left: this.x,
+                    top: this.y,
+                    width: this.width,
+                    height: this.height
+                });
+                return rect;
             };
             return Face;
         })(faceapi.FaceRectangle);
@@ -5480,6 +5545,7 @@ var hiswill;
                 samchon.trace("PersonGroup::register");
                 // Register to server.
                 var res = faceapi.FaceAPI.query("https://api.projectoxford.ai/face/v1.0/persongroups/" + this.id, "PUT", { "personGroupId": this.id }, { "name": this.name, "userData": "" });
+                // dispatches event
                 if (res == true)
                     this.handleRegister(null);
             };
@@ -6831,16 +6897,23 @@ var hiswill;
              */
             function TestUnit() {
                 this.api = new faceapi.FaceAPI();
+                // First, detect faces from a picture.
                 this.detect();
             }
             /* --------------------------------------------------------
                 COMMANDERS
             -------------------------------------------------------- */
+            /**
+             * Detect faces from a picture.
+             */
             TestUnit.prototype.detect = function () {
                 var picture = this.api.createPicture("http://samchon.org/download/group_others2.jpg");
                 picture.addEventListener(faceapi.FaceEvent.DETECT, this.handleDetect, this);
                 picture.detect();
             };
+            /**
+             * Find similar groups
+             */
             TestUnit.prototype.findSimilarGroups = function (picture) {
                 var face = picture.at(0);
                 face.addEventListener(faceapi.FindSimilarGroupEvent.FIND, this.handleSimilarGroups);
@@ -6873,9 +6946,11 @@ var hiswill;
             -------------------------------------------------------- */
             TestUnit.prototype.handleDetect = function (event) {
                 var picture = event.target;
-                samchon.trace(picture.toXML().toString());
+                // PRINT PICTURE AND FACE RECTANGLES ON SCREEN
+                picture.draw();
+                samchon.trace(picture.toSVG().toString());
                 // TO THE NEXT STEP
-                this.findSimilarGroups(picture);
+                //this.findSimilarGroups(picture);
                 //this.constructPersonGroups(picture);
             };
             TestUnit.prototype.handleSimilarGroups = function (event) {

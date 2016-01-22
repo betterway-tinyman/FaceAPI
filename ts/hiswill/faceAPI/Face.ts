@@ -192,7 +192,7 @@ namespace hiswill.faceapi
                 {similarFaceGroupArray.constructByJSON(data);
 
                     this_.dispatchEvent(new FindSimilarGroupEvent(faceReferArray, similarFaceGroupArray));
-                }, false
+                }
             );
         }
 
@@ -357,6 +357,34 @@ namespace hiswill.faceapi
             );
         
             return xml;
+        }
+
+        public toSVG(): samchon.library.XML
+        {
+            var xml = new samchon.library.XML();
+            xml.setTag("rect");
+            
+            xml.setProperty("x", this.x);
+            xml.setProperty("y", this.y);
+            xml.setProperty("width", this.width);
+            xml.setProperty("height", this.height);
+
+            xml.setProperty("style", "stroke: red; stroke-width: 5; fill: none;");
+
+            return xml;
+        }
+
+        public toRect(): fabric.IRect
+        {
+            var rect = new fabric.Rect
+                ({
+                    left: this.x, 
+                    top: this.y, 
+                    width: this.width, 
+                    height: this.height
+                });
+
+            return rect;
         }
     }
 }

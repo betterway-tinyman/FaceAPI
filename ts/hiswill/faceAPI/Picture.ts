@@ -31,6 +31,10 @@ namespace hiswill.faceapi
          */
         protected url: string;
 
+        protected width: number;
+
+        protected height: number;
+
         /**
          * A chain instance of takeing responsibility of event dispatching.
          */
@@ -51,6 +55,9 @@ namespace hiswill.faceapi
 
             this.pictureArray = pictureArray;
             this.url = url;
+
+            //if (this.url != "")
+            //    this.constructSize();
             
             this.eventDispatcher = new samchon.library.EventDispatcher(this);
         }
@@ -79,6 +86,17 @@ namespace hiswill.faceapi
         protected createChild(xml: samchon.library.XML): Face
         {
             return new Face(this);
+        }
+
+        private constructSize(): void
+        {
+            var image = new Image();
+            image.onload = function()
+            {
+                this.width = image.naturalWidth;
+                this.height = image.naturalHeight;
+            }
+            image.src = this.url;
         }
 
         /* --------------------------------------------------------
@@ -191,7 +209,7 @@ namespace hiswill.faceapi
          */
         public TAG(): string 
         {
-            return "person";
+            return "picture";
         }
 
         /**
@@ -200,6 +218,56 @@ namespace hiswill.faceapi
         public CHILD_TAG(): string
         {
             return "face";
+        }
+
+        /**
+         * Get SVG element to print picture and face rentagles on the screen.
+         */
+        public toSVG(): samchon.library.XML
+        {
+            // CONSTRUCT SVG ELEMENT
+            var svg = new samchon.library.XML();
+            svg.setTag("svg");
+            svg.setProperty("width", "auto");
+            svg.setProperty("height", "auto");
+
+            // CONSTRUCT IMAGE
+            var image = new samchon.library.XML();
+            image.setTag("image");
+            image.setProperty("xlink:href", this.url);
+            image.setProperty("width", this.width);
+            image.setProperty("height", this.height);
+            
+            // INSERT IMAGE
+            svg.push(image);
+
+            // INSERT FACE RECTANGLES
+            for (var it = this.begin(); it.equals(this.end()) == false; it = it.next())
+                svg.push(it.value.toSVG());
+
+            return svg;
+        }
+
+        /**
+         * Draw picture and face rectangles to the screen.
+         */
+        public draw(): void
+        {
+            var this_ = this;
+            var canvas = new fabric.Canvas("my_picture");
+
+            // CALL PICTURE
+            fabric.Image.fromURL(this.url,
+                function (image: fabric.IImage)
+                {
+                    // ADD IMAGE
+                    canvas.add(image);
+
+                    // ADD FACE RECTANGLES
+                    for (var it = this_.begin(); it.equals(this_.end()) == false; it = it.next())
+                        canvas.add(it.value.toRect());
+                }
+            );
         }
     }
 }

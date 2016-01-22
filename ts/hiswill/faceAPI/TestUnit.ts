@@ -16,12 +16,16 @@ namespace hiswill.faceapi
         {
             this.api = new FaceAPI();
             
+            // First, detect faces from a picture.
             this.detect();
         }
 
         /* --------------------------------------------------------
             COMMANDERS
         -------------------------------------------------------- */
+        /**
+         * Detect faces from a picture.
+         */
         protected detect(): void
         {
             var picture: Picture = this.api.createPicture("http://samchon.org/download/group_others2.jpg");
@@ -30,12 +34,15 @@ namespace hiswill.faceapi
             picture.detect();
         }
 
+        /**
+         * Find similar groups
+         */
         protected findSimilarGroups(picture: Picture): void
         {
             var face: Face = picture.at(0);
             face.addEventListener(FindSimilarGroupEvent.FIND, this.handleSimilarGroups);
 
-            face.findSimilarGroups(picture);
+            face.findSimilarGroups(<Array<Face>>picture);
         }
 
         protected constructPersonGroups(picture: Picture): void
@@ -84,10 +91,13 @@ namespace hiswill.faceapi
         protected handleDetect(event: FaceEvent): void
         {
             var picture: Picture = <Picture>event.target;
-            samchon.trace(picture.toXML().toString());
+            
+            // PRINT PICTURE AND FACE RECTANGLES ON SCREEN
+            picture.draw();
+            samchon.trace(picture.toSVG().toString());
 
             // TO THE NEXT STEP
-            this.findSimilarGroups(picture);
+            //this.findSimilarGroups(picture);
             //this.constructPersonGroups(picture);
         }
 

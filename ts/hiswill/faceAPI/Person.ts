@@ -16,7 +16,6 @@ namespace hiswill.faceapi
      * </ul>
      *
      * @author Jeongho Nam
-     * @inheritdoc
      */
     export class Person
         extends FacePairArray

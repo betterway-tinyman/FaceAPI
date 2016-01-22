@@ -237,6 +237,7 @@ namespace hiswill.faceapi
                     {"name": this.name, "userData": ""}
                 );
             
+            // dispatches event
             if (res == true)
                 this.handleRegister(null);
         }
