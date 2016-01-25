@@ -1,564 +1,244 @@
-﻿/// <reference path="Container.ts" />
-/// <reference path="IMap.ts" />
+﻿/// <reference path="AbstractMap.ts" />
 
-/// <reference path="Iterator.ts" />
-
-/// <reference path="Vector.ts" />
-/// <reference path="Pair.ts" />
+/// <reference path="Hash.ts" />
 
 namespace std
 {
     /**
-     * <p> A map containing pairs of key and value. </p>
-     * <ul>
-     *  <li> _Kty: Type of the keys. Each element in a map is uniquely identified by its key value. </li>
-     *  <li> _Ty: Type of the mapped value. Each element in a map stores some data as its mapped value. </li>
-     * </ul>
+     * <p> Unordered Map. </p>
      *
-     * <p> Map is designed to pursuing formality in JavaScript. </p> 
-     * <h4> Definition of std::unordered_map. </h4>
-     * <ul>
-     *  <li> Reference: http://www.cplusplus.com/reference/unordered_map/unordered_map/ </li>
-     * </ul>
+     * <p> Unordered maps are associative containers that store elements formed by the combination of a key value 
+     * and a mapped value, and which allows for fast retrieval of individual elements based on their keys. </p>
      *
-     * <p> Unordered maps are associative containers that store elements formed by the combination of 
-     * a key value and a mapped value, and which allows for fast retrieval of individual elements 
-     * based on their keys. </p>
+     * <p> In an <code>UnorderedMap</code>, the key value is generally used to uniquely identify the element, 
+     * while the mapped value is an object with the content associated to this key. Types of key and mapped 
+     * value may differ. </p>
      *
-     * <p> In an unordered_map, the key value is generally used to uniquely identify the element, while the 
-     * mapped value is an object with the content associated to this key. Types of key and mapped value may 
-     * differ. </p>
-     *
-     * <p> Internally, the elements in the unordered_map are not sorted in any particular order with respect to 
-     * either their key or mapped values, but organized into buckets depending on their hash values to allow 
-     * for fast access to individual elements directly by their key values (with a constant average time 
+     * <p> Internally, the elements in the <code>UnorderedMap</code> are not sorted in any particular order with 
+     * respect to either their key or mapped values, but organized into buckets depending on their hash values to 
+     * allow for fast access to individual elements directly by their key values (with a constant average time 
      * complexity on average). </p>
      *
-     * <p> unordered_map containers are faster than map containers to access individual elements by their key, 
-     * although they are generally less efficient for range iteration through a subset of their elements. </p>
+     * <p> <code>UnorderedMap</code> containers are faster than map containers to access individual elements by 
+     * their key, although they are generally less efficient for range iteration through a subset of their 
+     * elements. </p>
      *
-     * <p> Unordered maps implement the direct access operator (operator[]) which allows for direct access of 
-     * the mapped value using its key value as argument. </p>
+     * <p> Unordered maps implement the direct access operator (<code>get()</code>) which allows for direct access 
+     * of the mapped value using its key value as argument. </p>
      *
-     * <p> Iterators in the container are at least forward iterators. </p>
-     *
-     * <h4> Differences between std::unordered_map. </h4>
      * <ul>
-     *	<li> Addicted Methods </li>
-     *	<ul>
-     *		<li> has := { find(key) != end(); } </li>
-     *		<li> set := { insert({key, value}); } </li>
-     *		<li> get := { find(key).second; } </li>
-     *	</ul>
-     *	<li> Depreciated Methods </li>
-     *	<ul>
-     *		<li> Modifier methods using iterators </li>
-     *		<li> operator[] </li>
-     *	</ul>
+     *  <li> Designed by C++ Reference: http://www.cplusplus.com/reference/unordered_map/unordered_map/ </li>
      * </ul>
      *
-     * <h4> Note </h4>
-     * <p> Do not use operator[] and hasOwnProperty(). Use get() and has() instead. </p>
-     * <p> Do not iterate by <i>for statement</i> used for dynamic object of JavaScript; <i>for(var key in Map)</i> </p>. 
-     * <p> Use <i>iterator</i> with begin() and end() instaed. </p>
+     * @tparam K Type of the key values. 
+     *           Each element in an <code>UnorderedMap</code> is uniquely identified by its key value.
+     * @tparam T Type of the mapped value. 
+     *           Each element in an <code>UnorderedMap</code> is used to store some data as its mapped value.
      *
-     * @author Jeongho Nam
+     * @author Migrated by Jeongho Nam
      */
     export class UnorderedMap<K, T>
-        extends PairContainer<K, T>
+        extends AbstractMap<K, T>
     {
-	    /**
-	     * <p> A data storing elements. </p>
-	     * <p> Map::data_ is a list container of elements(pairs) in Map. </p>
-	     */
-	    private data_: Vector<Pair<K, T>>;
+        private hashGroup: Vector<Vector<MapIterator<K, T>>>;
 	
-        /* ---------------------------------------------------------
-		    CONSTRUCTORS
-	    --------------------------------------------------------- */
+        /* =========================================================
+		    CONSTRUCTORS & SEMI-CONSTRUCTORS
+                - CONSTRUCTORS
+                - ASSIGN & CLEAR
+                - HASH GROUP
+	    ============================================================
+            CONSTURCTORS
+        --------------------------------------------------------- */
 	    /**
-	     * <p> Default Constructor. </p>
+	     * Default Constructor.
 	     */
         public constructor();
 
-	    public constructor(...args: any[])
-	    {
-            super();
-
-		    this.data_ = new Vector<Pair<K, T>>();
-	    }
-        
-        public assign(begin: PairIterator<K, T>, end: PairIterator<K, T>): void
-        {
-            this.data_.assign(begin, end);
-        }
-
-        public clear(): void
-        {
-            this.data_.clear();
-        }
-
-	    /* ---------------------------------------------------------
-		    ACCESSORS
-	    --------------------------------------------------------- */
-	    /**
-	     * <p> Get data. </p>
-	     * <p> Returns the source container of the Map. </p>
-	     *
-	     * <h4> Note </h4>
-         * <p> Changes on the returned container influences the source Map. </p>
-	     */
-	    public data(): Vector<Pair<K, T>>
-	    {
-		    return this.data_;
-	    }
-	
-	    /**
-	     * <p> Return container size. </p>
-	     * <p> Returns the number of elements in Map container. </p>
-	     *
-	     * @return The number of elements in the container.
-	     */
-	    public size(): number
-	    {
-            return this.data_.size();
-	    }
+        /**
+         * Construct from elements.
+         */
+        public constructor(array: Array<Pair<K, T>>);
 
         /**
-         * <p> Get iterator to element. </p>
-         * 
-         * <p> Searches the container for an element with a identifier equivalent to <i>key</i> and 
-         * returns an iterator to it if found, otherwise it returns an iterator to Map::end(). </p>
-         *
-         * <p> Two keys are considered equivalent if the container's comparison object returns false 
-         * reflexively (i.e., no matter the order in which the elements are passed as arguments). </p>
-         *
-         * <p> Another member function, Map.has(), can be used to just check whether 
-         * a particular key exists. </p>
-         *
-         * @param key Key to be searched for
-         * @return An iterator to the element, if an element with specified key is found, or Map::end() otherwise.
+         * Copy Constructor.
          */
-        public find(key: K): PairIterator<K, T>
-        {
-            var i: number;
+        public constructor(container: PairContainer<K, T>);
 
-            if (key.hasOwnProperty("equals") == true)
+        /**
+         * Construct from range iterators.
+         */
+        public constructor(begin: PairIterator<K, T>, end: PairIterator<K, T>);
+
+	    public constructor(...args: any[])
+	    {
+            this.constructHashGroup();
+
+            if (args.length == 0) 
             {
-                for (i = 0; i < this.data_.size(); i++)
-                    if (this.data_.at(i).first["equals"](key) == true)
-                        return new UnorderedMapIterator<K, T>(this, i);
+                super();
             }
-            else
+            else if (args.length == 1) 
             {
-                for (i = 0; i < this.data_.size(); i++)
-                    if (this.data_.at(i).first == key)
-                        return new UnorderedMapIterator<K, T>(this, i);
+                super(args[0]);
             }
-            return this.end();
+            else if (args.length == 2) 
+            {
+                super(args[0], args[1]);
+            }
+        }
+
+        protected constructByArray(items: Array<Pair<K, T>>): void
+        {
+            this.constructHashGroup(items.length * Hash.RATIO);
+
+            super.constructByArray(items);
+        }
+        
+        /* ---------------------------------------------------------
+		    ASSIGN & CLEAR
+	    --------------------------------------------------------- */
+        /**
+         * @inheritdoc
+         */
+        public assign<L extends K, U extends T>
+            (begin: PairIterator<L, U>, end: PairIterator<L, U>): void
+        {
+            var it: PairIterator<L, U>;
+            var size: number = 0;
+            
+            // REVERSE HASH_GROUP SIZE
+            for (it = begin; it.equals(end) == false; it = it.next())
+                size++;
+
+            this.constructHashGroup(size * Hash.RATIO);
+
+            // SUPER; INSERT
+            super.assign(begin, end);
+        }
+        0
+        /**
+         * @inheritdoc
+         */
+        public clear(): void
+        {
+            super.clear();
+
+            this.constructHashGroup();
         }
 
         /* ---------------------------------------------------------
-		    GETTERS
+		    HASH GROUP
 	    --------------------------------------------------------- */
-	    /**
-	     * <p> Whether have the item or not. </p>
-	     * <p> Indicates whether a map has an item having the specified identifier. </p>
-	     *
-	     * @param key Key value of the element whose mapped value is accessed.
-	     * @return Whether the map has an item having the specified identifier
-	     */
-	    public has(key: K): boolean
-	    {
-            return !this.find(key).equals(this.end());
-	    }
+        private constructHashGroup(size: number = -1): void 
+        {
+            if (size < Hash.MIN_SIZE)
+                size = Hash.MIN_SIZE;
 
-	    /**
-	     * <p> Get element by key. </p>
-	     * <p> Returns a reference to the mapped value of the element identified with key. </p>
-	     *
-	     * @param key Key value of the element whose mapped value is accessed.
-	     * @throw exception out of range.
-	     *
-	     * @return A reference object of the mapped value (_Ty)
-	     */
-	    public get(key: K): T
-	    {
-            return this.find(key).second;
-	    }
+            // CLEAR
+            this.hashGroup = new Vector<Vector<MapIterator<K, T>>>();
 
-	    /* ---------------------------------------------------------
-		    ITERATORS
+            // AND INSERTS WITHI CAPACITY SIZE
+            for (var i: number = 0; i < size; i++)
+                this.hashGroup.pushBack(new Vector<MapIterator<K, T>>());
+        }
+
+        private reconstructHashGroup(size: number = -1): void
+        {
+            if (size == -1)
+                size = this.size() * Hash.RATIO;
+
+            // CONSTURCT HASH_GROUP
+            this.constructHashGroup(size);
+
+            // INSERT ELEMENTS TO HASH GROUP
+            for (var it = this.begin(); it.equals(this.end()) == false; it = it.next())
+                this.handleInsert(<MapIterator<K, T>>it);
+        }
+
+	    /* =========================================================
+		    ACCESSORS
+	    ========================================================= */
+        /**
+	     * @inheritdoc
+	     */
+        public find(key: K): PairIterator<K, T>
+        {
+            var hashIndex: number = this.hashIndex(key);
+            var hashArray = this.hashGroup.at(hashIndex);
+
+            for (var i: number = 0; i < hashArray.size(); i++)
+                if (std.equals(hashArray.at(i).first, key))
+                    return hashArray.at(i);
+
+            return this.end();
+        }
+
+        /* =========================================================
+		    ELEMENTS I/O
+                - INSERT
+                - POST-PROCESS
+	    ============================================================
+		    INSERT
 	    --------------------------------------------------------- */
-	    /**
-	     * <p> Return iterator to beginning. </p>
-	     * <p> Returns an iterator referring the first element in the Map container. </p>
-         *
-         * <h4> Note </h4>
-	     * <p> If the container is empty, the returned iterator is same with end(). </p>
-	     *
-	     * @return An iterator to the first element in the container.
-	     *         The iterator containes the first element's pair; key and value.
-	     */
-	    public begin(): PairIterator<K, T>
-	    {
-		    if (this.size() == 0)
-			    return this.end();
-
-		    return new UnorderedMapIterator<K, T>(this, 0);
-	    }
-
-	    /**
-	     * <p> Return iterator to end. </p>
-	     * <p> Returns an iterator referring to the past-the-end element in the Map container. </p>
-	     *
-	     * <p> The past-the-end element is the theoretical element that would follow the last element in 
-	     * the Map container. It does not point to any element, and thus shall not be dereferenced. </p>
-	     *
-	     * <p> Because the ranges used by functions of the Map do not include the element reference 
-	     * by their closing iterator, this function is often used in combination with Map::begin() to specify 
-	     * a range including all the elements in the container. </p>
-	     *
-	     * <h4> Note </h4>
-	     * <p> Returned iterator from Map.end() does not refer any element. Trying to accessing 
-	     * element by the iterator will cause throwing exception (out of range). </p>
-	     * <p> If the container is empty, this function returns the same as Map::begin(). </p>
-         * 
-         * @return An iterator to the end element in the container.
-	     */
-        public end(): PairIterator<K, T>
-	    {
-            return new UnorderedMapIterator<K, T>(this, -1);
-	    }
-
-	    /* ---------------------------------------------------------
-		    ELEMENTS I/O AND MODIFIDERS
-	    --------------------------------------------------------- */
-        public insert(pair: Pair<K, T>): Pair<PairIterator<K, T>, boolean>;
-        public insert(hint: PairIterator<K, T>, pair: Pair<K, T>): PairIterator<K, T>;
-        public insert<L extends K, U extends T>(begin: PairIterator<L, U>, end: PairIterator<L, U>): void;
-
-        public insert<L extends K, U extends T>(...args: any[]): any
-        {
-            if (args.length == 1 && args[0] instanceof Pair)
-                return this.insertByKey(args[0]);
-            else if (args.length == 2 && args[1] instanceof Pair)
-                return this.insertByHint(args[0], args[1]);
-            else if (args.length == 2 && args[1] instanceof PairIterator)
-                return this.insertByRange(args[0], args[1]);
-            else
-                throw new std.InvalidArgument("Invalid parameters are passed to UnorderedMap.insert()");
-        }
-        
-        private insertByKey(pair: Pair<K, T>): Pair<PairIterator<K, T>, boolean>
-        {
-            if (this.has(pair.first) == false)
-                return new Pair<PairIterator<K, T>, boolean>(this.end(), false);
-            else 
-            {
-                this.data_.pushBack(pair);
-
-                return new Pair<PairIterator<K, T>, boolean>(this.end().prev(), true);
-            }
-        }
-        private insertByHint(hint: PairIterator<K, T>, pair: Pair<K, T>): PairIterator<K, T>
-        {
-            var index: number = (<UnorderedMapIterator<K, T>>hint).getIndex();
-            if (index == -1)
-                index = this.data_.size() - 1;
-
-            this.data_.push(pair);
-
-            return new UnorderedMapIterator<K, T>(this, index);
-        }
-        private insertByRange<L extends K, U extends T>
+        protected insertByRange<L extends K, U extends T>
             (begin: PairIterator<L, U>, end: PairIterator<L, U>): void
         {
-            var begin: PairIterator<L, U>;
-            var end: PairIterator<L, U>;
-
+            // CALCULATE INSERTING SIZE
+            var size: number = 0;
             for (var it = begin; it.equals(end) == false; it = it.next())
-                if (this.has(it.first) == false)
-                    this.data_.pushBack(new Pair<K, T>(it.first, it.second));
+                size++;
+
+            // IF NEEDED, HASH_GROUP TO HAVE SUITABLE SIZE
+            if (this.size() + size > this.hashGroup.size() * 2)
+                this.reconstructHashGroup((this.size() + size) * Hash.RATIO);
+
+            // INSERTS
+            super.insertByRange(begin, end);
         }
 
-        public erase(key: K): number;
-        public erase(it: PairIterator<K, T>): PairIterator<K, T>;
-        public erase<U extends T>(begin: PairIterator<K, U>, end: PairIterator<K, U>): PairIterator<K, T>;
-
-        public erase(...args: any[]): any 
-        {
-            if (args.length == 1 && args[0] instanceof PairIterator == false)
-                return this.eraseByKey(args[0]);
-            else if (args.length == 1 && args[0] instanceof PairIterator)
-                return this.eraseByIterator(args[0]);
-            else if (args.length == 2 && args[0] instanceof PairIterator && args[1] instanceof PairIterator)
-                return this.eraseByRange(args[0], args[1]);
-            else
-                throw new std.InvalidArgument("Invalid parameters are passed to UnorderedMap.erase()");
-        }
-
-        private eraseByKey(key: K): number
-        {
-            if (this.has(key) == true)
-                this.erase(this.find(key));
-
-            return this.size();
-        }
-        private eraseByIterator(it: PairIterator<K, T>): PairIterator<K, T>
-        {
-            var index: number = (<UnorderedMapIterator<K, T>>it).getIndex();
-
-            this.data_.splice(index, 1);
-            if (this.empty() == true)
-                index = -1;
-
-            return new UnorderedMapIterator<K, T>(this, index);
-        }
-        private eraseByRange(begin: PairIterator<K, T>, end: PairIterator<K, T>): PairIterator<K, T>
-        {
-            var beginIndex: number = (<UnorderedMapIterator<K, T>>begin).getIndex();
-            var endIndex: number = (<UnorderedMapIterator<K, T>>end).getIndex();
-
-            this.data_.splice(beginIndex, endIndex);
-            if (this.empty() == true)
-                beginIndex = -1;
-
-            return new UnorderedMapIterator<K, T>(this, beginIndex);
-        }
-
-	    /**
-	     * <p> Set element. </p>
-	     * <p> Set an item as the specified identifier. </p>
-	     * 
-	     * <p> If the identifier is already in map, change value of the identifier.
-	     * If not, then insert the object with the identifier. </p>
-	     * 
-	     * @param key Key value of the element whose mapped value is accessed.
-	     * @param val Value, the item.
-	     */
-	    public set(key: K, value: T): void
-	    {
-            for (var i: number = 0; i < this.data_.size(); i++)
-			    if (this.data_.at(i).first == key)
-			    {
-				    this.data_.at(i).second = value;
-				    return;
-			    }
-		    this.data_.push(new Pair<K, T>(key, value));
-	    }
-
-	    /**
-	     * <p> Pop an element. </p>
-	     * <p> Removes an element by its key(identifier) from the Map container and returns it. </p>
-	     *
-	     * @param key Key of the element to be removed from the Map.
-	     * @throw exception out of range.
-	     */
-	    public pop(key: K): T
-	    {
-            for (var i: number = 0; i < this.data_.size(); i++)
-			    if (this.data_.at(i).first == key)
-				    return this.data_.splice(i, 1)[0].second;
-
-		    throw Error("out of range");
-	    }
-
-	    /* ---------------------------------------------------------
-		    COMPARE
+        /* ---------------------------------------------------------
+		    POST-PROCESS
 	    --------------------------------------------------------- */
-	    /**
-	     * <p> Whether a Map is equal with the Map. </p>
-	     *
-	     * <p> Map::equals() does not compare reference(address of pointer) of Maps or elements 
-	     * in the two Maps. The target of comparison are the key and value in all children elements(pairs). 
-	     * It's not a matter that order sequence of children are different between two Maps. </p>
-	     *
-	     * <p> If stored key or value in a pair (element) in those Maps are not number or string, but an object
-	     * like a class or struct, the comparison will be executed by a member method (SomeObject)::equals(). If
-	     * the object does not have the member method equals(), only address of pointer will be compared. </p>
-	     *
-	     * @param obj A Map to compare
-	     * @return Indicates whether equal or not.
-	     */
-	    public equals(obj: UnorderedMap<K, T>): boolean
-	    {
-		    if (this.size() != obj.size())
-			    return false;
+        /**
+         * @inheritdoc
+         */
+        protected handleInsert(it: MapIterator<K, T>): void
+        {
+            if (this.hashGroup.size() > this.size() * 2)
+                this.reconstructHashGroup();
 
-            for (var i: number = 0; i < this.data_.size(); i++)
-			    if (this.data_.at(i).equals(obj.data_.at(i)) == false)
-				    return false;
+            var key: K = it.first;
+            var hashIndex: number = this.hashIndex(key);
 
-		    return true;
-	    }
-
-	    /* ---------------------------------------------------------
-		    EXPORT
-	    --------------------------------------------------------- */
-	    /**
-	     * <p> Returns a string representation of the Map. </p>
-	     *
-	     * <p> The returned string will follow the form of JSonObject </p>
-         * <ul>
-	     *	<li> {{"key": "???", "value": ???}, {"key": "?", "value": ?}, ...} </li>
-         * </ul>
-	     */
-	    public toString(): string
-	    {
-		    var str: string = "{";
-            for (var i: number = 0; i < this.data_.size(); i++)
-		    {
-			    var pair: Pair<K, T> = this.data_.at(i);
-			    var key: string = "\"" + pair.first + "\"";
-			    var value: string =
-				    (typeof pair.second == "string")
-					    ? "\"" + pair.second + "\""
-					    : String(pair.second);
-
-			    str += "{\"key\": " + key + ": value: " + value + "}";
-		    }
-
-		    str += "}";
-		    return str;
-	    }
-    }
-
-    /**
-     * <p> A bi-directional iterator. </p>
-     * <ul>
-     *  <li> _Kty: Type of the keys. Each element in a map is uniquely identified by its key value. </li>
-     *  <li> _Ty: Type of the mapped value. Each element in a map stores some data as its mapped value. </li>
-     * </ul>
-     * 
-     * @author Jeongho Nam
-     */
-    export class UnorderedMapIterator<_Kty, _Ty>
-        extends PairIterator<_Kty, _Ty>
-    {
-	    /**
-	     * <p> Sequence number of iterator in the source Map. </p>
-	     */
-	    private index: number;
+            this.hashGroup.at(hashIndex).pushBack(it);
+        }
 
         /**
-         * <p> Construct from source and index number. </p>
-         *
-         * <h4> Note </h4>
-         * <p> Do not create iterator directly. </p>
-         * <p> Use begin(), find() or end() in Map instead. </p> 
-         *
-         * @param map The source map to reference
-         * @param index Sequence number of the element in the source map
+         * @inheritdoc
          */
-	    constructor(source: UnorderedMap<_Kty, _Ty>, index: number)
-	    {
-            super(source);
-
-		    if (index != -1 && index < source.size())
-			    this.index = index;
-		    else
-			    this.index = -1;
-	    }
-
-	    /* ---------------------------------------------------------
-		    GETTERS AND SETTERS
-	    --------------------------------------------------------- */
-        private get map(): UnorderedMap<_Kty, _Ty>
+        protected handleErase(it: MapIterator<K, T>): void
         {
-            return <UnorderedMap<_Kty, _Ty>>(this.source);
+            // FIND MATCHED HASHES
+            var key: K = it.first;
+            var hashIndex: number = this.hashIndex(key);
+            
+            var hashVector = this.hashGroup.at(hashIndex);
+
+            // ERASE FROM THE HASHES
+            for (var i: number = 0; i < hashVector.size(); i++)
+            {
+                if (std.equals(it.first, hashVector.at(i).first) == true)
+                {
+                    hashVector.erase(hashVector.begin().advance(i));
+                    break;
+                }
+            }
         }
 
-	    /**
-	     * <p> Get first element (key). </p>
-	     */
-	    public get first(): _Kty
-	    {
-		    return this.map.data().at(this.index).first;
-	    }
-
-	    /**
-	     * <p> Get second element (mapped value). </p>
-	     */
-	    public get second(): _Ty
-	    {
-		    return this.map.data().at(this.index).second;
-	    }
-
-        /**
-         * Get index.
-         */
-        public getIndex(): number
+        private hashIndex(val: any): number
         {
-            return this.index;
+            return Hash.code(val) % this.hashGroup.size();
         }
-
-	    /**
-	     * <p> Set first element (key). </p>
-	     */
-	    public set first(key: _Kty)
-	    {
-		    this.map.data().at(this.index).first = key;
-	    }
-
-	    /**
-	     * <p> Set second element (mapped value). </p>
-	     */
-	    public set second(val: _Ty)
-	    {
-		    this.map.data().at(this.index).second = val;
-	    }
-
-	    /* ---------------------------------------------------------
-		    COMPARISON
-	    --------------------------------------------------------- */
-	    /**
-	     * <p> Whether an iterator is equal with the iterator. </p>
-	     * <p> Compare two iterators and returns whether they are equal or not. </p>
-	     * 
-	     * <h4> Note </h4> 
-         * <p> Iterator's equals() only compare souce map and index number. </p>
-         * <p> Although elements in a pair, key and value are equals, if the source map or
-         * index number is different, then the equals() will return false. If you want to
-         * compare the elements of a pair, compare them directly by yourself. </p>
-	     *
-	     * @param obj An iterator to compare
-	     * @return Indicates whether equal or not.
-	     */
-        public equals(obj: PairIterator<_Kty, _Ty>): boolean
-	    {
-            return super.equals(obj) && this.index == (<UnorderedMapIterator<_Kty, _Ty>>obj).index;
-	    }
-
-	    /* ---------------------------------------------------------
-		    MOVERS
-	    --------------------------------------------------------- */
-	    /**
-	     * <p> Get iterator to previous element. </p>
-         * <p> If current iterator is the first item(equal with <i>begin()</i>), returns end(). </p>
-         *
-         * @return An iterator of the previous item. 
-	     */
-	    public prev(): PairIterator<_Kty, _Ty>
-	    {
-		    if (this.index - 1 < 0)
-			    return this.map.end();
-		    else
-                return new UnorderedMapIterator<_Kty, _Ty>(this.map, this.index - 1);
-	    }
-
-	    /**
-	     * <p> Get iterator to next element. </p>
-         * <p> If current iterator is the last item, returns end(). </p>
-         *
-         * @return An iterator of the next item.
-	     */
-        public next(): PairIterator<_Kty, _Ty>
-	    {
-		    if (this.index + 1 >= this.map.size())
-			    return this.map.end();
-		    else
-                return new UnorderedMapIterator<_Kty, _Ty>(this.map, this.index + 1);
-	    }
     }
 }
